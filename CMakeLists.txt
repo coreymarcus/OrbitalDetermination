@@ -22,7 +22,9 @@ message("-- PROJECT_SOURCE_DIR : " ${PROJECT_SOURCE_DIR})
 # find external libraries
 find_package(Boost REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
-find_package(PythonLibs REQUIRED)
+find_package(Python3 COMPONENTS Development)
 
 #link
 target_link_libraries(HW1 Eigen3::Eigen)
+target_include_directories(HW1 PRIVATE ${Python3_INCLUDE_DIRS})
+target_link_libraries(HW1 Python3::Python)
