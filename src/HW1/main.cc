@@ -72,11 +72,14 @@ int main() {
 	double kmratio = 1.0;
 
 	//initialize ode stuff
-	typedef ode::runge_kutta_dopri5< state_type > error_stepper_type; // this is the ode solver we would like to use
-	typedef ode::controlled_runge_kutta< error_stepper_type > controlled_stepper_type; //this is used to control error parameters
+	// this is the ode solver we would like to use
+	typedef ode::runge_kutta_dopri5< state_type > error_stepper_type;
+	//this is used to control error parameters
+	typedef ode::controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
 	HarmOscillator fun;
 	fun.kmratio = kmratio; // initialize our dynamics
-	const double dt_var = 0.1; // this is the initial guess for a variable step size for the ode solver
+	const double dt_var = 0.1; /* this is the initial guess for a variable step
+		size for the ode solver */
 	const double reltol = 1*pow(10,-12); //relative tolerance
 	const double abstol = 1*pow(10,-20); //absolute tolerance
 
@@ -99,8 +102,8 @@ int main() {
 		double t2 = t[ii];
 
 		//integrate
-		ode::integrate_adaptive( ode::make_controlled( abstol , reltol , error_stepper_type() ) ,
-                    fun , xint , t1 , t2 , dt_var );
+		ode::integrate_adaptive( ode::make_controlled( abstol , reltol ,
+			error_stepper_type() ) , fun , xint , t1 , t2 , dt_var );
 
 		//extract result
 		y_num[ii] = xint[0];

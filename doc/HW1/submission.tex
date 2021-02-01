@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{subfigure,wrapfig,graphicx,booktabs,fancyhdr,amsmath,amsfonts}
+\usepackage{bm,amssymb,amsmath,amsthm,wasysym,color,fullpage,setspace,multirow}
+\usepackage{listings, xcolor}
+\usepackage{pdfpages}
+\newcommand{\vb}{\boldsymbol}
+\newcommand{\vbh}[1]{\hat{\boldsymbol{#1}}}
+\newcommand{\vbb}[1]{\bar{\boldsymbol{#1}}}
+\newcommand{\vbt}[1]{\tilde{\boldsymbol{#1}}}
+\newcommand{\vbs}[1]{{\boldsymbol{#1}}^*}
+\newcommand{\vbd}[1]{\dot{{\boldsymbol{#1}}}}
+\newcommand{\vbdd}[1]{\ddot{{\boldsymbol{#1}}}}
+\newcommand{\by}{\times}
+\newcommand{\tr}{{\rm tr}}
+\newcommand{\cpe}[1]{\left[{#1} \times \right]}
+\newcommand{\sfrac}[2]{\textstyle \frac{#1}{#2}}
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+\renewcommand{\earth}{\oplus}
+\newcommand{\sinc}{{\rm \hspace{0.5mm} sinc}}
+\newcommand{\tf}{\tilde{f}}
+\newcommand{\tbox}[1]{\noindent \fbox{\parbox{\textwidth}{#1}}}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\definecolor{mylilas}{RGB}{170,55,241}
+\definecolor{mygreen}{RGB}{0,168,45}
+
+\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 1}
+\author{Corey L Marcus} \date{Thursday, February 4\textsuperscript{th}}
+
+%command to write C++ nicely
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
+
+%commands to include C++ code in appendix
+\lstset { %
+	language=C++,
+	backgroundcolor=\color{black!5}, % set backgroundcolor
+	basicstyle=\tiny,% basic font setting
+}
+
+\begin{document}
+\onehalfspace
+\maketitle
+
+\section{Problem One}
+The displacement, $x(t)$, of a simple harmonic oscillator was evaluated using the given analytic solution and is plotted below in Figure \ref{fig:analytic}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=4in]{figs/Figure_1.png}
+	\caption{The analytic solution of the harmonic oscillator.}
+	\label{fig:analytic}
+\end{figure}
+
+\section{Problem Two}
+Using \CC, and the well known \verb|Boost| libraries, the harmonic oscillator equations of motion were numerically integrated. The displacement found through this method was subtracted from the analytic solution to calculate the numerical integration error. This error is shown in Figure \ref{fig:numerr}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=4in]{figs/Figure_2.png}
+	\caption{The numerical integration error of the harmoinc oscillator.}
+	\label{fig:numerr}
+\end{figure}
+
+Error is present because numerical integration schemes only provide approximations of the integrals they are attempting to calculate. They do not solve the integrals analytically, rather, they use a series of approximations to divide the area under the curve into small shapes with known areas.
+
+\newpage
+\appendix
+\section{Code}
+
+\lstinputlisting{../../src/HW1/main.cc}
+
+\end{document}

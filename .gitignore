@@ -1,2 +1,6 @@
 build/*
 *.pdf
+*.aux
+*.log
+*.synctex.gz
+*.png
