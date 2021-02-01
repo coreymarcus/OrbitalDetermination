@@ -45,27 +45,22 @@ std::vector<double> EigenVec2Std(Eigen::VectorXf vec1){
 	return vec2;
 }
 
-// // harmonic oscillator structure
-// struct HarmOscillator {
+// harmonic oscillator class
+class HarmOscillator {
 
-// 	//Data Members
-// 	double kmratio;
+public:
 
-// 	//Member Functions
-// 	void ode( const state_type &x , state_type &dxdt , double t ) const {
+	//Data Members
+	double kmratio;
 
-// 		dxdt[0] = x[1];
-// 		dxdt[1] = -kmratio*x[0];
-// 	}
+	//Member Functions
+	void operator() ( const state_type &x , state_type &dxdt , const double /* t */ ) {
 
-// };
+		dxdt[0] = x[1];
+		dxdt[1] = -kmratio*x[0];
+	}
 
-// harmonic oscillator structure
-void HarmOscillator( const state_type &x , state_type &dxdt , double t ) {
-
-	dxdt[0] = x[1];
-	dxdt[1] = -1*x[0];
-}
+};
 
 int main() {
 	
@@ -79,15 +74,16 @@ int main() {
 	//initialize ode stuff
 	typedef ode::runge_kutta_dopri5< state_type > error_stepper_type; // this is the ode solver we would like to use
 	typedef ode::controlled_runge_kutta< error_stepper_type > controlled_stepper_type; //this is used to control error parameters
-	// struct HarmOscillator fun = {kmratio}; // initialize our dynamics
+	HarmOscillator fun;
+	fun.kmratio = kmratio; // initialize our dynamics
 	const double dt_var = 0.1; // this is the initial guess for a variable step size for the ode solver
 	const double reltol = 1*pow(10,-12); //relative tolerance
 	const double abstol = 1*pow(10,-20); //absolute tolerance
 
 	//initial conditions
 	state_type x0(2);
-	x0[0] = A*cos(t[0]);
-	x0[1] = -A*sqrt(kmratio)*sin(t[0]);
+	x0[0] = A*cos(phi);
+	x0[1] = -A*sqrt(kmratio)*sin(phi);
 
 	//call analytic function
 	Eigen::VectorXf y_analyt = AnalyticOscill(A, kmratio, t, phi);
@@ -104,7 +100,7 @@ int main() {
 
 		//integrate
 		ode::integrate_adaptive( ode::make_controlled( abstol , reltol , error_stepper_type() ) ,
-                    HarmOscillator , xint , t1 , t2 , dt_var );
+                    fun , xint , t1 , t2 , dt_var );
 
 		//extract result
 		y_num[ii] = xint[0];
