@@ -4,8 +4,15 @@
 #include <Eigen/Dense> // vectors
 #include "matplotlibcpp.h" // plotting
 
+/* The type of container used to hold the state vector */
+typedef std::vector< double > state_type;
+
+//namespaces, don't ever use name space, simply call them aliases
+namespace plt = matplotlibcpp;
+namespace ode = boost::numeric::odeint;
+
 // Define the analytic solution for the harmonic oscillator
-Eigen::VectorXf AnalyticOscill(float A, float ratio, Eigen::VectorXf t, float phi){
+Eigen::VectorXf AnalyticOscill(double A, double ratio, Eigen::VectorXf t, double phi){
 
 	//length of t
 	int n = t.size();
@@ -23,11 +30,11 @@ Eigen::VectorXf AnalyticOscill(float A, float ratio, Eigen::VectorXf t, float ph
 }
 
 //quickly convert from eigen vector to std:vector
-std::vector<float> EigenVec2Std(Eigen::VectorXf vec1){
+std::vector<double> EigenVec2Std(Eigen::VectorXf vec1){
 	
 	//locals
 	int n = vec1.size();
-	std::vector<float> vec2(n,0);
+	std::vector<double> vec2(n,0);
 
 	//loop
 	for (int ii = 0; ii < n; ++ii){
@@ -38,28 +45,78 @@ std::vector<float> EigenVec2Std(Eigen::VectorXf vec1){
 	return vec2;
 }
 
-//namespaces, don't ever use name space, simply call them aliases
-namespace plt = matplotlibcpp;
+// // harmonic oscillator structure
+// struct HarmOscillator {
+
+// 	//Data Members
+// 	double kmratio;
+
+// 	//Member Functions
+// 	void ode( const state_type &x , state_type &dxdt , double t ) const {
+
+// 		dxdt[0] = x[1];
+// 		dxdt[1] = -kmratio*x[0];
+// 	}
+
+// };
+
+// harmonic oscillator structure
+void HarmOscillator( const state_type &x , state_type &dxdt , double t ) {
+
+	dxdt[0] = x[1];
+	dxdt[1] = -1*x[0];
+}
 
 int main() {
 	
 	//initialize variables
-	Eigen::VectorXf t = Eigen::VectorXf::LinSpaced(101, 0, 20);
-	float A = 1.34;
-	float phi = M_PI/3.0;
-	float ratio = 1.0;
+	int n = 101; //number of points
+	Eigen::VectorXf t = Eigen::VectorXf::LinSpaced(n, 0, 20);
+	double A = 1.34;
+	double phi = M_PI/3.0;
+	double kmratio = 1.0;
+
+	//initialize ode stuff
+	typedef ode::runge_kutta_dopri5< state_type > error_stepper_type; // this is the ode solver we would like to use
+	typedef ode::controlled_runge_kutta< error_stepper_type > controlled_stepper_type; //this is used to control error parameters
+	// struct HarmOscillator fun = {kmratio}; // initialize our dynamics
+	const double dt_var = 0.1; // this is the initial guess for a variable step size for the ode solver
+	const double reltol = 1*pow(10,-12); //relative tolerance
+	const double abstol = 1*pow(10,-20); //absolute tolerance
+
+	//initial conditions
+	state_type x0(2);
+	x0[0] = A*cos(t[0]);
+	x0[1] = -A*sqrt(kmratio)*sin(t[0]);
 
 	//call analytic function
-	Eigen::VectorXf y_analyt = AnalyticOscill(A, ratio, t, phi);
+	Eigen::VectorXf y_analyt = AnalyticOscill(A, kmratio, t, phi);
 
+	//integrate numerically
+	state_type xint = x0; //state for integration
+	std::vector<double> y_num(n,0); //storage for numerically integrated state
+	y_num[0] = x0[0];
+	for (int ii = 1; ii < n; ++ii)	{
+
+		//get times
+		double t1 = t[ii-1];
+		double t2 = t[ii];
+
+		//integrate
+		ode::integrate_adaptive( ode::make_controlled( abstol , reltol , error_stepper_type() ) ,
+                    HarmOscillator , xint , t1 , t2 , dt_var );
+
+		//extract result
+		y_num[ii] = xint[0];
+		
+	}
 
 	//plot results
-	std::vector<float> t_std = EigenVec2Std(t);
-	std::vector<float> y_analyt_std = EigenVec2Std(y_analyt);
-	std::vector<float> y_analyt_std2 = EigenVec2Std(2*y_analyt);
+	std::vector<double> t_std = EigenVec2Std(t);
+	std::vector<double> y_analyt_std = EigenVec2Std(y_analyt);
 
 	plt::named_plot("Analytic",t_std, y_analyt_std);
-	plt::named_plot("test2",t_std, y_analyt_std2);
+	plt::named_plot("Numeric",t_std, y_num);
 	plt::title("Homework 1 - Plot 1");
 	plt::xlabel("Time (s)");
 	plt::ylabel("System Response");
