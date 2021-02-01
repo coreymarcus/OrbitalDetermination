@@ -107,16 +107,30 @@ int main() {
 		
 	}
 
+	//find error
+	std::vector<double> interr(n,0);
+	for (int ii = 0; ii < n; ++ii){
+		interr[ii] = y_num[ii] - y_analyt[ii];
+	}
+
 	//plot results
 	std::vector<double> t_std = EigenVec2Std(t);
 	std::vector<double> y_analyt_std = EigenVec2Std(y_analyt);
 
+	plt::figure(1);
 	plt::named_plot("Analytic",t_std, y_analyt_std);
-	plt::named_plot("Numeric",t_std, y_num);
 	plt::title("Homework 1 - Plot 1");
 	plt::xlabel("Time (s)");
-	plt::ylabel("System Response");
-	plt::legend();
-    plt::show();
+	plt::ylabel("Analytic System Response");
+	// plt::legend();
+    
+
+    plt::figure(2);
+    plt::named_plot("Error",t_std, interr);
+	plt::title("Homework 1 - Plot 2");
+	plt::xlabel("Time (s)");
+	plt::ylabel("Integration Error");
+
+	plt::show();
 
 }
