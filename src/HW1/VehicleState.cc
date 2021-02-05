@@ -2,6 +2,8 @@
 #include <iostream> //outputs
 #include <Eigen/Dense> // vectors
 #include <math.h> // trig functions
+#include "Util.h" //utility functions
+#include <vector> // basic cpp vectors
 
 namespace VehicleState {
 
@@ -9,6 +11,47 @@ namespace VehicleState {
 	Propagator::Propagator(){}
 
 	void Propagator::OE2State(){
+
+		//extract locals
+		double mu = this->mu_; // gravity constant
+		double a = this->a_; //semi-major axis
+		double e = this->e_; //eccentricity
+		double i = this->i_; //inclination
+		double Ohm = this->ascend_; //longitude of ascending node
+		double w = this->periap_; //argument of periapsis
+		double nu = this->nu_; //true anomaly
+
+		//convert true anomaly to radian
+		double nu_rad = nu*180.0/M_PI;
+
+		//calculate the norm of position
+		double nr = a*(1.0 - pow(e,2)) / (1 + e*cos(nu_rad));
+
+		//angular velocity
+		double h = sqrt(mu*nr*(1+e*cos(nu_rad)));
+
+		// radius in perifocal reference frame
+		Eigen::Vector3d r_pqw(cos(nu_rad), sin(nu_rad), 0.0);
+		r_pqw = pow(h,2)/(mu*(1+e*cos(nu_rad)))*r_pqw;
+
+		// velocity in perifocal reference frame
+		Eigen::Vector3d v_pqw(-sin(nu_rad), e+cos(nu_rad), 0);
+		v_pqw = v_pqw*(mu/h);
+
+		// generate 313 rotation matric from perifocal to geocentric vector rotation
+		Eigen::Vector3d angles(M_PI*Ohm/180, M_PI*i/180, M_PI*w/180);
+		std::vector<int> order{3,1,3};
+		Eigen::Matrix3d R = Util::Angle2RotM(angles, order);
+
+		// rotate vectors
+		Eigen::Vector3d pos = R*r_pqw;
+		Eigen::Vector3d vel = R*v_pqw;
+
+		//Display
+		std::cout << "position: \n" << pos << std::endl;
+		std::cout << "velocity: \n" << vel << std::endl;
+
+		//Assign
 
 	} // OE2State
 

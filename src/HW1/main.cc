@@ -4,6 +4,7 @@
 #include <Eigen/Dense> // vectors
 #include "matplotlibcpp.h" // plotting
 #include "VehicleState.h" // headerfile containing propagator class
+#include "VehicleState.h" // utility functions
 
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
@@ -23,7 +24,7 @@ int main() {
 	//set objects position and velocity
 	Eigen::Vector3d pos0;
 	pos0[0] = -2436.45;
-	pos0[1] = -2346.45;
+	pos0[1] = -2436.45;
 	pos0[2] = 6891.037;
 
 	Eigen::Vector3d vel0;
@@ -37,6 +38,9 @@ int main() {
 
 	//convert pos and vel into orbital elements
 	propobj.State2OE();
+
+	//convert OE back to state to verify things working correctly
+	propobj.OE2State();
 
 	
 	
