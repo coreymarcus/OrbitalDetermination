@@ -3,6 +3,8 @@
 #include <Eigen/Dense> // vectors
 #include <math.h> // trig functions
 #include <vector> // basic cpp vectors
+#include <fstream> // writing to files
+#include <iomanip>  // std::setprecision()
 
 namespace Util {
 
@@ -50,5 +52,59 @@ namespace Util {
 		return R.transpose(); // this is a transpose to make it frame rot instead of vector rot
 
 	} // Angle2RotM
+
+	std::vector<double> EigenVec2Std(Eigen::VectorXd vec1){
+		
+		//locals
+		int n = vec1.size();
+		std::vector<double> vec2(n,0);
+
+		//loop
+		for (int ii = 0; ii < n; ++ii){
+			vec2[ii] = vec1(ii);
+		}
+
+		//output
+		return vec2;
+	} //EigenVec2Std
+
+	void Eigen2csv(std::string file, Eigen::MatrixXd mat){
+
+		//locals
+		int height = mat.rows();
+		int width = mat.cols();
+
+		//open file
+		std::ofstream f;
+		f.open(file);
+		if(!f.is_open()){
+			std::cout << "Error: Unable to open file!" << std::endl;
+		}
+
+		//set precision
+		f << std::fixed << std::setprecision(17);
+
+		//write
+		for (int ii = 0; ii < height; ++ii) {
+			for (int jj = 0; jj < width; ++jj) {
+			
+				// write element
+				f << mat(ii,jj);
+
+				//write comma
+				if(jj != (width-1)){
+					f << ", ";
+				}
+
+			}
+
+			//newline
+			f << std::endl;
+		}
+
+		f.close();
+
+
+	} //Eigen2csv
 
 } //namespace Util

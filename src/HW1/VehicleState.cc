@@ -4,6 +4,7 @@
 #include <math.h> // trig functions
 #include "Util.h" //utility functions
 #include <vector> // basic cpp vectors
+#include <boost/numeric/odeint.hpp> //integrator
 
 namespace VehicleState {
 
@@ -134,7 +135,79 @@ namespace VehicleState {
 
 	void Propagator::Propagate(double dt){
 
+		//build state
+		state_type xint(6,0.0);
+		xint[0] = this->pos_[0];
+		xint[1] = this->pos_[1];
+		xint[2] = this->pos_[2];
+		xint[3] = this->vel_[0];
+		xint[4] = this->vel_[1];
+		xint[5] = this->vel_[2];
+
+		// std::cout << "before: " << this->pos_ << std::endl;
+
+		//times
+		double t1 = this->t_;
+		double t2 = t1 + dt;
+
+		//call integrator
+		ode::integrate_adaptive( ode::make_controlled( this->abstol_ , this->reltol_ ,
+			error_stepper_type() ) , *this , xint , t1 , t2 , this->dt_var_ );
+
+		//update class members
+		this->pos_[0] = xint[0];
+		this->pos_[1] = xint[1];
+		this->pos_[2] = xint[2];
+		this->vel_[0] = xint[3];
+		this->vel_[1] = xint[4];
+		this->vel_[2] = xint[5];
+		this->t_ = t2;
+
+		// std::cout << "after: "<< this->pos_ << std::endl;
+
 	} // Propagate
+
+	Eigen::Vector3d Propagator::GetAccelVector(){
+
+		//extract locals
+		double mu = this->mu_;
+		Eigen::Vector3d pos = this->pos_;
+
+		//inner product of position
+		double R2 = pos.norm();
+
+		//create accel vector
+		Eigen::Vector3d accel = -mu/pow(R2,1.5)*pos;
+
+		//return
+		return accel;
+
+
+	} // GetAccelVector
+
+	void Propagator::operator()  (const state_type &x , state_type &dxdt , const double /* t */ ){
+		
+		//extract locals
+		double mu = this->mu_;
+		state_type pos = {x[0], x[1], x[2]};
+		state_type vel = {x[3], x[4], x[5]};
+
+		//inner product of position
+		double R2 = pow(pos[0],2) + pow(pos[3],2) + pow(pos[2],2);
+
+		//calculate acceleration
+		double k = -mu/pow(R2,1.5);
+		state_type accel = {k*pos[0], k*pos[1], k*pos[2]};
+
+		//change in state
+		dxdt[0] = vel[0];
+		dxdt[1] = vel[1];
+		dxdt[2] = vel[2];
+		dxdt[3] = accel[0];
+		dxdt[4] = accel[1];
+		dxdt[5] = accel[2];
+
+	} //operator()
 
 
 } //namespace VehicleState

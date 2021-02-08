@@ -3,6 +3,7 @@
 #include <math.h> // trig functions
 #include <Eigen/Dense> // vectors
 #include "matplotlibcpp.h" // plotting
+#include <vector> // basic cpp vectors
 
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
