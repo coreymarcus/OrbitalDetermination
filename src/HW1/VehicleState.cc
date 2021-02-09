@@ -173,17 +173,32 @@ namespace VehicleState {
 		double mu = this->mu_;
 		Eigen::Vector3d pos = this->pos_;
 
-		//inner product of position
-		double R2 = pos.norm();
+		//radius
+		double R = pos.norm();
 
 		//create accel vector
-		Eigen::Vector3d accel = -mu/pow(R2,1.5)*pos;
+		Eigen::Vector3d accel = -1.0*mu/pow(R,3)*pos;
 
 		//return
 		return accel;
 
 
 	} // GetAccelVector
+
+	Eigen::Vector3d Propagator::GetAngMomVector(){
+
+		//simple
+		return this->pos_.cross(this->vel_);
+
+	} // GetAngMomVector
+
+	double Propagator::GetKEsp(){
+		return 0.5*pow(this->vel_.norm(), 2);
+	} // GetKEsp
+
+	double Propagator::GetPEsp(){
+		return -1.0*this->mu_ / this->pos_.norm();
+	} // GetPEsp
 
 	void Propagator::operator()  (const state_type &x , state_type &dxdt , const double /* t */ ){
 		
@@ -192,12 +207,10 @@ namespace VehicleState {
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
 
-		//inner product of position
-		double R2 = pow(pos[0],2) + pow(pos[3],2) + pow(pos[2],2);
-
 		//calculate acceleration
-		double k = -mu/pow(R2,1.5);
-		state_type accel = {k*pos[0], k*pos[1], k*pos[2]};
+		double R = sqrt(pow(pos[0],2) + pow(pos[1],2) + pow(pos[2],2));
+		double k = -mu/pow(R,3);
+		state_type accel = {k*x[0], k*x[1], k*x[2]};
 
 		//change in state
 		dxdt[0] = vel[0];

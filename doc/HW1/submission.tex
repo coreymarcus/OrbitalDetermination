@@ -1,0 +1,201 @@
+\documentclass[11pt]{article}
+\usepackage{subfigure,wrapfig,graphicx,booktabs,fancyhdr,amsmath,amsfonts}
+\usepackage{bm,amssymb,amsmath,amsthm,wasysym,color,fullpage,setspace,multirow}
+\usepackage{listings, xcolor}
+\usepackage{pdfpages}
+\newcommand{\vb}{\boldsymbol}
+\newcommand{\vbh}[1]{\hat{\boldsymbol{#1}}}
+\newcommand{\vbb}[1]{\bar{\boldsymbol{#1}}}
+\newcommand{\vbt}[1]{\tilde{\boldsymbol{#1}}}
+\newcommand{\vbs}[1]{{\boldsymbol{#1}}^*}
+\newcommand{\vbd}[1]{\dot{{\boldsymbol{#1}}}}
+\newcommand{\vbdd}[1]{\ddot{{\boldsymbol{#1}}}}
+\newcommand{\by}{\times}
+\newcommand{\tr}{{\rm tr}}
+\newcommand{\cpe}[1]{\left[{#1} \times \right]}
+\newcommand{\sfrac}[2]{\textstyle \frac{#1}{#2}}
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+\renewcommand{\earth}{\oplus}
+\newcommand{\sinc}{{\rm \hspace{0.5mm} sinc}}
+\newcommand{\tf}{\tilde{f}}
+\newcommand{\tbox}[1]{\noindent \fbox{\parbox{\textwidth}{#1}}}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\definecolor{mylilas}{RGB}{170,55,241}
+\definecolor{mygreen}{RGB}{0,168,45}
+
+\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 1}
+\author{Corey L Marcus} \date{Thursday, February 11\textsuperscript{th}}
+
+%command to write C++ nicely
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
+
+%commands to include C++ code in appendix
+\lstset { %
+	language=C++,
+	backgroundcolor=\color{black!5}, % set backgroundcolor
+	basicstyle=\tiny,% basic font setting
+}
+
+\begin{document}
+\onehalfspace
+\maketitle
+
+\abstract{This homework demonstrates a working orbit propagator.}
+
+\section{Introduction}
+
+A propagator for orbital mechanics was created. This propagator was used to simulate the dynamics of a spacecraft over two orbital periods. It is shown that angular momentum and energy are constant while in orbit, with deviations resulting only from the limited precision of the ordinary differential equation solver. \\
+
+In addition to the propagator, a simple derivation for the two-body acceleration due to gravity from the gravity potential function is presented. \\
+
+For fun, all code was written in \CC using object-oriented programming principles while adhering to Google's Style Guide for \CC. MATLAB is used briefly for plotting. \\
+
+Due to time constraints, I do not know that I will be able to continue using \CC. 
+
+\section{Problem One}
+
+A spacecraft position, $\underline{R}$, and velocity, $\underline{V}$ were given.
+
+\begin{equation}
+	\label{eq:pos1}
+	\underline{R} = -2436.45\hat{i} - 2436.45\hat{j} + 6891.037\hat{k} \quad km
+\end{equation}
+
+\begin{equation}
+\label{eq:vel1}
+\underline{V} = 5.088611\hat{i} - 5.088611\hat{j} + 0\hat{k} \quad \frac{km}{sec}
+\end{equation}
+
+These were converted to the six Keplerian elements. Results are reported in Table \ref{tb:kepler}.
+
+\begin{table}[ht!]
+	\centering
+	\begin{tabular}{c|l}
+		Element  & Value \\ \hline
+		$a$ [km]      &    7712.18   \\
+		$e$      &   0.000999436    \\
+		$i$      &   63.434    \\
+		$\Omega$ &   135.00    \\
+		$\omega$ &   90.000    \\
+		$\nu$    &   0.00000   
+	\end{tabular}
+	\caption{Keplerian elements calculated as part of Problem 1. All angles in degrees.}
+	\label{tb:kepler}
+\end{table}
+
+\section{Problem 2}
+
+These Keplerian elements were converted back to a position and velocity. These are reported in Equations \eqref{eq:pos2} and \eqref{eq:vel2}. Note small errors are present. These are particularly noticeable in the third element of the velocity vector. These errors are due to the finite precision of machine calculations.
+
+\begin{equation}
+\label{eq:pos2}
+\underline{R} = -2436.45\hat{i} - 2436.45\hat{j} + 6891.037\hat{k} \quad km
+\end{equation}
+
+\begin{equation}
+\label{eq:vel2}
+\underline{V} = 5.088611\hat{i} - 5.088611\hat{j} + 3.94127\mathrm{e}{-16}\hat{k}  \quad \frac{km}{sec}
+\end{equation}
+
+\section{Problem 3}
+
+We were asked to derive the two-body acceleration due to gravity from the gravity potential function, $U = \mu/R$. This was to be done by calculating the gradient of $U$. The derivation is presented below. \\
+
+For brevity, we will forgo the traditional $\hat{i}$, $\hat{j}$, and $\hat{k}$ notation in favor of $\hat{e}_1$, $\hat{e}_2$, and $\hat{e}_3$. Similarly, we will forget $x$, $y$, and $z$, and instead opt for $x_1$, $x_2$, $x_3$. We are now able to express the gradient of $U$ more compactly as shown in Equation \eqref{eq:GradU}.
+
+\begin{equation}
+	\label{eq:GradU}
+	\nabla U = \sum_{i = 1}^{3} \frac{\partial U}{\partial x_i} \hat{e}_i
+\end{equation}
+
+Next, note that $R = \sqrt{\underline{R}^T \underline{R}} = \sqrt{\sum_{i = 1}^{3} x_i^2}$. \\
+
+Now, we can derive:
+
+\begin{align}
+	\frac{\partial U}{\partial x_i} & = \frac{\mu}{\sqrt{\sum_{i = 1}^{3} x_i^2}} \\
+	& = -\frac{1}{2} \frac{\mu}{\left(\sum_{i = 1}^{3} x_i^2 \right) ^ {3/2}} 2 x_i \\
+	& = - \frac{\mu}{R^3} x_i
+\end{align}
+
+Note that $\underline{R} = \left[x_1 \hat{e}_1 \quad x_2 \hat{e}_2 \quad x_3 \hat{e}_3\right]^T$. \\
+
+From this, it is trivial to see that $\nabla U$ is equivalent to Equation \eqref{eq:accelgrav}
+
+\begin{equation}
+	\label{eq:accelgrav}
+	\nabla U = - \frac{\mu}{R^3} \underline{R}
+\end{equation} 
+
+\section{Problem 4}
+
+The initial conditions given in Equations \eqref{eq:pos1} and \eqref{eq:vel1} were propagated for two full orbital periods in 20 second intervals. The magnitude of position, velocity, and acceleration was calculated and is shown in Figure \ref{fig:posandderiv}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/posandderivs.pdf}
+	\caption{The satellite motion. Note the clear periodicity.}
+	\label{fig:posandderiv}
+\end{figure}
+
+The specific angular momentum vector was calculated at each interval, each vector was plotted in three dimensions and is shown in the scatter plot of Figure \ref{fig:angmom}. Theoretically, angular momentum should be constant. However, the finite tolerances of our numerical calculations result in small drifts of the angular momentum vector with time.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/angmom.pdf}
+	\caption{The angular momentum vector. Note the small drifts in angular momentum due to finite numerical tolerances.}
+	\label{fig:angmom}
+\end{figure}
+
+\section{Problem 5}
+
+Finally, the specific kinetic and potential energy were calculated at each interval of the orbit propagation. These quantities are shown below in Figure \ref{fig:energy}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/energy.pdf}
+	\caption{The specific kinetic and potential energy during the orbit.}
+	\label{fig:energy}
+\end{figure}
+
+The theory tells us that total energy should be constant. We calculate $dE(t) = E(t) - E(t_0)$ at each interval and plot it in Figure \ref{fig:energychange}. As with the angular momentum vector, small changes in energy are shown due to the finite numerical tolerances of our integrator.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/energychange.pdf}
+	\caption{The specific kinetic and potential energy during the orbit.}
+	\label{fig:energychange}
+\end{figure}
+
+\newpage
+\appendix
+\section{Code}
+
+\subsection{\texttt{main.cc}}
+\lstinputlisting{../../src/HW1/main.cc}
+
+\subsection{\texttt{VehicleState.h}}
+\lstinputlisting{../../src/HW1/VehicleState.h}
+
+\subsection{\texttt{Util.h}}
+\lstinputlisting{../../src/HW1/Util.h}
+
+\subsection{\texttt{VehicleState.cc}}
+\lstinputlisting{../../src/HW1/VehicleState.cc}
+
+\subsection{\texttt{Util.cc}}
+\lstinputlisting{../../src/HW1/Util.cc}
+
+%plot matlab files now
+\lstset { %
+	language=matlab,
+	backgroundcolor=\color{black!5}, % set backgroundcolor
+	basicstyle=\tiny,% basic font setting
+}
+
+\subsection{\texttt{plotting.m}}
+\lstinputlisting{../../src/HW1/plotting.m}
+
+
+\end{document}

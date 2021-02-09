@@ -56,6 +56,15 @@ namespace VehicleState{
 		//accessor for the acceleration vector
 		Eigen::Vector3d GetAccelVector();
 
+		//accessor for the angular momentum vector
+		Eigen::Vector3d GetAngMomVector();
+
+		//accessor for specific kinetic energy
+		double GetKEsp();
+
+		//accessor for specific potential energy
+		double GetPEsp();
+
 		// () operator function reserved for orbit propagation with odeint
 		void operator()( const state_type &x , state_type &dxdt , const double /* t */ );
 

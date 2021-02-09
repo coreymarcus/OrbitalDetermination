@@ -58,8 +58,10 @@ int main() {
 
 	//propagate the orbit for two revolutions
 	double dt = 20; //seconds for propagation
-	const int N = 238; // aproximate number for two orbits
-	Eigen::Matrix<double, 9, N> xhist;
+	const int N = 700; // aproximate number for two orbits
+	Eigen::Matrix<double, 12, N> xhist; //state and ang momentum
+	Eigen::Matrix<double, 1, N> thist; //time
+	Eigen::Matrix<double, 2, N> ehist; //energy
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
@@ -69,10 +71,16 @@ int main() {
 		xhist.block(0,ii,3,1) = propobj.pos_;
 		xhist.block(3,ii,3,1) = propobj.vel_;
 		xhist.block(6,ii,3,1) = propobj.GetAccelVector();
+		xhist.block(9,ii,3,1) = propobj.GetAngMomVector();
+		thist(0,ii) = propobj.t_;
+		ehist(0,ii) = propobj.GetKEsp();
+		ehist(1,ii) = propobj.GetPEsp();
 	}
 
 	//write data to csv
 	Util::Eigen2csv("../data/xhist_HW1.csv",xhist);
+	Util::Eigen2csv("../data/thist_HW1.csv",thist);
+	Util::Eigen2csv("../data/ehist_HW1.csv",ehist);
 
 	//run the matlab plotting script
 	matlabPtr->eval(u"run(\'/home/cm58349/Documents/OrbitalDetermination/src/HW1/plotting.m\')");
