@@ -174,7 +174,7 @@ namespace VehicleState {
 		Eigen::Vector3d pos = this->pos_;
 
 		//radius
-		double R = pos.norm();
+		double R = sqrt(pow(pos[0],2) + pow(pos[1],2) + pow(pos[2],2));
 
 		//create accel vector
 		Eigen::Vector3d accel = -1.0*mu/pow(R,3)*pos;
