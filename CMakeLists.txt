@@ -9,11 +9,11 @@ set(CMAKE_BUILD_TYPE Release)#Debug
 #add the executables
 add_executable(HelloWorld src/example/HelloWorld.cpp)
 add_executable(BoostExample src/example/boost_example.cpp)
-add_executable(MatlabExample src/example/MatlabExample.cpp)
+# add_executable(MatlabExample src/example/MatlabExample.cpp)
 add_executable(HW0 src/HW0/main.cc)
-add_executable(HW1 src/HW1/main.cc
-  src/HW1/VehicleState.cc
-  src/HW1/Util.cc)
+# add_executable(HW1 src/HW1/main.cc
+#  src/HW1/VehicleState.cc
+#  src/HW1/Util.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)
@@ -24,7 +24,7 @@ message("-- PROJECT_SOURCE_DIR : " ${PROJECT_SOURCE_DIR})
 # find external libraries
 find_package(Boost REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
-FIND_PACKAGE(Matlab REQUIRED)
+# FIND_PACKAGE(Matlab REQUIRED)
 find_package(Python3 COMPONENTS Development)
 
 #link
@@ -34,19 +34,19 @@ target_include_directories(HW0 PUBLIC
   ${PROJECT_SOURCE_DIR}/external/matplotlib-cpp)
 target_link_libraries(HW0 Python3::Python)
 
-target_link_libraries(HW1 Eigen3::Eigen)
-target_include_directories(HW1 PRIVATE ${Python3_INCLUDE_DIRS})
-target_include_directories(HW1 PUBLIC
-  ${PROJECT_SOURCE_DIR}/external/matplotlib-cpp)
-target_include_directories(HW1 PUBLIC
-  /usr/local/MATLAB/R2019b/extern/include)
-target_link_libraries(HW1 Python3::Python)
-target_include_directories(HW1 PUBLIC
-  ${Matlab_ROOT_DIR}/extern/include)
-target_link_libraries(HW1 ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so)
-target_link_libraries(HW1 ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so)
+# target_link_libraries(HW1 Eigen3::Eigen)
+# target_include_directories(HW1 PRIVATE ${Python3_INCLUDE_DIRS})
+# target_include_directories(HW1 PUBLIC
+#  ${PROJECT_SOURCE_DIR}/external/matplotlib-cpp)
+# target_include_directories(HW1 PUBLIC
+#  /usr/local/MATLAB/R2019b/extern/include)
+# target_link_libraries(HW1 Python3::Python)
+# target_include_directories(HW1 PUBLIC
+#   ${Matlab_ROOT_DIR}/extern/include)
+# target_link_libraries(HW1 ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so)
+# target_link_libraries(HW1 ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so)
 
-target_include_directories(MatlabExample PUBLIC
-  /usr/local/MATLAB/R2019b/extern/include)
-target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so)
-target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so)
+# target_include_directories(MatlabExample PUBLIC
+#   /usr/local/MATLAB/R2019b/extern/include)
+# target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so)
+# target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so)
