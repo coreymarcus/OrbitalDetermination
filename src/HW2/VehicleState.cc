@@ -224,7 +224,7 @@ namespace VehicleState {
 				+ J2 * pow(Rearth,2) * cos(2*pos[2]/r) * r * 9
 				- J2 * pow(Rearth,2) * pos[2] * sinz * 6 );
 
-			double accel_z = (-mu / (4*pow(r2,3) )) * ( 4*mu*pos[2]*pow(r2,1.5)
+			double accel_z = (-mu / (4*pow(r2,3) )) * ( 4*pos[2]*pow(r2,1.5)
 				+ J2 * pow(Rearth,2) * pow(pos[0],2) * sinz * 6
 				+ J2 * pow(Rearth,2) * pow(pos[1],2) * sinz * 6
 				- 3*J2 * pow(Rearth,2) * pos[2] * r
