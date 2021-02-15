@@ -219,15 +219,22 @@ namespace VehicleState {
 
 		if (this->useJ2_) { // 2 body and J2
 
-			double A = (mu/r) * ( (3/pow(r2,3) * J2 * pow(Rearth,2) * pow(pos[2],2) ) 
-				+ ( (1/pow(r2,2)) * pow(Rearth,2) * eq1 * 2) );
-			double B = (mu/pow(r2,1.5)) * (J2 * Rearth * eq1 / r2 - 1);
+			// 2-body accel
+			double k = -mu/pow(r,3);
+			accel_2body = {k*pos[0], k*pos[1], k*pos[2]};
 
-			double C = (-mu/r) * ( (1/r2) * J2 * pow(Rearth,2) * (3*pos[2]/r2 - 3*pow(pos[2],3)/pow(r2,2)) 
-				- (1/pow(r2,2)) * J2 * pow(Rearth,2) * pos[2] * eq1 * 2);
+			// J-2 accel
+			double t2 = pow(x,2);
+			double t3 = pow(y,2);
+			double t4 = pow(z,2);
+			double accel_j2_x = J2*pow(Rearth,2)*mu*pos[0]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
+			double accel_j2_y = J2*pow(Rearth,2)*mu*pos[1]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
+			double accel_j2_z = J2*pow(Rearth,2)*mu*pos[2]*1.0/pow(t2+t3+t4,7.0/2.0)*(t2*3.0+t3*3.0-t4*2.0)*(-3.0/2.0);
 
-			
-			accel = {(A + B)*pos[0], (A + B)*pos[1], B*pos[2] + C};
+			//total acceleration
+			accel = {accel_2body[0] + accel_j2_x,
+				accel_2body[1] + accel_j2_y,
+				accel_2body[2] + accel_j2_z};
 
 		} else { // two body only
 
