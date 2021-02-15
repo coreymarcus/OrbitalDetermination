@@ -18,6 +18,9 @@ namespace VehicleState{
 
 	public:
 
+		//parameters
+		bool useJ2_;
+
 		//vehicle position and velocity (ECI) [km] and [km/sec]
 		Eigen::Vector3d pos_;
 		Eigen::Vector3d vel_;

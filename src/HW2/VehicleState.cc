@@ -209,22 +209,36 @@ namespace VehicleState {
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
 
-		//calculate acceleration from 2-body grav + J2
+		//intermediat calcs
 		double r2 = pow(pos[0],2) + pow(pos[1],2) + pow(pos[2],2);
 		double r = sqrt(r2);
-		double sinz = sin(2*z/r);
+		double sinz = sin(2*pos[2]/r);
 
-		double k = -(mu / (4*pow(r2,3)) ) * (4 * pow(r2,1.5) 
-			-3 * J2 * pow(Rearth,2) * r 
-			+ J2 * pow(Rearth,2) * cos(2*pos[2]/r) * r * 9
-			- J2 * pow(Rearth,2) * pos[2] * sinz * 6 );
+		//initialize
+		state_type accel;
 
-		double accel_z = (-mu / (4*pow(r2,3) ) * ( 4*mu*pos[2]*pow(r2,1.5)
-			+ J2 * pow(Rearth,2) * pow(pos[0],2) * sinz * 6
-			+ J2 * pow(Rearth,2) * pow(pos[1],2) * sinz * 6
-			- 3*J2 * pow(Rearth,2) * pos[2] * r
-			+ J2 * pow(Rearth,2) * pos[2] * cos(2*pos[2]/r)*r*9;
-		state_type accel = {k*x[0], k*x[1], accel_z};
+		if (this->useJ2_) { // 2 body and J2
+
+			double k = -(mu / (4*pow(r2,3)) ) * (4 * pow(r2,1.5) 
+				-3 * J2 * pow(Rearth,2) * r 
+				+ J2 * pow(Rearth,2) * cos(2*pos[2]/r) * r * 9
+				- J2 * pow(Rearth,2) * pos[2] * sinz * 6 );
+
+			double accel_z = (-mu / (4*pow(r2,3) )) * ( 4*mu*pos[2]*pow(r2,1.5)
+				+ J2 * pow(Rearth,2) * pow(pos[0],2) * sinz * 6
+				+ J2 * pow(Rearth,2) * pow(pos[1],2) * sinz * 6
+				- 3*J2 * pow(Rearth,2) * pos[2] * r
+				+ J2 * pow(Rearth,2) * pos[2] * cos(2*pos[2]/r)*r*9 );
+			
+			accel = {k*x[0], k*x[1], accel_z};
+
+		} else { // two body only
+
+			//calculate acceleration
+			double k = -mu/pow(r,3);
+			accel = {k*x[0], k*x[1], k*x[2]};
+
+		}		
 
 		//change in state
 		dxdt[0] = vel[0];

@@ -21,6 +21,9 @@ int main() {
 	propobj.J2_ = 0.00108248;
 	propobj.Rearth_ = 6378.145; //km
 
+	//parameters
+	propobj.useJ2_ = true;
+
 	//set objects position and velocity
 	Eigen::Vector3d pos0;
 	pos0[0] = -2436.45;
@@ -43,13 +46,13 @@ int main() {
 	propobj.OE2State();
 
 	//set tolerance options
-	propobj.abstol_ = 1*pow(10,-20);
-	propobj.reltol_ = 1*pow(10,-12);
+	propobj.abstol_ = 1*pow(10,-16);
+	propobj.reltol_ = 3*pow(10,-14);
 	propobj.dt_var_ = 0.1;
 
 	//propagate the orbit for two revolutions
-	double dt = 20; //seconds for propagation
-	const int N = 700; // aproximate number for two orbits
+	double dt = 86400; //seconds for propagation
+	const int N = 1; // aproximate number for two orbits
 	Eigen::Matrix<double, 12, N> xhist; //state and ang momentum
 	Eigen::Matrix<double, 1, N> thist; //time
 	Eigen::Matrix<double, 2, N> ehist; //energy
@@ -67,6 +70,9 @@ int main() {
 		ehist(0,ii) = propobj.GetKEsp();
 		ehist(1,ii) = propobj.GetPEsp();
 	}
+
+	std::cout << "final position:\n" << propobj.pos_ << std::endl;
+	std::cout << "final velocity:\n" << propobj.vel_ << std::endl;
 
 	//write data to csv
 	// Util::Eigen2csv("../data/xhist_HW2.csv",xhist);
