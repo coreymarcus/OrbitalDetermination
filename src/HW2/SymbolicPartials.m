@@ -17,7 +17,7 @@ R = [x y z]';
 r = sqrt(R'*R);
 
 %gravity potential
-U = mu/r*(1 - J2*(Rearth/r)^2*(1.5*sin(z/r)^2 - 0.5));
+U = mu/r*(1 - J2*(Rearth/r)^2*(1.5*(z/r)^2 - 0.5));
 
 %acceleration from gravity
 grav = jacobian(U,R);
