@@ -207,13 +207,13 @@ namespace VehicleState {
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
 
-		//calculate acceleration from 2-body grav
+		//calculate acceleration from 2-body grav + J2
 		double R = sqrt(pow(pos[0],2) + pow(pos[1],2) + pow(pos[2],2));
-		double k = -mu/pow(R,3);
+		double k = mu/pow(R,3);
 		state_type accel2body = {k*x[0], k*x[1], k*x[2]};
 
 		//calculate acceleration from J2
-		
+
 
 		//change in state
 		dxdt[0] = vel[0];
