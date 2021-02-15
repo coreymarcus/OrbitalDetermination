@@ -20,6 +20,7 @@ namespace VehicleState{
 
 		//parameters
 		bool useJ2_;
+		bool usedrag_;
 
 		//vehicle position and velocity (ECI) [km] and [km/sec]
 		Eigen::Vector3d pos_;
@@ -39,6 +40,13 @@ namespace VehicleState{
 		double mu_; //gravity constant [km^3/sec]
 		double J2_; //higher order gravity parameters
 		double Rearth_; //radius of the earth [km]
+		double earthrotationspeed_; //rotation [rad/sec]
+		double C_D_; // coefficient of drag
+		double A_; // effective area, m^2
+		double m_; // vehicle mass, kg
+		double rho_0_; // standard air density, kg/m^3
+		double r0_; // param for air density calc, km
+		double H_; //param for air density calc, km
 
 		//time
 		double t_;

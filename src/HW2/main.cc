@@ -21,9 +21,17 @@ int main() {
 	propobj.mu_ = 398600.4; // km^3/sec^2
 	propobj.J2_ = 0.00108248;
 	propobj.Rearth_ = 6378.145; //km
+	propobj.earthrotationspeed_ = 7.29211585530066 * pow(10,-5);
+	propobj.C_D_ = 2.0;
+	propobj.A_ = 3.6; // m^2
+	propobj.m_ = 1350; //kg
+	propobj.rho_0_ = 4*pow(10,-13); //kg/m^3
+	propobj.r0_ = 7298.145; //km
+	propobj.H_ = 200.0; //km
 
 	//parameters
 	propobj.useJ2_ = true;
+	propobj.usedrag_ = false;
 
 	//set objects position and velocity
 	Eigen::Vector3d pos0;
@@ -48,6 +56,10 @@ int main() {
 	propobj.reltol_ = 3*pow(10,-14);
 	propobj.dt_var_ = 0.1;
 
+	//duplicate object for using drag
+	VehicleState::Propagator propobj_drag = propobj;
+	propobj_drag.usedrag_ = true;
+
 	//propagate the orbit for two revolutions
 	double dt = 20; //seconds for propagation
 	const int N = 86400/20; // propagate for one day
@@ -59,9 +71,11 @@ int main() {
 
 		//propagate
 		propobj.Propagate(dt);
+		propobj_drag.Propagate(dt);
 
 		//update orbital elements
 		propobj.State2OE();
+		propobj_drag.State2OE();
 
 		//store variables
 		OEhist(0,ii) = propobj.a_;
@@ -77,8 +91,13 @@ int main() {
 	}
 
 	std::cout << std::setprecision(17);
+	std::cout << "Propagation with J2: \n";
 	std::cout << "final position:\n" << propobj.pos_ << std::endl;
 	std::cout << "final velocity:\n" << propobj.vel_ << std::endl;
+
+	std::cout << "\n" << "Propagation with J2 and Drag: \n";
+	std::cout << "final position:\n" << propobj_drag.pos_ << std::endl;
+	std::cout << "final velocity:\n" << propobj_drag.vel_ << std::endl;
 
 	//write data to csv
 	Util::Eigen2csv("../data/OEhist_HW2.csv",OEhist);

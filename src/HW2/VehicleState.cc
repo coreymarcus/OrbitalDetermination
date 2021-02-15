@@ -222,22 +222,25 @@ namespace VehicleState {
 		double J2 = this->J2_;
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
+		double earthrot = this->earthrotationspeed_;
+		double C_D = this->C_D; // coefficient of drag
+		double A = this->A_; // effective area, m^2
+		double m = this->m_; // vehicle mass, kg
+		double rho_0 = this->rho_0_; // standard air density, kg/m^3
+		double r0 = this->r0_; // param for air density calc, km
+		double H = this->H_; //param for air density calc, km
 
-		//intermediat calcs
+		//intermediate calcs
 		double r2 = pow(pos[0],2) + pow(pos[1],2) + pow(pos[2],2);
 		double r = sqrt(r2);
 		double eq1 = 3*pow(pos[2],2)/(2*r2) - 0.5;
 
-		//initialize
-		state_type accel;
+		//two body acceleration
+		double k = -mu/pow(r,3);
+		state_type accel = {k*pos[0], k*pos[1], k*pos[2]};
 
-		if (this->useJ2_) { // 2 body and J2
-
-			// 2-body accel
-			double k = -mu/pow(r,3);
-			state_type accel_2body = {k*pos[0], k*pos[1], k*pos[2]};
-
-			// J-2 accel
+		if (this->useJ2_) { // J-2 accel
+			
 			double t2 = pow(pos[0],2);
 			double t3 = pow(pos[1],2);
 			double t4 = pow(pos[2],2);
@@ -245,18 +248,30 @@ namespace VehicleState {
 			double accel_j2_y = J2*pow(Rearth,2)*mu*pos[1]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
 			double accel_j2_z = J2*pow(Rearth,2)*mu*pos[2]*1.0/pow(t2+t3+t4,7.0/2.0)*(t2*3.0+t3*3.0-t4*2.0)*(-3.0/2.0);
 
-			//total acceleration
-			accel = {accel_2body[0] + accel_j2_x,
-				accel_2body[1] + accel_j2_y,
-				accel_2body[2] + accel_j2_z};
+			// add J2 acceleration
+			accel[0] = accel[0] + accel_j2_x;
+			accel[1] = accel[1] + accel_j2_y;
+			accel[2] = accel[2] + accel_j2_z;
+		} // fi
 
-		} else { // two body only
+		if (this->usedrag_) { // drag acceleration 
+			
+			//relative wind vector
+			Eigen::Vector3d V_A;
+			V_A[0] = vel[0] + earthrot*pos[1];
+			V_A[1] = vel[1] - earthrot*pos[0];
+			V_A[2] = vel[2];
+			double nV_A = V_A.norm(); //magnitude
 
-			//calculate acceleration
-			double k = -mu/pow(r,3);
-			accel = {k*pos[0], k*pos[1], k*pos[2]};
+			//current air density
+			double rho_A = rho_0*exp(-(r - r0)/H);
 
-		}		
+			//add drag acceleration
+			accel[0] = accel[0] - 0.5*C_D*A*rho_A*nV_A*V_A[0]/m;
+			accel[1] = accel[1] - 0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
+			accel[2] = accel[2] - 0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
+		}
+
 
 		//change in state
 		dxdt[0] = vel[0];

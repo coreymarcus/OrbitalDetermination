@@ -54,9 +54,10 @@ figure
 plot(t/3600, OE(6,:), 'LineWidth', 2)
 xlabel('Time [hours]')
 ylabel('$T_p$ [sec]')
-saveas(gcf,[savepath 'semimajor.pdf'])
+saveas(gcf,[savepath 'TimePerigee.pdf'])
 
 figure
 plot(t/3600, OE(7,:), 'LineWidth', 2)
 xlabel('Time [hours]')
 ylabel('$P$ [sec]')
+saveas(gcf,[savepath 'OrbitPeriod.pdf'])
