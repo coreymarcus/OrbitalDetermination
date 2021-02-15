@@ -14,6 +14,9 @@ add_executable(HW0 src/HW0/main.cc)
 # add_executable(HW1 src/HW1/main.cc
 #  src/HW1/VehicleState.cc
 #  src/HW1/Util.cc)
+add_executable(HW2 src/HW2/main.cc
+	src/HW2/VehicleState.cc
+	src/HW2/Util.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)
@@ -50,3 +53,5 @@ target_link_libraries(HW0 Python3::Python)
 #   /usr/local/MATLAB/R2019b/extern/include)
 # target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so)
 # target_link_libraries(MatlabExample ${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so)
+
+target_link_libraries(HW2 Eigen3::Eigen)
