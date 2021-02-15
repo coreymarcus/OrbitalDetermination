@@ -266,10 +266,10 @@ namespace VehicleState {
 			//current air density
 			double rho_A = rho_0*exp(-(r - r0)/H);
 
-			//add drag acceleration
-			accel[0] = accel[0] - 0.5*C_D*A*rho_A*nV_A*V_A[0]/m;
-			accel[1] = accel[1] - 0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
-			accel[2] = accel[2] - 0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
+			//add drag acceleration (extra 1000 for unit conversion)
+			accel[0] = accel[0] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[0]/m;
+			accel[1] = accel[1] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
+			accel[2] = accel[2] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
 		}
 
 
