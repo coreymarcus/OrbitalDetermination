@@ -115,6 +115,18 @@ namespace VehicleState {
 			theta = 360.0 - acos(ehat.dot(rhat)) * 180.0 / M_PI; // Q2 or Q3
 		}
 
+		//calculate orbital period
+		double P = 2*M_PI*sqrt(pow(a,3)/mu);
+
+		//eccentric anomaly
+		double E = acos((e + cos(theta))/(1 + e*cos(theta)));
+
+		//mean anomally
+		double M = E - e*sin(E);
+
+		// time of periapsis passage
+		double T_p = M*P/(2*M_PI);
+
 		// output our results
 		// std::cout << "semi-major axis [km]: " << a << std::endl;
 		// std::cout << "eccentricity: " << e << std::endl;
@@ -130,6 +142,8 @@ namespace VehicleState {
 		this->ascend_ = Ohm; //longitude of ascending node
 		this->periap_ = w; //argument of periapsis
 		this->nu_ = theta; //true anomaly
+		this->P_ = P; //orbital period 
+		this->T_p_ = T_p; //time from periapse
 
 	} // State2OE
 
@@ -221,12 +235,12 @@ namespace VehicleState {
 
 			// 2-body accel
 			double k = -mu/pow(r,3);
-			accel_2body = {k*pos[0], k*pos[1], k*pos[2]};
+			state_type accel_2body = {k*pos[0], k*pos[1], k*pos[2]};
 
 			// J-2 accel
-			double t2 = pow(x,2);
-			double t3 = pow(y,2);
-			double t4 = pow(z,2);
+			double t2 = pow(pos[0],2);
+			double t3 = pow(pos[1],2);
+			double t4 = pow(pos[2],2);
 			double accel_j2_x = J2*pow(Rearth,2)*mu*pos[0]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
 			double accel_j2_y = J2*pow(Rearth,2)*mu*pos[1]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
 			double accel_j2_z = J2*pow(Rearth,2)*mu*pos[2]*1.0/pow(t2+t3+t4,7.0/2.0)*(t2*3.0+t3*3.0-t4*2.0)*(-3.0/2.0);

@@ -4,6 +4,7 @@
 #include <Eigen/Dense> // vectors
 #include "VehicleState.h" // headerfile containing propagator class
 #include "Util.h" // utility functions
+#include <iomanip>      // std::setprecision
 
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
@@ -48,32 +49,41 @@ int main() {
 	propobj.dt_var_ = 0.1;
 
 	//propagate the orbit for two revolutions
-	double dt = 86400; //seconds for propagation
-	const int N = 1; // aproximate number for two orbits
-	Eigen::Matrix<double, 12, N> xhist; //state and ang momentum
-	Eigen::Matrix<double, 1, N> thist; //time
-	Eigen::Matrix<double, 2, N> ehist; //energy
+	double dt = 20; //seconds for propagation
+	const int N = 86400/20; // propagate for one day
+	Eigen::MatrixXd OEhist(7,N); //orbital elements
+	Eigen::MatrixXd thist(1,N); //time
+	Eigen::MatrixXd Ehist(2,N); //energy
+	Eigen::MatrixXd hkhist(1,N); //k-th element of angular momentum
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
 		propobj.Propagate(dt);
 
-		//store state
-		xhist.block(0,ii,3,1) = propobj.pos_;
-		xhist.block(3,ii,3,1) = propobj.vel_;
-		xhist.block(6,ii,3,1) = propobj.GetAccelVector();
-		xhist.block(9,ii,3,1) = propobj.GetAngMomVector();
+		//update orbital elements
+		propobj.State2OE();
+
+		//store variables
+		OEhist(0,ii) = propobj.a_;
+		OEhist(1,ii) = propobj.e_;
+		OEhist(2,ii) = propobj.i_;
+		OEhist(3,ii) = propobj.ascend_;
+		OEhist(4,ii) = propobj.periap_;
+		OEhist(5,ii) = propobj.T_p_;
+		OEhist(6,ii) = propobj.P_;
 		thist(0,ii) = propobj.t_;
-		ehist(0,ii) = propobj.GetKEsp();
-		ehist(1,ii) = propobj.GetPEsp();
+		Ehist(0,ii) = propobj.GetKEsp();
+		Ehist(1,ii) = propobj.GetPEsp();
 	}
 
+	std::cout << std::setprecision(17);
 	std::cout << "final position:\n" << propobj.pos_ << std::endl;
 	std::cout << "final velocity:\n" << propobj.vel_ << std::endl;
 
 	//write data to csv
-	// Util::Eigen2csv("../data/xhist_HW2.csv",xhist);
-	// Util::Eigen2csv("../data/thist_HW2.csv",thist);
+	Util::Eigen2csv("../data/OEhist_HW2.csv",OEhist);
+	Util::Eigen2csv("../data/thist_HW2.csv",thist);
+	Util::Eigen2csv("../data/Ehist_HW2.csv",Ehist);
 
 	std::cout << "done!" << std::endl;
 	

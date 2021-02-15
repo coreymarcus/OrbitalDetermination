@@ -32,6 +32,8 @@ namespace VehicleState{
 		double ascend_; //longitude of ascending node
 		double periap_; //argument of periapsis
 		double nu_; //true anomaly
+		double P_; //orbital period
+		double T_p_; // time of perigee passage 
 
 		//physics constants
 		double mu_; //gravity constant [km^3/sec]
