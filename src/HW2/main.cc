@@ -42,9 +42,6 @@ int main() {
 	//convert pos and vel into orbital elements
 	propobj.State2OE();
 
-	//convert OE back to state to verify things working correctly
-	propobj.OE2State();
-
 	//set tolerance options
 	propobj.abstol_ = 1*pow(10,-16);
 	propobj.reltol_ = 3*pow(10,-14);

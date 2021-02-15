@@ -223,11 +223,11 @@ namespace VehicleState {
 				+ ( (1/pow(r2,2)) * pow(Rearth,2) * eq1 * 2) );
 			double B = (mu/pow(r2,1.5)) * (J2 * Rearth * eq1 / r2 - 1);
 
-			double C = (-mu/r) * ( (1/r2) * J2 * pow(Rearth,2) * (3*pos(2)/r2 - 3*pow(pos[2],3)/pow(r2,2)) 
+			double C = (-mu/r) * ( (1/r2) * J2 * pow(Rearth,2) * (3*pos[2]/r2 - 3*pow(pos[2],3)/pow(r2,2)) 
 				- (1/pow(r2,2)) * J2 * pow(Rearth,2) * pos[2] * eq1 * 2);
 
 			
-			accel = {(A + B)*pos[0], (A + B)*pos[1], B*poz[2] + C};
+			accel = {(A + B)*pos[0], (A + B)*pos[1], B*pos[2] + C};
 
 		} else { // two body only
 
