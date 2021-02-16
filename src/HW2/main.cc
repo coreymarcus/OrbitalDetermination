@@ -90,6 +90,8 @@ int main() {
 		thist(0,ii) = propobj.t_;
 		Ehist(0,ii) = propobj.GetKEsp();
 		Ehist(1,ii) = propobj.GetPEsp();
+		Eigen::Vector3d h = propobj.GetAngMomVector();
+		hkhist(0,ii) = h[2];
 
 		OEhist_drag(0,ii) = propobj_drag.a_;
 		OEhist_drag(1,ii) = propobj_drag.e_;
@@ -115,6 +117,7 @@ int main() {
 	Util::Eigen2csv("../data/OEhist_HW2.csv",OEhist);
 	Util::Eigen2csv("../data/thist_HW2.csv",thist);
 	Util::Eigen2csv("../data/Ehist_HW2.csv",Ehist);
+	Util::Eigen2csv("../data/hkhist_HW2.csv",hkhist);
 	Util::Eigen2csv("../data/OEhistDrag_HW2.csv",OEhist_drag);
 	Util::Eigen2csv("../data/EhistDrag_HW2.csv",Ehist_drag);
 
