@@ -211,7 +211,15 @@ namespace VehicleState {
 	} // GetKEsp
 
 	double Propagator::GetPEsp(){
-		return -1.0*this->mu_ / this->pos_.norm();
+
+		//locals
+		double mu = this->mu_;
+		double Rearth = this->Rearth_;
+		double J2 = this->J2_;
+		Eigen::Vector3d pos = this->pos_;
+		double r = pos.norm();
+
+		return mu / r * (1.0 - J2*pow(Rearth/r,2) * (1.5*pow(pos[2]/r,2) - 0.5) );
 	} // GetPEsp
 
 	void Propagator::operator()  (const state_type &x , state_type &dxdt , const double /* t */ ){
@@ -223,7 +231,7 @@ namespace VehicleState {
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
 		double earthrot = this->earthrotationspeed_;
-		double C_D = this->C_D; // coefficient of drag
+		double C_D = this->C_D_; // coefficient of drag
 		double A = this->A_; // effective area, m^2
 		double m = this->m_; // vehicle mass, kg
 		double rho_0 = this->rho_0_; // standard air density, kg/m^3
@@ -270,7 +278,7 @@ namespace VehicleState {
 			accel[0] = accel[0] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[0]/m;
 			accel[1] = accel[1] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
 			accel[2] = accel[2] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
-		}
+		} //fi
 
 
 		//change in state

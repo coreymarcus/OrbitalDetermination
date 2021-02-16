@@ -67,6 +67,8 @@ int main() {
 	Eigen::MatrixXd thist(1,N); //time
 	Eigen::MatrixXd Ehist(2,N); //energy
 	Eigen::MatrixXd hkhist(1,N); //k-th element of angular momentum
+	Eigen::MatrixXd OEhist_drag(7,N); //orbital elements
+	Eigen::MatrixXd Ehist_drag(2,N); //energy
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
@@ -88,6 +90,16 @@ int main() {
 		thist(0,ii) = propobj.t_;
 		Ehist(0,ii) = propobj.GetKEsp();
 		Ehist(1,ii) = propobj.GetPEsp();
+
+		OEhist_drag(0,ii) = propobj_drag.a_;
+		OEhist_drag(1,ii) = propobj_drag.e_;
+		OEhist_drag(2,ii) = propobj_drag.i_;
+		OEhist_drag(3,ii) = propobj_drag.ascend_;
+		OEhist_drag(4,ii) = propobj_drag.periap_;
+		OEhist_drag(5,ii) = propobj_drag.T_p_;
+		OEhist_drag(6,ii) = propobj_drag.P_;
+		Ehist_drag(0,ii) = propobj_drag.GetKEsp();
+		Ehist_drag(1,ii) = propobj_drag.GetPEsp();
 	}
 
 	std::cout << std::setprecision(17);
@@ -103,6 +115,8 @@ int main() {
 	Util::Eigen2csv("../data/OEhist_HW2.csv",OEhist);
 	Util::Eigen2csv("../data/thist_HW2.csv",thist);
 	Util::Eigen2csv("../data/Ehist_HW2.csv",Ehist);
+	Util::Eigen2csv("../data/OEhistDrag_HW2.csv",OEhist_drag);
+	Util::Eigen2csv("../data/EhistDrag_HW2.csv",Ehist_drag);
 
 	std::cout << "done!" << std::endl;
 	
