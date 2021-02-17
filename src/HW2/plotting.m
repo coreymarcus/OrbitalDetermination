@@ -20,7 +20,7 @@ lw = 1;
 OE = csvread('../../data/OEhist_HW2.csv');
 t = csvread('../../data/thist_HW2.csv');
 E = csvread('../../data/Ehist_HW2.csv');
-% h = csvread('../../data/
+h = csvread('../../data/hkhist_HW2.csv');
 OEdrag = csvread('../../data/OEhistDrag_HW2.csv');
 Edrag = csvread('../../data/EhistDrag_HW2.csv');
 
@@ -135,4 +135,12 @@ grid on
 xlabel('Time [hours]')
 ylabel('Change in Specific Energy [J/kg]')
 saveas(gcf,[savepath 'energydrag.pdf'])
+
+%plot angular momentum 3rd element
+figure
+plot(t/3600, h - h(1))
+grid on
+xlabel('Time [hours]')
+ylabel('$h_k(t) - h_k(0)$')
+saveas(gcf,[savepath 'angmom.pdf'])
 

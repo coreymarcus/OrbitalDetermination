@@ -49,11 +49,56 @@ The dominant force acting on a spacecraft in motion is usually known as point-ma
 
 \section{Problem One}
 
-\subsection{a}
+\subsection{Part a}
 
-Derivation of J2...
+We are provided the equation for $U$, the gravity potential function as shown in Equation \eqref{eq:U}.
 
-\subsection{b}
+\begin{equation}
+	\label{eq:U}
+	U = U_{\text{point mass}} + U_{J_2} = \frac{\mu}{r} - J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right)
+\end{equation}
+
+The gradient of $U_{\text{point mass}}$ was derived in the previous homework. For this homework we will derive the gradient of $U_{J_2}$. \\
+
+We begin by noticing a symmetry in the partial derivatives with respect to $x$ and $y$. By inspection we are able to note that $\frac{\partial U_{J2}}{\partial x} (\sigma) = \frac{\partial U_{J2}}{\partial y} (\sigma)$. Therefore we need only find the partial derivatives with respect to $x$ and $z$ to fully compute the gradient. \\
+
+\begin{align}
+	\frac{\partial U_{J2}}{\partial x} & = - \frac{\partial}{\partial x} \left[ J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
+	& = - \frac{\partial}{\partial x} \left[ J_2 \mu \left( x^2 + y^2 + z^2\right)^{-1/2} R_E^2 \left( x^2 + y^2 + z^2\right)^{-1} \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
+	& = - J_2 \mu R_E^2 \frac{\partial}{\partial x} \left[ \left( x^2 + y^2 + z^2\right)^{-1.5} \left( 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-1}  - 0.5\right) \right] \\
+	& = - J_2 \mu R_E^2 \frac{\partial}{\partial x} \left[ 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-2.5} - 0.5 \left( x^2 + y^2 + z^2\right)^{-1.5} \right] \\
+	& = - J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} 2x + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} 2x \right) \\
+	\frac{\partial U_{J2}}{\partial x} & = - 2 x J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right)
+\end{align}
+
+From this we can conclude that:
+
+\begin{equation}
+	\frac{\partial U_{J2}}{\partial y} = - 2 y J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right)
+\end{equation}
+
+We now work on $\frac{\partial U_{J2}}{\partial z}$.
+
+\begin{align}
+	\frac{\partial U_{J2}}{\partial z} & = - \frac{\partial}{\partial z} \left[ J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
+	& \vdots \nonumber \\
+	& = - J_2 \mu R_E^2 \frac{\partial}{\partial z} \left[ 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-2.5} - 0.5 \left( x^2 + y^2 + z^2\right)^{-1.5} \right] \\
+	& = - J_2 \mu R_E^2 (  -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} 2z + 3z\left( x^2 + y^2 + z^2\right)^{-2.5} \nonumber \\
+	& \quad \quad + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} 2z ) \\
+	\frac{\partial U_{J2}}{\partial z} &= - J_2 \mu R_E^2 \left(  -7.5 z^3 \left( x^2 + y^2 + z^2\right)^{-3.5} + 4.5z\left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
+\end{align}
+
+We are now able to write the complete gradient.
+
+\begin{equation}
+	\nabla U_{J2} = \begin{bmatrix}
+	- 2 x J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
+	- 2 y J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
+	- J_2 \mu R_E^2 \left(  -7.5 z^3 \left( x^2 + y^2 + z^2\right)^{-3.5} + 4.5z\left( x^2 + y^2 + z^2\right)^{-2.5} \right)
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Part b}
 
 Figure \ref{fig:OE} shows the evolution of six orbital elements; $a$, $e$, $i$, $\Omega$, $\omega$, and $T_p$ over the course of one day. All orbital elements exhibit some variation over the course of the day. As expected, only variations in $\Omega$ and $\omega$ are significant. There is a relatively constant change in the right ascension of the ascending node, $\Omega$, over the course of the day. This change is commonly leveraged to produce orbits which are sun-synchronous. \\
 
@@ -75,7 +120,7 @@ Figure \ref{fig:OrbitPeriod} shows the evolution of the orbital period, $P$. $P$
 	\label{fig:OrbitPeriod}
 \end{figure}
 
-\subsection{c}
+\subsection{Part c}
 
 Figure \ref{fig:energy} shows the change in specific energy of the spacecraft over the course of one day while modeling J2. We note that it is almost constant, and most errors are likely due to the finite tolerances of our numerical integrator. Therefore, we conclude that J2 does not cause the spacecraft's potential and kinetic energy to be converted to other forms such as thermal. \\
 
@@ -86,13 +131,20 @@ Figure \ref{fig:energy} shows the change in specific energy of the spacecraft ov
 	\label{fig:energy}
 \end{figure}
 
-\subsection{d}
+\subsection{Part d}
 
-Angular momentum
+Figure \ref{fig:angmom} shows the change in the 3\textsuperscript{rd} element of the angular momentum vector. The variations in this element are most likely due to the finite tolerances of our numerical integrator. Therefore, we conclude that J2 does not cause changes to the $k$ component of the angular momentum vector. \\
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.5\linewidth]{figs/angmom.pdf}
+	\caption{Change in k\textsuperscript{th} element of the angular momentum vector while modeling J2.}
+	\label{fig:angmom}
+\end{figure}
 
 \section{Problem 2}
 
-\subsection{a}
+\subsection{Part a}
 
 Figure \ref{fig:energydrag} shows the change in specific energy of the spacecraft while modeling J2 and atmospheric drag forces. We note a clear decline in the specific energy of the spacecraft over time. This can be contrasted with the nearly constant specific energy demonstrated in Figure \ref{fig:energy}. From this, we can conclude that drag forces remove kinetic and potential energy from the spacecraft. If these are the only forms of energy considered, then energy is not conserved. However, from a wider frame of view, this lost energy is certainly converted into some other form such as thermal and the total amount of energy in the universe is conserved. \\
 
@@ -103,7 +155,7 @@ Figure \ref{fig:energydrag} shows the change in specific energy of the spacecraf
 	\label{fig:energydrag}
 \end{figure}
 
-\subsection{b}
+\subsection{Part b}
 
 Figure \ref{fig:dOE} compares the orbital elements found while modeling drag and J2 to those found while modeling J2 only. From this plot we see that the main component effected by drag is semi-major axis, $a$. This is because drag removes energy from the orbit and thus lowers its altitude. \\
 
