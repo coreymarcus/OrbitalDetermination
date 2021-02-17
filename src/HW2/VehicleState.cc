@@ -127,6 +127,8 @@ namespace VehicleState {
 		// time of periapsis passage
 		double T_p = this->t_ - M*P/(2*M_PI);
 
+		std::cout << T_p << std::endl;
+
 		// output our results
 		// std::cout << "semi-major axis [km]: " << a << std::endl;
 		// std::cout << "eccentricity: " << e << std::endl;
