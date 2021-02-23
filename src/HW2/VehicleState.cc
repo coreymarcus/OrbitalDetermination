@@ -109,7 +109,7 @@ namespace VehicleState {
 
 		//calculate true anomally
 		double theta;
-		if (ehat.dot(rhat) >= 0) {
+		if (vel.dot(pos) >= 0) {
 			theta = acos(ehat.dot(rhat)) * 180.0 / M_PI; // Q1 or Q4
 		} else {
 			theta = 360.0 - acos(ehat.dot(rhat)) * 180.0 / M_PI; // Q2 or Q3
@@ -121,15 +121,31 @@ namespace VehicleState {
 		//calculate orbital period
 		double P = 2*M_PI*sqrt(pow(a,3)/mu);
 
-		//eccentric anomaly (radians)
-		double E = acos((e + cos(theta_rad))/(1 + e*cos(theta_rad)));
+		// //eccentric anomaly (radians)
+		// double E = acos((e + cos(theta_rad))/(1 + e*cos(theta_rad)));
+
+		// //mean anomally (radians)
+		// double M = E - e*sin(E);
+
+		// // time of periapsis passage
+		// double T_p = this->t_ - M*P/(2*M_PI);
+
+		//find mean motion
+		double meanmot = 1.0/sqrt(a*a*a/mu);
+
+		//eccentric annomaly
+		double E = 2.0*atan( tan(theta_rad/2.0) * sqrt( (1.0 - e)/(1.0 + e)));
+
+		//guard domain
+		if(E < 0.0) {
+			E = E + 2.0*M_PI;
+		}
 
 		//mean anomally (radians)
 		double M = E - e*sin(E);
 
 		// time of periapsis passage
-		double T_p = this->t_ - M*P/(2*M_PI);
-
+		double T_p = this->t_ - M/meanmot;
 
 		// output our results
 		// std::cout << "semi-major axis [km]: " << a << std::endl;
