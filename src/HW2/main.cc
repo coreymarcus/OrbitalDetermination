@@ -66,7 +66,7 @@ int main() {
 	Eigen::MatrixXd OEhist(7,N); //orbital elements
 	Eigen::MatrixXd thist(1,N); //time
 	Eigen::MatrixXd Ehist(2,N); //energy
-	Eigen::MatrixXd hkhist(1,N); //k-th element of angular momentum
+	Eigen::MatrixXd hhist(3,N); //angular momentum
 	Eigen::MatrixXd OEhist_drag(7,N); //orbital elements
 	Eigen::MatrixXd Ehist_drag(2,N); //energy
 	for (int ii = 0; ii < N; ++ii){
@@ -90,8 +90,7 @@ int main() {
 		thist(0,ii) = propobj.t_;
 		Ehist(0,ii) = propobj.GetKEsp();
 		Ehist(1,ii) = propobj.GetPEsp();
-		Eigen::Vector3d h = propobj.GetAngMomVector();
-		hkhist(0,ii) = h[2];
+		hhist.block(0,ii,3,1) = propobj.GetAngMomVector();
 
 		OEhist_drag(0,ii) = propobj_drag.a_;
 		OEhist_drag(1,ii) = propobj_drag.e_;
@@ -117,7 +116,7 @@ int main() {
 	Util::Eigen2csv("../data/OEhist_HW2.csv",OEhist);
 	Util::Eigen2csv("../data/thist_HW2.csv",thist);
 	Util::Eigen2csv("../data/Ehist_HW2.csv",Ehist);
-	Util::Eigen2csv("../data/hkhist_HW2.csv",hkhist);
+	Util::Eigen2csv("../data/hkhist_HW2.csv",hhist);
 	Util::Eigen2csv("../data/OEhistDrag_HW2.csv",OEhist_drag);
 	Util::Eigen2csv("../data/EhistDrag_HW2.csv",Ehist_drag);
 
