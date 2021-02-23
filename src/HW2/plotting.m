@@ -138,9 +138,20 @@ saveas(gcf,[savepath 'energydrag.pdf'])
 
 %plot angular momentum 3rd element
 figure
-plot(t/3600, h - h(1))
+plot(t/3600, h(3,:) - h(3,1))
 grid on
 xlabel('Time [hours]')
 ylabel('$h_k(t) - h_k(0)$')
 saveas(gcf,[savepath 'angmom.pdf'])
+
+%plot norm of angular momentum
+N = length(t);
+nh = zeros(N,1);
+for ii = 1:N
+    nh(ii) = norm(h(:,ii));
+end
+figure
+plot(t,nh)
+xlabel('Time (sec)')
+ylabel('norm of h')
 
