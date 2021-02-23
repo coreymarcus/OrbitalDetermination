@@ -82,7 +82,7 @@ figure
 plot(t/3600, E(1,:) - E(2,:) - E(1,1) + E(2,1), 'LineWidth',lw)
 grid on
 xlabel('Time [hours]')
-ylabel('Change in Specific Energy [J/kg]')
+ylabel('Change in Specific Energy [MJ/kg]')
 saveas(gcf,[savepath 'energy.pdf'])
 
 %plot change in OEs
@@ -133,7 +133,7 @@ figure
 plot(t/3600, Edrag(1,:) - Edrag(2,:) - Edrag(1,1) + Edrag(2,1), 'LineWidth',lw)
 grid on
 xlabel('Time [hours]')
-ylabel('Change in Specific Energy [J/kg]')
+ylabel('Change in Specific Energy [MJ/kg]')
 saveas(gcf,[savepath 'energydrag.pdf'])
 
 %plot angular momentum 3rd element
@@ -141,7 +141,7 @@ figure
 plot(t/3600, h(3,:) - h(3,1))
 grid on
 xlabel('Time [hours]')
-ylabel('$h_k(t) - h_k(0)$')
+ylabel('$h_k(t) - h_k(0)$ [km\textsuperscript{2}/sec]')
 saveas(gcf,[savepath 'angmom.pdf'])
 
 %plot norm of angular momentum
