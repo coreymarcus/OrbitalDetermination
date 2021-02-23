@@ -115,19 +115,21 @@ namespace VehicleState {
 			theta = 360.0 - acos(ehat.dot(rhat)) * 180.0 / M_PI; // Q2 or Q3
 		}
 
+		// convert theta to radians
+		double theta_rad = theta*M_PI/180.0;
+
 		//calculate orbital period
 		double P = 2*M_PI*sqrt(pow(a,3)/mu);
 
-		//eccentric anomaly
-		double E = acos((e + cos(theta))/(1 + e*cos(theta)));
+		//eccentric anomaly (radians)
+		double E = acos((e + cos(theta_rad))/(1 + e*cos(theta_rad)));
 
-		//mean anomally
+		//mean anomally (radians)
 		double M = E - e*sin(E);
 
 		// time of periapsis passage
 		double T_p = this->t_ - M*P/(2*M_PI);
 
-		std::cout << T_p << std::endl;
 
 		// output our results
 		// std::cout << "semi-major axis [km]: " << a << std::endl;
@@ -136,6 +138,7 @@ namespace VehicleState {
 		// std::cout << "longitude of ascending node [deg]: " << Ohm << std::endl;
 		// std::cout << "argument of periapsis [deg]: " << w << std::endl;
 		// std::cout << "true anomally [deg]: " << theta << std::endl;
+		// std::cout << "time of periapsis passage: " T_p << std::endl;
 
 		//assign results to class
 		this->a_ = a; //semi-major axis
