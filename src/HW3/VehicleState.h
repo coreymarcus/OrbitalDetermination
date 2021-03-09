@@ -26,6 +26,9 @@ namespace VehicleState{
 		Eigen::Vector3d pos_;
 		Eigen::Vector3d vel_;
 
+		//storage for most recent STM calculation by Propagate()
+		Eigen::MatrixXd STM_;
+
 		//orbital elements
 		double a_; //semi-major axis
 		double e_; //eccentricity
@@ -65,8 +68,8 @@ namespace VehicleState{
 		//Use state vector to update orbital elements
 		void State2OE();
 
-		//call the numerical propagator from the current time, t_, to t_ + dt
-		void Propagate(double dt);
+		//call the numerical propagator from the current time, t_, to t_ + dt. Option to integrate the STM as well
+		void Propagate(double dt, bool intSTM);
 
 		//accessor for the acceleration vector
 		Eigen::Vector3d GetAccelVector();
@@ -84,6 +87,9 @@ namespace VehicleState{
 		void operator()( const state_type &x , state_type &dxdt , const double /* t */ );
 
 	private:
+
+		//private flag for conveniently passing intSTM argument of Propagate() to operator()
+		bool intSTM_; 
 
 
 

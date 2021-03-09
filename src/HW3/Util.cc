@@ -61,12 +61,28 @@ namespace Util {
 
 		//loop
 		for (int ii = 0; ii < n; ++ii){
-			vec2[ii] = vec1(ii);
+			vec2[ii] = vec1[ii];
 		}
 
 		//output
 		return vec2;
 	} //EigenVec2Std
+
+	Eigen::VectorXd StdVec2Eigen(std::vector<double> vec1){
+
+		//locals
+		int n = vec1.size();
+		Eigen::VectorXd vec2(n);
+
+		//loop
+		for (int ii = 0; ii < n; ++ii){
+			vec2[ii] = vec1[ii];
+		}
+
+		//output
+		return vec2;
+
+	} //StdVec2Eigen
 
 	void Eigen2csv(std::string file, Eigen::MatrixXd mat){
 

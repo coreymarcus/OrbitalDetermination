@@ -168,16 +168,39 @@ namespace VehicleState {
 
 	} // State2OE
 
-	void Propagator::Propagate(double dt){
+	void Propagator::Propagate(double dt, bool intSTM){
+
+		//set flag
+		this->intSTM_ = intSTM;
 
 		//build state
-		state_type xint(6,0.0);
-		xint[0] = this->pos_[0];
-		xint[1] = this->pos_[1];
-		xint[2] = this->pos_[2];
-		xint[3] = this->vel_[0];
-		xint[4] = this->vel_[1];
-		xint[5] = this->vel_[2];
+		state_type xint;
+		if (intSTM) {
+			xint.assign(42,0.0);
+			xint[0] = this->pos_[0];
+			xint[1] = this->pos_[1];
+			xint[2] = this->pos_[2];
+			xint[3] = this->vel_[0];
+			xint[4] = this->vel_[1];
+			xint[5] = this->vel_[2];
+
+			//stm initialization
+			xint[6] = 1.0;
+			xint[13] = 1.0;
+			xint[20] = 1.0;
+			xint[27] = 1.0;
+			xint[34] = 1.0;
+			xint[41] = 1.0;
+
+		} else {
+			xint.assign(6,0.0);
+			xint[0] = this->pos_[0];
+			xint[1] = this->pos_[1];
+			xint[2] = this->pos_[2];
+			xint[3] = this->vel_[0];
+			xint[4] = this->vel_[1];
+			xint[5] = this->vel_[2];
+		} //fi
 
 		// std::cout << "before: " << this->pos_ << std::endl;
 
@@ -197,6 +220,34 @@ namespace VehicleState {
 		this->vel_[1] = xint[4];
 		this->vel_[2] = xint[5];
 		this->t_ = t2;
+
+		std::cout << "here1\n";
+
+		//if we propagated the STM, write it out
+		if(intSTM){
+			Eigen::MatrixXd STM = Eigen::MatrixXd::Zero(6,6);
+
+			for (int ii = 0; ii < 6; ++ii) {
+				std::vector<double> col(6,0);
+				col[0] = xint[6*ii + 0 + 6];
+				col[1] = xint[6*ii + 1 + 6];
+				col[2] = xint[6*ii + 2 + 6];
+				col[3] = xint[6*ii + 3 + 6];
+				col[4] = xint[6*ii + 4 + 6];
+				col[5] = xint[6*ii + 5 + 6];
+
+				//convert to eigen
+				Eigen::VectorXd eigcol = Util::StdVec2Eigen(col);
+
+				//assign
+				STM.block(0,ii,6,1) = eigcol;
+
+			} // for
+
+			//update
+			this->STM_ = STM;
+
+		} //fi
 
 		// std::cout << "after: "<< this->pos_ << std::endl;
 
@@ -299,6 +350,55 @@ namespace VehicleState {
 			accel[0] = accel[0] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[0]/m;
 			accel[1] = accel[1] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
 			accel[2] = accel[2] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
+		} //fi
+
+		//integrate the STM if needed
+		if (this->intSTM_) {
+
+			//get the jacobian
+			Eigen::Vector3d eigpos(pos.data());
+			Eigen::MatrixXd jac = Util::GetGravJac(eigpos, mu);
+
+			//extract the STM
+			Eigen::MatrixXd STM = Eigen::MatrixXd::Zero(6,6);
+
+			for (int ii = 0; ii < 6; ++ii) {
+
+				std::vector<double> col(6,0);
+				col[0] = x[6*ii + 0 + 6];
+				col[1] = x[6*ii + 1 + 6];
+				col[2] = x[6*ii + 2 + 6];
+				col[3] = x[6*ii + 3 + 6];
+				col[4] = x[6*ii + 4 + 6];
+				col[5] = x[6*ii + 5 + 6];
+
+				//convert to eigen
+				Eigen::VectorXd eigcol = Util::StdVec2Eigen(col);
+
+				//assign
+				STM.block(0,ii,6,1) = eigcol;
+
+			} // for
+
+
+			//change in STM
+			Eigen::MatrixXd dSTM = jac*STM;
+
+			//assign
+			for (int ii = 0; ii < 6; ++ii) {
+				Eigen::VectorXd eigcol = dSTM.block(0,ii,6,1);
+
+				dxdt[6*ii + 0 + 6] = eigcol[0];
+				dxdt[6*ii + 1 + 6] = eigcol[1];
+				dxdt[6*ii + 2 + 6] = eigcol[2];
+				dxdt[6*ii + 3 + 6] = eigcol[3];
+				dxdt[6*ii + 4 + 6] = eigcol[4];
+				dxdt[6*ii + 5 + 6] = eigcol[5];
+
+			} // for
+
+
+			
 		} //fi
 
 

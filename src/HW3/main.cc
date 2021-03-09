@@ -19,7 +19,16 @@ int main() {
 	VehicleState::Propagator propobj;
 
 	//set physics constants
-	propobj.mu_ = 1; // dimensionless
+	propobj.mu_ = 1.0; // dimensionless
+	propobj.J2_ = 0.0;
+	propobj.Rearth_ = 0.0;
+	propobj.earthrotationspeed_ = 0.0;
+	propobj.C_D_ = 0.0;
+	propobj.A_ = 0.0;
+	propobj.m_ = 0.0;
+	propobj.rho_0_ = 0.0;
+	propobj.r0_ = 0.0;
+	propobj.H_ = 0.0;
 
 	//parameters
 	propobj.useJ2_ = false;
@@ -50,13 +59,13 @@ int main() {
 
 	//propagate the orbit
 	double dt = 10.0; //TU for propagation
-	const int N = 11; // propagate for 11 steps
+	const int N = 1; // propagate for 11 steps
 	Eigen::MatrixXd xhist(6,N); //state history
 	Eigen::MatrixXd thist(1,N); //time
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
-		propobj.Propagate(dt);
+		propobj.Propagate(dt, true);
 
 		//update orbital elements
 		propobj.State2OE();
@@ -69,14 +78,18 @@ int main() {
 
 	std::cout << std::setprecision(17);
 	std::cout << "Problem 1: \n";
-	std::cout << "i = 1 position:\n" << xhist.block(0,1,3,1) << std::endl;
-	std::cout << "i = 1 velocity:\n" << xhist.block(3,1,3,1)  << std::endl;
-	std::cout << "i = 10 position:\n" << propobj.pos_ << std::endl;
-	std::cout << "i = 10 velocity:\n" << propobj.vel_ << std::endl;
+	std::cout << propobj.STM_ << std::endl;
 
-	//write data to csv
-	Util::Eigen2csv("../data/xhist_HW3.csv",xhist);
-	Util::Eigen2csv("../data/thist_HW3.csv",thist);
+	// std::cout << std::setprecision(17);
+	// std::cout << "Problem 1: \n";
+	// std::cout << "i = 1 position:\n" << xhist.block(0,1,3,1) << std::endl;
+	// std::cout << "i = 1 velocity:\n" << xhist.block(3,1,3,1)  << std::endl;
+	// std::cout << "i = 10 position:\n" << propobj.pos_ << std::endl;
+	// std::cout << "i = 10 velocity:\n" << propobj.vel_ << std::endl;
+
+	// //write data to csv
+	// Util::Eigen2csv("../data/xhist_HW3.csv",xhist);
+	// Util::Eigen2csv("../data/thist_HW3.csv",thist);
 
 	std::cout << "done!" << std::endl;
 	
