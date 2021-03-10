@@ -24,8 +24,8 @@
 \definecolor{mylilas}{RGB}{170,55,241}
 \definecolor{mygreen}{RGB}{0,168,45}
 
-\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 2}
-\author{Corey L Marcus} \date{Thursday, February 18\textsuperscript{th}}
+\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 3}
+\author{Corey L Marcus} \date{Thursday, February 11\textsuperscript{th}}
 
 %command to write C++ nicely
 \def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
@@ -41,162 +41,187 @@
 \onehalfspace
 \maketitle
 
-\abstract{This homework demonstrates that our propagator accurately accounts for J2 and drag effects on spacecraft motion.}
+\abstract{This homework demonstrates a calculation of the STM for basic orbits and basic estimation.}
 
 \section{Introduction}
 
-The dominant force acting on a spacecraft in motion is usually known as point-mass gravity. However, there are higher order effects which must be accounted for. The Earth is not a point-mass, there is bulging around the equator which alters the gravity field. This effect is commonly referred to as J2. We model and account for it in this homework. In addition, the Earth's atmosphere extends far beyond the Karman Line. This causes atmospheric drag forces on the spacecraft. We model and account for these in this homework as well. \\
+The propagator from previous homeworks was used to find the state transition matrix mapping deviations in a nominal trajectory at one time to another. \\
 
-\section{Problem One}
+In addition, a basic estimation problem was solved.
 
-\subsection{Part a}
+\section{Problem 1}
 
-We are provided the equation for $U$, the gravity potential function as shown in Equation \eqref{eq:U}.
+\subsection{Problem 1-a}
+
+We begin by propagating a orbit in a dimensionless system for 10 time units. The state at $i=1$ and $i=10$ is available in Equation \eqref{eq:stateproblem1a}. \\
+
+The \texttt{runge\_kutta\_dopri5} (Runge Kutta Dormand-Prince 5) variable time-step numerical propagator from the well known \texttt{boost} {\CC} library was used. The absolute tolerance was set to 1E-16 and the relative to 3E-14.
 
 \begin{equation}
-	\label{eq:U}
-	U = U_{\text{point mass}} + U_{J_2} = \frac{\mu}{r} - J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right)
+	\label{eq:stateproblem1a}
+	\begin{array}{lr}
+		\underline{X}(t_1) = \begin{bmatrix}
+			-0.83907 \\
+			-0.54402 \\
+			0.54402 \\
+			-0.83907
+		\end{bmatrix} & \underline{X}(t_{10}) = \begin{bmatrix}
+			 0.86232 \\
+			-0.50637 \\
+			0.50637 \\
+			0.86232
+		\end{bmatrix}
+	\end{array}
 \end{equation}
 
-The gradient of $U_{\text{point mass}}$ was derived in the previous homework. For this homework we will derive the gradient of $U_{J_2}$. \\
+\subsection{Problem 1-b}
 
-We begin by noticing a symmetry in the partial derivatives with respect to $x$ and $y$. By inspection we are able to note that $\frac{\partial U_{J2}}{\partial x} (\sigma) = \frac{\partial U_{J2}}{\partial y} (\sigma)$. Therefore we need only find the partial derivatives with respect to $x$ and $z$ to fully compute the gradient. \\
-
-\begin{align}
-	\frac{\partial U_{J2}}{\partial x} & = - \frac{\partial}{\partial x} \left[ J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
-	& = - \frac{\partial}{\partial x} \left[ J_2 \mu \left( x^2 + y^2 + z^2\right)^{-1/2} R_E^2 \left( x^2 + y^2 + z^2\right)^{-1} \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
-	& = - J_2 \mu R_E^2 \frac{\partial}{\partial x} \left[ \left( x^2 + y^2 + z^2\right)^{-1.5} \left( 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-1}  - 0.5\right) \right] \\
-	& = - J_2 \mu R_E^2 \frac{\partial}{\partial x} \left[ 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-2.5} - 0.5 \left( x^2 + y^2 + z^2\right)^{-1.5} \right] \\
-	& = - J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} 2x + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} 2x \right) \\
-	\frac{\partial U_{J2}}{\partial x} & = - 2 x J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right)
-\end{align}
-
-From this we can conclude that:
+Next, the initial conditions were perturbed slightly by the specified amount. The system was propagated with the same solver. The STM was also found through numerical integration. The perturbed state at $i=1$ and $i=10$ is available in Equation \eqref{eq:stateproblem1b}. The STM mapping from $t_0$ to $t_{1}$ and $t_{10}$ is shown in Equation \eqref{eq:STMproblem1b}.
 
 \begin{equation}
-	\frac{\partial U_{J2}}{\partial y} = - 2 y J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right)
+	\label{eq:stateproblem1b}
+	\begin{array}{lr}
+		\underline{X}^*(t_1) = \begin{bmatrix}
+			-0.83903 \\
+			-0.54407 \\
+			0.54408 \\
+			-0.83904
+		\end{bmatrix} & \underline{X}^*(t_{10}) = \begin{bmatrix}
+			 0.86262 \\
+			-0.50584 \\
+			0.50585 \\
+			0.86262
+		\end{bmatrix}
+	\end{array}
 \end{equation}
 
-We now work on $\frac{\partial U_{J2}}{\partial z}$.
+\begin{equation}
+	\label{eq:STMproblem1b}
+	\begin{array}{c}
+		\underline{\underline{\Phi}}(t_1, t_0) = \begin{bmatrix}
+			-19.296 & -1.0006 & -1.5446 & -20.592 \\
+			24.54  & 2.543 & 3.382 & 24.996 \\
+			-26.628 & -1.247 & -2.086 & -27.541 \\
+			-15.075 & -1.4571 & -2.0011 & -14.667 \\
+		\end{bmatrix} \\
+		\underline{\underline{\Phi}}(t_{10}, t_0) = \begin{bmatrix}
+			-151.28 & -0.069643 & -0.57518 & -152.54 \\
+			-260.23 &  0.88124  &  0.019132 &  -260.67 \\
+			259.15 &  0.37464  &   1.2367  &  260.03 \\
+			-152.13 &  0.36671 & -0.13883 & -151.64  
+			
+		\end{bmatrix}
+	\end{array}
+\end{equation}
 
-\begin{align}
-	\frac{\partial U_{J2}}{\partial z} & = - \frac{\partial}{\partial z} \left[ J_2 \frac{\mu}{r} \left( \frac{R_E}{r} \right)^2 \left( 1.5 \frac{z^2}{r^2} - 0.5\right) \right] \\
-	& \vdots \nonumber \\
-	& = - J_2 \mu R_E^2 \frac{\partial}{\partial z} \left[ 1.5 z^2 \left( x^2 + y^2 + z^2\right)^{-2.5} - 0.5 \left( x^2 + y^2 + z^2\right)^{-1.5} \right] \\
-	& = - J_2 \mu R_E^2 (  -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} 2z + 3z\left( x^2 + y^2 + z^2\right)^{-2.5} \nonumber \\
-	& \quad \quad + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} 2z ) \\
-	\frac{\partial U_{J2}}{\partial z} &= - J_2 \mu R_E^2 \left(  -7.5 z^3 \left( x^2 + y^2 + z^2\right)^{-3.5} + 4.5z\left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
-\end{align}
+\subsection{Problem 1-c}
 
-We are now able to write the complete gradient.
+To demonstrate that the STM is symplectic, we provide $\underline{\underline{\Phi}}(t_{10}, t_0)^{-1}$ in Equation \eqref{eq:STMinvproblem1c}. We multiply the STM with its inverse in Equation \eqref{eq:STMtimesInv} and show that their product is identity to the precision of the numerical integrator.
 
 \begin{equation}
-	\nabla U_{J2} = \begin{bmatrix}
-	- 2 x J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
-	- 2 y J_2 \mu R_E^2 \left( -3.75 z^2 \left( x^2 + y^2 + z^2\right)^{-3.5} + 0.75 \left( x^2 + y^2 + z^2\right)^{-2.5} \right) \\
-	- J_2 \mu R_E^2 \left(  -7.5 z^3 \left( x^2 + y^2 + z^2\right)^{-3.5} + 4.5z\left( x^2 + y^2 + z^2\right)^{-2.5} \right)
+	\label{eq:STMinvproblem1c}
+	\underline{\underline{\Phi}}(t_{10}, t_0)^{-1} = \begin{bmatrix}
+		1.2367 & -0.13883 & 0.57518 & -0.019132 \\
+		260.03 & -151.64 & 152.54 & 260.67 \\
+		-259.15 & 152.13 & -151.28 & -260.23 \\
+		-0.37464 & -0.36671 & -0.069643 & 0.88124
 	\end{bmatrix}
 \end{equation}
 
-\subsection{Part b}
+\begin{equation}
+	\label{eq:STMtimesInv}
+	\underline{\underline{\Phi}}(t_{10}, t_0) \underline{\underline{\Phi}}(t_{10}, t_0)^{-1} = \begin{bmatrix}
+		1 & -2.1316e-14 & 1.2434e-14 & 2.8422e-14 \\
+		-8.5265e-14 & 1 & 1.0658e-14 & -2.8422e-14 \\
+		-5.6843e-14 & 7.1054e-14 & 1 & -8.5265e-14 \\
+		-1.4211e-14 & 7.1054e-15 & 1.4211e-14 & 1
+	\end{bmatrix}
+\end{equation}
 
-Figure \ref{fig:OE} shows the evolution of six orbital elements; $a$, $e$, $i$, $\Omega$, $\omega$, and $T_p$ over the course of one day. All orbital elements exhibit some variation over the course of the day. As expected, only variations in $\Omega$ and $\omega$ are significant. There is a relatively constant change in the right ascension of the ascending node, $\Omega$, over the course of the day. This change is commonly leveraged to produce orbits which are sun-synchronous. \\
+\subsection{Problem 1-d}
 
-The argument of periapsis, $\omega$, also exhibits significant oscillations centered around 90 degrees. This is caused by J2 providing a psuedo-torque on the vehicle which rotates the orbit back and forth as it circles the planet. \\
+We find the perturbation from the nominal directly and compare to the peturbation estimated through the STM. This is done at $i=1$ and $i=10$. Results are shown in Tables \ref{tb:prob1d_1} and \ref{tb:prob1d_2}. \\
 
-\begin{figure}[h!]
+{\renewcommand{\arraystretch}{2}
+\begin{table}[ht!]
 	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=\linewidth]{figs/OE.pdf}
-	\caption{Each of the orbital elements over the course of one day while modeling J2.}
-	\label{fig:OE}
-\end{figure}
+	\begin{tabular}{c|c}
+		Quantity  & $i=1$ \\ \hline
+		$\delta \underline{X}(t_i) = \underline{X}(t_i) -  \underline{X}^*(t_i)$ & $\left[-4.0431e-05 \quad 5.0376e-05 \quad -5.501e-05 \quad -3.0285e-05 \right]^T$ \\ \hline
+		$\delta \underline{X}(t_i) = \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-4.0433e-05 \quad 5.0374e-05 \quad 7.5791e-06 \quad -5.5009e-05 \right]^T$ \\ \hline
+		$\delta \underline{X}(t_i) - \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[1.5866e-09 \quad 1.1069e-09 \quad -6.2589e-05 \quad 2.4724e-05 \right]^T$ 
+	\end{tabular}
+	\caption{Results from Problem 1-d at $i=1$.}
+	\label{tb:prob1d_1}
+\end{table}
+}
 
-Figure \ref{fig:OrbitPeriod} shows the evolution of the orbital period, $P$. $P$ remains relatively constant, instantaneously varying by less than 20 seconds over the course of the orbit. This tells us that instantaneous calculations of $P$ do have some inaccuracy, and J2 must be modeled to provide a more accurate estimate of $P$. \\
+{\renewcommand{\arraystretch}{2}
+	\begin{table}[ht!]
+		\centering
+		\begin{tabular}{c|c}
+			Quantity  & $i=10$ \\ \hline
+			$\delta \underline{X}(t_i) = \underline{X}(t_i) -  \underline{X}^*(t_i)$ & $\left[-0.00030449 \quad -0.00052168 \quad 0.00051995 \quad -0.00030443 \right]^T$ \\ \hline
+			$\delta \underline{X}(t_i) = \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-0.00030433 \quad -0.00052177 \quad 0.0010777 \quad 0.00052004	\right]^T$ \\ \hline
+			$\delta \underline{X}(t_i) - \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-1.5836e-07 \quad 8.8785e-08 \quad -0.00055772 \quad -0.00082447 \right]^T$ 
+		\end{tabular}
+		\caption{Results from Problem 1-d at $i=10$.}
+		\label{tb:prob1d_2}
+	\end{table}
+}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.5\linewidth]{figs/OrbitPeriod.pdf}
-	\caption{The orbital period over the course of one day while modeling J2.}
-	\label{fig:OrbitPeriod}
-\end{figure}
-
-\subsection{Part c}
-
-Figure \ref{fig:energy} shows the change in specific energy of the spacecraft over the course of one day while modeling J2. We note that it is almost constant, and most errors are likely due to the finite tolerances of our numerical integrator. Therefore, we conclude that J2 does not cause the spacecraft's potential and kinetic energy to be converted to other forms such as thermal. \\
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.5\linewidth]{figs/energy.pdf}
-	\caption{Change in specific energy of the spacecraft while modeling J2.}
-	\label{fig:energy}
-\end{figure}
-
-\subsection{Part d}
-
-Figure \ref{fig:angmom} shows the change in the 3\textsuperscript{rd} element of the angular momentum vector. The variations in this element are most likely due to the finite tolerances of our numerical integrator. Therefore, we conclude that J2 does not cause changes to the $k$ component of the angular momentum vector. \\
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.5\linewidth]{figs/angmom.pdf}
-	\caption{Change in k\textsuperscript{th} element of the angular momentum vector while modeling J2.}
-	\label{fig:angmom}
-\end{figure}
-
+\newpage
 \section{Problem 2}
 
-\subsection{Part a}
+A basic estimation problem was solved. The system is linear, static, and the mean and variance of the state's prior are known. A simple Kalman filter update was performed to find the state estimate, Equation \eqref{eq:estprob2}. The observation error can be estimated as $\underline{y} - \underline{\underline{H}} \hat{x}$ and is shown in Equation \eqref{eq:errestprob2}.
 
-Figure \ref{fig:energydrag} shows the change in specific energy of the spacecraft while modeling J2 and atmospheric drag forces. We note a clear decline in the specific energy of the spacecraft over time. This can be contrasted with the nearly constant specific energy demonstrated in Figure \ref{fig:energy}. From this, we can conclude that drag forces remove kinetic and potential energy from the spacecraft. If these are the only forms of energy considered, then energy is not conserved. However, from a wider frame of view, this lost energy is certainly converted into some other form such as thermal and the total amount of energy in the universe is conserved. \\
+\begin{equation}
+	\label{eq:estprob2}
+	\hat{x} = 1.5000
+\end{equation}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.5\linewidth]{figs/energydrag.pdf}
-	\caption{The change in specific energy while modeling drag and J2. Note the steady loss in energy due to drag forces.}
-	\label{fig:energydrag}
-\end{figure}
-
-\subsection{Part b}
-
-Figure \ref{fig:dOE} compares the orbital elements found while modeling drag and J2 to those found while modeling J2 only. From this plot we see that the main component effected by drag is semi-major axis, $a$. This is because drag removes energy from the orbit and thus lowers its altitude. \\
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=\linewidth]{figs/dOE.pdf}
-	\caption{The difference between orbital elements while modeling J2 and while modeling J2 plus drag.}
-	\label{fig:dOE}
-\end{figure}
-
-\clearpage
+\begin{equation}
+	\label{eq:errestprob2}
+	\hat{\epsilon} = \begin{bmatrix}
+		-0.5000 \\
+		0.5000 \\
+		-0.5000
+	\end{bmatrix}
+\end{equation}
+\newpage
 \appendix
 \section{Code}
 
 \subsection{\texttt{main.cc}}
-\lstinputlisting{../../src/HW2/main.cc}
+\lstinputlisting{../../src/HW3/main.cc}
 
 \subsection{\texttt{VehicleState.h}}
-\lstinputlisting{../../src/HW2/VehicleState.h}
+\lstinputlisting{../../src/HW3/VehicleState.h}
 
 \subsection{\texttt{Util.h}}
-\lstinputlisting{../../src/HW2/Util.h}
+\lstinputlisting{../../src/HW3/Util.h}
+
+\subsection{\texttt{Estimators.h}}
+\lstinputlisting{../../src/HW3/Estimators.h}
 
 \subsection{\texttt{VehicleState.cc}}
-\lstinputlisting{../../src/HW2/VehicleState.cc}
+\lstinputlisting{../../src/HW3/VehicleState.cc}
 
 \subsection{\texttt{Util.cc}}
-\lstinputlisting{../../src/HW2/Util.cc}
+\lstinputlisting{../../src/HW3/Util.cc}
 
-%plot matlab files now
-\lstset { %
-	language=matlab,
-	backgroundcolor=\color{black!5}, % set backgroundcolor
-	basicstyle=\tiny,% basic font setting
-}
+\subsection{\texttt{Estimators.cc}}
+\lstinputlisting{../../src/HW3/Estimators.cc}
 
-\subsection{\texttt{SymbolicPartials.m}}
-\lstinputlisting{../../src/HW2/SymbolicPartials.m}
-
-\subsection{\texttt{plotting.m}}
-\lstinputlisting{../../src/HW2/plotting.m}
+%%plot matlab files now
+%\lstset { %
+%	language=matlab,
+%	backgroundcolor=\color{black!5}, % set backgroundcolor
+%	basicstyle=\tiny,% basic font setting
+%}
+%
+%\subsection{\texttt{plotting.m}}
+%\lstinputlisting{../../src/HW1/plotting.m}
 
 
 \end{document}
