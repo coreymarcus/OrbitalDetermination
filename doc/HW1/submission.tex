@@ -45,57 +45,183 @@
 
 \section{Introduction}
 
-The propagator from previous homeworks was used to find the state transition matrix mapping deviations in a nominal trajectory at one time to another.
+The propagator from previous homeworks was used to find the state transition matrix mapping deviations in a nominal trajectory at one time to another. \\
 
 In addition, a basic estimation problem was solved.
 
-\section{Problem One}
+\section{Problem 1}
 
+\subsection{Problem 1-a}
+
+We begin by propagating a orbit in a dimensionless system for 10 time units. The state at $i=1$ and $i=10$ is available in Equation \eqref{eq:stateproblem1a}. \\
+
+The \texttt{runge\_kutta\_dopri5} (Runge Kutta Dormand-Prince 5) variable time-step numerical propagator from the well known \texttt{boost} {\CC} library was used. The absolute tolerance was set to 1E-16 and the relative to 3E-14.
+
+\begin{equation}
+	\label{eq:stateproblem1a}
+	\begin{array}{lr}
+		\underline{X}(t_1) = \begin{bmatrix}
+			-0.83907 \\
+			-0.54402 \\
+			0.54402 \\
+			-0.83907
+		\end{bmatrix} & \underline{X}(t_{10}) = \begin{bmatrix}
+			 0.86232 \\
+			-0.50637 \\
+			0.50637 \\
+			0.86232
+		\end{bmatrix}
+	\end{array}
+\end{equation}
+
+\subsection{Problem 1-b}
+
+Next, the initial conditions were perturbed slightly by the specified amount. The system was propagated with the same solver. The STM was also found through numerical integration. The perturbed state at $i=1$ and $i=10$ is available in Equation \eqref{eq:stateproblem1b}. The STM mapping from $t_0$ to $t_{1}$ and $t_{10}$ is shown in Equation \eqref{eq:STMproblem1b}.
+
+\begin{equation}
+	\label{eq:stateproblem1b}
+	\begin{array}{lr}
+		\underline{X}^*(t_1) = \begin{bmatrix}
+			-0.83903 \\
+			-0.54407 \\
+			0.54408 \\
+			-0.83904
+		\end{bmatrix} & \underline{X}^*(t_{10}) = \begin{bmatrix}
+			 0.86262 \\
+			-0.50584 \\
+			0.50585 \\
+			0.86262
+		\end{bmatrix}
+	\end{array}
+\end{equation}
+
+\begin{equation}
+	\label{eq:STMproblem1b}
+	\begin{array}{c}
+		\underline{\underline{\Phi}}(t_1, t_0) = \begin{bmatrix}
+			-19.296 & -1.0006 & -1.5446 & -20.592 \\
+			24.54  & 2.543 & 3.382 & 24.996 \\
+			-26.628 & -1.247 & -2.086 & -27.541 \\
+			-15.075 & -1.4571 & -2.0011 & -14.667 \\
+		\end{bmatrix} \\
+		\underline{\underline{\Phi}}(t_{10}, t_0) = \begin{bmatrix}
+			-151.28 & -0.069643 & -0.57518 & -152.54 \\
+			-260.23 &  0.88124  &  0.019132 &  -260.67 \\
+			259.15 &  0.37464  &   1.2367  &  260.03 \\
+			-152.13 &  0.36671 & -0.13883 & -151.64  
+			
+		\end{bmatrix}
+	\end{array}
+\end{equation}
+
+\subsection{Problem 1-c}
+
+To demonstrate that the STM is symplectic, we provide $\underline{\underline{\Phi}}(t_{10}, t_0)^{-1}$ in Equation \eqref{eq:STMinvproblem1c}. We multiply the STM with its inverse in Equation \eqref{eq:STMtimesInv} and show that their product is identity to the precision of the numerical integrator.
+
+\begin{equation}
+	\label{eq:STMinvproblem1c}
+	\underline{\underline{\Phi}}(t_{10}, t_0)^{-1} = \begin{bmatrix}
+		1.2367 & -0.13883 & 0.57518 & -0.019132 \\
+		260.03 & -151.64 & 152.54 & 260.67 \\
+		-259.15 & 152.13 & -151.28 & -260.23 \\
+		-0.37464 & -0.36671 & -0.069643 & 0.88124
+	\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+	\label{eq:STMtimesInv}
+	\underline{\underline{\Phi}}(t_{10}, t_0) \underline{\underline{\Phi}}(t_{10}, t_0)^{-1} = \begin{bmatrix}
+		1 & -2.1316e-14 & 1.2434e-14 & 2.8422e-14 \\
+		-8.5265e-14 & 1 & 1.0658e-14 & -2.8422e-14 \\
+		-5.6843e-14 & 7.1054e-14 & 1 & -8.5265e-14 \\
+		-1.4211e-14 & 7.1054e-15 & 1.4211e-14 & 1
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Problem 1-d}
+
+We find the perturbation from the nominal directly and compare to the peturbation estimated through the STM. This is done at $i=1$ and $i=10$. Results are shown in Tables \ref{tb:prob1d_1} and \ref{tb:prob1d_2}. \\
+
+{\renewcommand{\arraystretch}{2}
 \begin{table}[ht!]
 	\centering
-	\begin{tabular}{c|l}
-		Element  & Value \\ \hline
-		$a$ [km]      &    7712.18   \\
-		$e$      &   0.000999436    \\
-		$i$      &   63.434    \\
-		$\Omega$ &   135.00    \\
-		$\omega$ &   90.000    \\
-		$\nu$    &   0.00000   
+	\begin{tabular}{c|c}
+		Quantity  & $i=1$ \\ \hline
+		$\delta \underline{X}(t_i) = \underline{X}(t_i) -  \underline{X}^*(t_i)$ & $\left[-4.0431e-05 \quad 5.0376e-05 \quad -5.501e-05 \quad -3.0285e-05 \right]^T$ \\ \hline
+		$\delta \underline{X}(t_i) = \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-4.0433e-05 \quad 5.0374e-05 \quad 7.5791e-06 \quad -5.5009e-05 \right]^T$ \\ \hline
+		$\delta \underline{X}(t_i) - \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[1.5866e-09 \quad 1.1069e-09 \quad -6.2589e-05 \quad 2.4724e-05 \right]^T$ 
 	\end{tabular}
-	\caption{Keplerian elements calculated as part of Problem 1. All angles in degrees.}
-	\label{tb:kepler}
+	\caption{Results from Problem 1-d at $i=1$.}
+	\label{tb:prob1d_1}
 \end{table}
+}
 
+{\renewcommand{\arraystretch}{2}
+	\begin{table}[ht!]
+		\centering
+		\begin{tabular}{c|c}
+			Quantity  & $i=10$ \\ \hline
+			$\delta \underline{X}(t_i) = \underline{X}(t_i) -  \underline{X}^*(t_i)$ & $\left[-0.00030449 \quad -0.00052168 \quad 0.00051995 \quad -0.00030443 \right]^T$ \\ \hline
+			$\delta \underline{X}(t_i) = \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-0.00030433 \quad -0.00052177 \quad 0.0010777 \quad 0.00052004	\right]^T$ \\ \hline
+			$\delta \underline{X}(t_i) - \underline{\underline{\Phi}}(t_i, t_0) \delta \underline{X}(t_0)$ & $\left[-1.5836e-07 \quad 8.8785e-08 \quad -0.00055772 \quad -0.00082447 \right]^T$ 
+		\end{tabular}
+		\caption{Results from Problem 1-d at $i=10$.}
+		\label{tb:prob1d_2}
+	\end{table}
+}
+
+\newpage
 \section{Problem 2}
 
+A basic estimation problem was solved. The system is linear, static, and the mean and variance of the state's prior are known. A simple Kalman filter update was performed to find the state estimate, Equation \eqref{eq:estprob2}. The observation error can be estimated as $\underline{y} - \underline{\underline{H}} \hat{x}$ and is shown in Equation \eqref{eq:errestprob2}.
+
+\begin{equation}
+	\label{eq:estprob2}
+	\hat{x} = 1.5000
+\end{equation}
+
+\begin{equation}
+	\label{eq:errestprob2}
+	\hat{\epsilon} = \begin{bmatrix}
+		-0.5000 \\
+		0.5000 \\
+		-0.5000
+	\end{bmatrix}
+\end{equation}
 \newpage
 \appendix
 \section{Code}
 
 \subsection{\texttt{main.cc}}
-\lstinputlisting{../../src/HW1/main.cc}
+\lstinputlisting{../../src/HW3/main.cc}
 
 \subsection{\texttt{VehicleState.h}}
-\lstinputlisting{../../src/HW1/VehicleState.h}
+\lstinputlisting{../../src/HW3/VehicleState.h}
 
 \subsection{\texttt{Util.h}}
-\lstinputlisting{../../src/HW1/Util.h}
+\lstinputlisting{../../src/HW3/Util.h}
+
+\subsection{\texttt{Estimators.h}}
+\lstinputlisting{../../src/HW3/Estimators.h}
 
 \subsection{\texttt{VehicleState.cc}}
-\lstinputlisting{../../src/HW1/VehicleState.cc}
+\lstinputlisting{../../src/HW3/VehicleState.cc}
 
 \subsection{\texttt{Util.cc}}
-\lstinputlisting{../../src/HW1/Util.cc}
+\lstinputlisting{../../src/HW3/Util.cc}
 
-%plot matlab files now
-\lstset { %
-	language=matlab,
-	backgroundcolor=\color{black!5}, % set backgroundcolor
-	basicstyle=\tiny,% basic font setting
-}
+\subsection{\texttt{Estimators.cc}}
+\lstinputlisting{../../src/HW3/Estimators.cc}
 
-\subsection{\texttt{plotting.m}}
-\lstinputlisting{../../src/HW1/plotting.m}
+%%plot matlab files now
+%\lstset { %
+%	language=matlab,
+%	backgroundcolor=\color{black!5}, % set backgroundcolor
+%	basicstyle=\tiny,% basic font setting
+%}
+%
+%\subsection{\texttt{plotting.m}}
+%\lstinputlisting{../../src/HW1/plotting.m}
 
 
 \end{document}

@@ -75,51 +75,65 @@ int main() {
 	//propagate the orbit
 	double dt = 10.0; //TU for propagation
 	const int N = 10; // propagate for N steps
-	Eigen::MatrixXd truediff(6,N); // x - x_pet
-	Eigen::MatrixXd estdiff(6,N); // STM*pet
+	Eigen::MatrixXd truediff(4,N); // x - x_pet
+	Eigen::MatrixXd estdiff(4,N); // STM*pet
+	Eigen::MatrixXd nomtraj(4,N);
+	Eigen::MatrixXd perttraj(4,N);
 	Eigen::MatrixXd thist(1,N); //time
+	Eigen::MatrixXd STM1;
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
-		propobj.Propagate(dt, true);
-		peturbed.Propagate(dt, false);
+		propobj.Propagate(dt, false);
+		peturbed.Propagate(dt, true);
 
 		//update orbital elements
 		propobj.State2OE();
 		peturbed.State2OE();
 
 		//estimate deviation from nominal with STM
-		STM = propobj.STM_ * STM;
+		STM = peturbed.STM_ * STM;
 		estdiff.block(0,ii,6,1) = STM*dev;
 
+		//store first STM
+		if (ii == 0) {
+			STM1 = STM;
+		}
+
 		//store variables
-		truediff.block(0,ii,3,1) = propobj.pos_ - peturbed.pos_;
-		truediff.block(3,ii,3,1) = propobj.vel_ - peturbed.vel_;
+		truediff.block(0,ii,2,1) = propobj.pos_.block(0,0,2,1) - peturbed.pos_.block(0,0,2,1);
+		truediff.block(2,ii,2,1) = propobj.vel_.block(0,0,2,1) - peturbed.vel_.block(0,0,2,1);
+		nomtraj.block(0,ii,2,1) = propobj.pos_.block(0,0,2,1);
+		nomtraj.block(2,ii,2,1) = propobj.vel_.block(0,0,2,1);
+		perttraj.block(0,ii,2,1) = peturbed.pos_.block(0,0,2,1);
+		perttraj.block(2,ii,2,1) = peturbed.vel_.block(0,0,2,1);
 
 
 	}
 
-	std::cout << std::setprecision(17);
-	std::cout << "Problem 1: \n";
-	std::cout << truediff.block(0,N-1,3,1) << std::endl;
-	std::cout << estdiff.block(0,N-1,3,1) << std::endl;
+	std::cout << std::setprecision(5);
+	std::cout << "Problem 1a: \n" << "i=1\n";
+	std::cout << nomtraj.block(0,0,4,1) << "\n" << "i=10\n";
+	std::cout << nomtraj.block(0,N-1,4,1) << "\n" << "\n";
 
-	// std::cout << std::setprecision(17);
-	// std::cout << "Problem 1: \n";
-	// std::cout << "i = 1 position:\n" << xhist.block(0,1,3,1) << std::endl;
-	// std::cout << "i = 1 velocity:\n" << xhist.block(3,1,3,1)  << std::endl;
-	// std::cout << "i = 10 position:\n" << propobj.pos_ << std::endl;
-	// std::cout << "i = 10 velocity:\n" << propobj.vel_ << std::endl;
+	std::cout << "Problem 1b: \n" << "i=1\n";
+	std::cout << perttraj.block(0,0,4,1) << "\n" << "i=10\n";
+	std::cout << perttraj.block(0,N-1,4,1) << "\n" << "\n";
 
-	// //write data to csv
-	// Util::Eigen2csv("../data/xhist_HW3.csv",xhist);
-	// Util::Eigen2csv("../data/thist_HW3.csv",thist);
+	std::cout << "STM from 0 to 1: \n" << STM1 << "\n \n";
+	std::cout << "STM from 0 to 10: \n" << STM << "\n \n";
 
+	std::cout << "Problem 1-c: \n" << "STM Inverse:\n" << STM.inverse() << "\n";
+	std::cout << "STM times Inverse:\n" << STM*STM.inverse() << "\n";
+
+	std::cout << "Problem 1-d: \n" << "(1)\n" << truediff.block(0,0,4,1) << "\n \n" << truediff.block(0,N-1,4,1) << "\n";
+	std::cout << "(2)\n" << estdiff.block(0,0,4,1) << "\n \n" << estdiff.block(0,N-1,4,1) << "\n";
+	std::cout << "(3)\n" << truediff.block(0,0,4,1) - estdiff.block(0,0,4,1) << "\n \n" << truediff.block(0,N-1,4,1) - estdiff.block(0,N-1,4,1) << "\n";
 	
 	// Do some problem 2 stuff
 
 	//initialize estimator
-	Estimate::LS estLS;
+	Estimate::KF estKF;
 
 	//set properties
 	Eigen::MatrixXd H(3,1);
@@ -132,10 +146,10 @@ int main() {
 	W(0,0) = 2.0;
 	Pbar(0,0) = 1/2.0;
 	mu(0) = 2.0;
-	estLS.H_ = H;
-	estLS.R_ = W.inverse();
-	estLS.Pbar_ = Pbar;
-	estLS.mu_ = mu;
+	estKF.H_ = H;
+	estKF.R_ = W.inverse();
+	estKF.Pbar_ = Pbar;
+	estKF.mu_ = mu;
 
 	//measurement
 	Eigen::VectorXd y(3);
@@ -144,12 +158,16 @@ int main() {
 	y(2) = 1.0;
 
 	//perform estimate
-	estLS.CalcEstimate(y);
+	estKF.CalcEstimate(y);
+	Eigen::VectorXd errhat = y - H*estKF.xhat_;
 
 	//output
-	std::cout << "\n Problem 2: \n";
-	std::cout << "x_hat: " << estLS.xhat_ << std::endl;
-	std::cout << "e_hat: " << y - H*estLS.xhat_ << std::endl;
+	std::cout << "Problem 2: \n";
+	std::cout << "x_hat: " << estKF.xhat_ << std::endl;
+	std::cout << "e_hat: " << errhat << std::endl;
+
+	std::cout << "done!\n";
+	return 0;
 	
 	
 } // main
