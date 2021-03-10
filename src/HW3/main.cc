@@ -3,6 +3,7 @@
 #include <math.h> // trig functions
 #include <Eigen/Dense> // vectors
 #include "VehicleState.h" // headerfile containing propagator class
+#include "Estimators.h" // headerfile containing estimator classes
 #include "Util.h" // utility functions
 #include <iomanip>      // std::setprecision
 #include <unsupported/Eigen/MatrixFunctions>
@@ -57,28 +58,51 @@ int main() {
 	propobj.reltol_ = 3*pow(10,-14);
 	propobj.dt_var_ = 0.1;
 
+	//form the peturbed object
+	Eigen::Vector3d petpos(1.0*pow(10,-6), -1.0*pow(10,-6), 0.0);
+	Eigen::Vector3d petvel(1.0*pow(10,-6), 1.0*pow(10,-6), 0.0);
+	VehicleState::Propagator peturbed;
+	peturbed = propobj;
+	peturbed.pos_ = pos0 - petpos;
+	peturbed.vel_ = vel0 - petvel;
+
+	//initialize matrix storing STM from t = 0 and peturbation vector
+	Eigen::VectorXd dev(6);
+	dev.block(0,0,3,1) = petpos;
+	dev.block(3,0,3,1) = petvel;
+	Eigen::MatrixXd STM = Eigen::MatrixXd::Identity(6,6);
+
 	//propagate the orbit
 	double dt = 10.0; //TU for propagation
-	const int N = 1; // propagate for 11 steps
-	Eigen::MatrixXd xhist(6,N); //state history
+	const int N = 10; // propagate for N steps
+	Eigen::MatrixXd truediff(6,N); // x - x_pet
+	Eigen::MatrixXd estdiff(6,N); // STM*pet
 	Eigen::MatrixXd thist(1,N); //time
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate
 		propobj.Propagate(dt, true);
+		peturbed.Propagate(dt, false);
 
 		//update orbital elements
 		propobj.State2OE();
+		peturbed.State2OE();
+
+		//estimate deviation from nominal with STM
+		STM = propobj.STM_ * STM;
+		estdiff.block(0,ii,6,1) = STM*dev;
 
 		//store variables
-		xhist.block(0,ii,3,1) = propobj.pos_;
-		xhist.block(3,ii,3,1) = propobj.pos_;
+		truediff.block(0,ii,3,1) = propobj.pos_ - peturbed.pos_;
+		truediff.block(3,ii,3,1) = propobj.vel_ - peturbed.vel_;
+
 
 	}
 
 	std::cout << std::setprecision(17);
 	std::cout << "Problem 1: \n";
-	std::cout << propobj.STM_ << std::endl;
+	std::cout << truediff.block(0,N-1,3,1) << std::endl;
+	std::cout << estdiff.block(0,N-1,3,1) << std::endl;
 
 	// std::cout << std::setprecision(17);
 	// std::cout << "Problem 1: \n";
@@ -91,7 +115,41 @@ int main() {
 	// Util::Eigen2csv("../data/xhist_HW3.csv",xhist);
 	// Util::Eigen2csv("../data/thist_HW3.csv",thist);
 
-	std::cout << "done!" << std::endl;
+	
+	// Do some problem 2 stuff
+
+	//initialize estimator
+	Estimate::LS estLS;
+
+	//set properties
+	Eigen::MatrixXd H(3,1);
+	Eigen::MatrixXd W = Eigen::MatrixXd::Identity(3,3);
+	Eigen::MatrixXd Pbar(1,1);
+	Eigen::VectorXd mu(1);
+	H(0,0) = 1.0;
+	H(1,0) = 1.0;
+	H(2,0) = 1.0;
+	W(0,0) = 2.0;
+	Pbar(0,0) = 1/2.0;
+	mu(0) = 2.0;
+	estLS.H_ = H;
+	estLS.R_ = W.inverse();
+	estLS.Pbar_ = Pbar;
+	estLS.mu_ = mu;
+
+	//measurement
+	Eigen::VectorXd y(3);
+	y(0) = 1.0;
+	y(1) = 2.0;
+	y(2) = 1.0;
+
+	//perform estimate
+	estLS.CalcEstimate(y);
+
+	//output
+	std::cout << "\n Problem 2: \n";
+	std::cout << "x_hat: " << estLS.xhat_ << std::endl;
+	std::cout << "e_hat: " << y - H*estLS.xhat_ << std::endl;
 	
 	
 } // main

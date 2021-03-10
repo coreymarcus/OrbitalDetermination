@@ -24,7 +24,7 @@
 \definecolor{mylilas}{RGB}{170,55,241}
 \definecolor{mygreen}{RGB}{0,168,45}
 
-\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 1}
+\title{ASE 389P.4 Methods of Orbit Determination \\ Homework 3}
 \author{Corey L Marcus} \date{Thursday, February 11\textsuperscript{th}}
 
 %command to write C++ nicely
@@ -41,33 +41,15 @@
 \onehalfspace
 \maketitle
 
-\abstract{This homework demonstrates a working orbit propagator.}
+\abstract{This homework demonstrates a calculation of the STM for basic orbits and basic estimation.}
 
 \section{Introduction}
 
-A propagator for orbital mechanics was created. This propagator was used to simulate the dynamics of a spacecraft over two orbital periods. It is shown that angular momentum and energy are constant while in orbit, with deviations resulting only from the limited precision of the ordinary differential equation solver. \\
+The propagator from previous homeworks was used to find the state transition matrix mapping deviations in a nominal trajectory at one time to another.
 
-In addition to the propagator, a simple derivation for the two-body acceleration due to gravity from the gravity potential function is presented. \\
-
-For fun, all code was written in \CC using object-oriented programming principles while adhering to Google's Style Guide for \CC. MATLAB is used briefly for plotting. \\
-
-Due to time constraints, I do not know that I will be able to continue using \CC. 
+In addition, a basic estimation problem was solved.
 
 \section{Problem One}
-
-A spacecraft position, $\underline{R}$, and velocity, $\underline{V}$ were given.
-
-\begin{equation}
-	\label{eq:pos1}
-	\underline{R} = -2436.45\hat{i} - 2436.45\hat{j} + 6891.037\hat{k} \quad km
-\end{equation}
-
-\begin{equation}
-\label{eq:vel1}
-\underline{V} = 5.088611\hat{i} - 5.088611\hat{j} + 0\hat{k} \quad \frac{km}{sec}
-\end{equation}
-
-These were converted to the six Keplerian elements. Results are reported in Table \ref{tb:kepler}.
 
 \begin{table}[ht!]
 	\centering
@@ -85,88 +67,6 @@ These were converted to the six Keplerian elements. Results are reported in Tabl
 \end{table}
 
 \section{Problem 2}
-
-These Keplerian elements were converted back to a position and velocity. These are reported in Equations \eqref{eq:pos2} and \eqref{eq:vel2}. Note small errors are present. These are particularly noticeable in the third element of the velocity vector. These errors are due to the finite precision of machine calculations.
-
-\begin{equation}
-\label{eq:pos2}
-\underline{R} = -2436.45\hat{i} - 2436.45\hat{j} + 6891.037\hat{k} \quad km
-\end{equation}
-
-\begin{equation}
-\label{eq:vel2}
-\underline{V} = 5.088611\hat{i} - 5.088611\hat{j} + 3.94127\mathrm{e}{-16}\hat{k}  \quad \frac{km}{sec}
-\end{equation}
-
-\section{Problem 3}
-
-We were asked to derive the two-body acceleration due to gravity from the gravity potential function, $U = \mu/R$. This was to be done by calculating the gradient of $U$. The derivation is presented below. \\
-
-For brevity, we will forgo the traditional $\hat{i}$, $\hat{j}$, and $\hat{k}$ notation in favor of $\hat{e}_1$, $\hat{e}_2$, and $\hat{e}_3$. Similarly, we will forget $x$, $y$, and $z$, and instead opt for $x_1$, $x_2$, $x_3$. We are now able to express the gradient of $U$ more compactly as shown in Equation \eqref{eq:GradU}.
-
-\begin{equation}
-	\label{eq:GradU}
-	\nabla U = \sum_{i = 1}^{3} \frac{\partial U}{\partial x_i} \hat{e}_i
-\end{equation}
-
-Next, note that $R = \sqrt{\underline{R}^T \underline{R}} = \sqrt{\sum_{i = 1}^{3} x_i^2}$. \\
-
-Now, we can derive:
-
-\begin{align}
-	\frac{\partial U}{\partial x_i} & = \frac{\mu}{\sqrt{\sum_{i = 1}^{3} x_i^2}} \\
-	& = -\frac{1}{2} \frac{\mu}{\left(\sum_{i = 1}^{3} x_i^2 \right) ^ {3/2}} 2 x_i \\
-	& = - \frac{\mu}{R^3} x_i
-\end{align}
-
-Note that $\underline{R} = \left[x_1 \hat{e}_1 \quad x_2 \hat{e}_2 \quad x_3 \hat{e}_3\right]^T$. \\
-
-From this, it is trivial to see that $\nabla U$ is equivalent to Equation \eqref{eq:accelgrav}
-
-\begin{equation}
-	\label{eq:accelgrav}
-	\nabla U = - \frac{\mu}{R^3} \underline{R}
-\end{equation} 
-
-\section{Problem 4}
-
-The initial conditions given in Equations \eqref{eq:pos1} and \eqref{eq:vel1} were propagated for two full orbital periods in 20 second intervals. The magnitude of position, velocity, and acceleration was calculated and is shown in Figure \ref{fig:posandderiv}
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/posandderivs.pdf}
-	\caption{The satellite motion. Note the clear periodicity.}
-	\label{fig:posandderiv}
-\end{figure}
-
-The specific angular momentum vector was calculated at each interval, each vector was plotted in three dimensions and is shown in the scatter plot of Figure \ref{fig:angmom}. Theoretically, angular momentum should be constant. However, the finite tolerances of our numerical calculations result in small drifts of the angular momentum vector with time.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/angmom.pdf}
-	\caption{The angular momentum vector. Note the small drifts in angular momentum due to finite numerical tolerances.}
-	\label{fig:angmom}
-\end{figure}
-
-\section{Problem 5}
-
-Finally, the specific kinetic and potential energy were calculated at each interval of the orbit propagation. These quantities are shown below in Figure \ref{fig:energy}.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/energy.pdf}
-	\caption{The specific kinetic and potential energy during the orbit.}
-	\label{fig:energy}
-\end{figure}
-
-The theory tells us that total energy should be constant. We calculate $dE(t) = E(t) - E(t_0)$ at each interval and plot it in Figure \ref{fig:energychange}. As with the angular momentum vector, small changes in energy are shown due to the finite numerical tolerances of our integrator.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[clip,trim=3.25cm 8.5cm 4.25cm 8.5cm, width=.6\linewidth]{figs/energychange.pdf}
-	\caption{The specific kinetic and potential energy during the orbit.}
-	\label{fig:energychange}
-\end{figure}
 
 \newpage
 \appendix

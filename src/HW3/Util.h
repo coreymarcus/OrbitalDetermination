@@ -1,5 +1,5 @@
-#ifndef OD_SRC_HW1_UTIL_H_
-#define OD_SRC_HW1_UTIL_H_
+#ifndef OD_SRC_HW3_UTIL_H_
+#define OD_SRC_HW3_UTIL_H_
 
 #include <Eigen/Dense> //matricies and vectors
 #include <vector> // basic cpp vectors

@@ -8,7 +8,6 @@
 
 namespace VehicleState {
 
-	//default constructor for Propagator
 	Propagator::Propagator(){}
 
 	void Propagator::OE2State(){
@@ -220,8 +219,6 @@ namespace VehicleState {
 		this->vel_[1] = xint[4];
 		this->vel_[2] = xint[5];
 		this->t_ = t2;
-
-		std::cout << "here1\n";
 
 		//if we propagated the STM, write it out
 		if(intSTM){

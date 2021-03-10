@@ -19,7 +19,8 @@ add_executable(HW2 src/HW2/main.cc
 	src/HW2/Util.cc)
 add_executable(HW3 src/HW3/main.cc
 	src/HW3/VehicleState.cc
-	src/HW3/Util.cc)
+	src/HW3/Util.cc
+	src/HW3/Estimators.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)

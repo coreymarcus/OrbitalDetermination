@@ -1,5 +1,5 @@
-#ifndef OD_SRC_HW1_VEHICLESTATE_H_
-#define OD_SRC_HW1_VEHICLESTATE_H_
+#ifndef OD_SRC_HW3_VEHICLESTATE_H_
+#define OD_SRC_HW3_VEHICLESTATE_H_
 
 #include <Eigen/Dense>
 #include <boost/numeric/odeint.hpp> //integrator
