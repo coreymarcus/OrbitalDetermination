@@ -28,7 +28,7 @@ int main() {
 	Eigen::Vector3d targ_pos_ECI(19165.44514777874, -37549.06140374086, -41.043609948282580);
 
 	//error
-	std::cout << "Error [m]: \n" << pow(10,3)*(targ_pos_ECI - pos_ECI) << "\n";
+	std::cout << "Error [km]: \n" << targ_pos_ECI - pos_ECI << "\n";
 
 
 	return 0;

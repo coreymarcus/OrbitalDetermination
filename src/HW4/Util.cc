@@ -184,12 +184,13 @@ namespace Util {
 		double tsinceJ2000 = (MJD_TT - MJD_J2000)/36525.0;
 
 		//find the remainder in the current JD
-		double JD_UTC_rem = JD_UTC - floor(JD_UTC);
+		double JD_UTC_rem = MJD_UTC - floor(MJD_UTC);
 
 		std::cout << "MJD_J2000: " << MJD_J2000 << "\n";
 		std::cout << "MJD_UTC: " << MJD_UTC << "\n";
 		std::cout << "MJD_TAI: " << MJD_TAI << "\n";
 		std::cout << "MJD_TT: " << MJD_TT << "\n";
+		std::cout << "JD_UTC_rem: " << JD_UTC_rem << "\n";
 
 		//we will manually find values from iau1980.txt because lazy
 		std::cout << "You need to manually find this in iau1980.txt \n";
