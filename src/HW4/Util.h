@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense> //matricies and vectors
 #include <vector> // basic cpp vectors
+#include <string> //filenames
 
 namespace Util {
 
@@ -25,7 +26,17 @@ namespace Util {
 	Eigen::MatrixXd GetGravJac(Eigen::Vector3d pos, double mu);
 
 	//convert from ECEF (ITRF) [km] to ECI (ICRF) [km] using IAU-76/FK5 and julian date (UTC)
-	Eigen::Vector3d ECEF2ECI(Eigen::Vector3d pos, double time);
+	//	sourced from Vallado
+	Eigen::Vector3d ECEF2ECI(Eigen::Vector3d pos, double JD_UTC);
+
+	//load space seperated value data file
+	Eigen::MatrixXd LoadDatFile(std::string file, int rows, int cols);
+
+	//raise a 3x3 matrix to a given power
+	Eigen::Matrix3d MatPOW(Eigen::Matrix3d mat, int n);
+
+	//orthonomalize a 3x3 matrix
+	Eigen::Matrix3d OrthoNormMat(Eigen::Matrix3d mat);
 
 } //namespace Util
 
