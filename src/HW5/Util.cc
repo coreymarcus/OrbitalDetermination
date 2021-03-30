@@ -6,6 +6,7 @@
 #include <fstream> // writing to files
 #include <iomanip>  // std::setprecision()
 #include <string> //filenames
+#include <boost/math/special_functions/legendre.hpp> //legendre polynomials for gravity
 
 namespace Util {
 
@@ -161,7 +162,7 @@ namespace Util {
 
 	} //GetGravJac
 
-	Eigen::Vector3d ECEF2ECI(Eigen::Vector3d pos, double JD_UTC){
+	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr){
 
 		//********* deal with time ******************
 
@@ -186,25 +187,38 @@ namespace Util {
 		//find the remainder in the current JD
 		double JD_UTC_rem = MJD_UTC - floor(MJD_UTC);
 
-		std::cout << "MJD_J2000: " << MJD_J2000 << "\n";
-		std::cout << "MJD_UTC: " << MJD_UTC << "\n";
-		std::cout << "MJD_TAI: " << MJD_TAI << "\n";
-		std::cout << "MJD_TT: " << MJD_TT << "\n";
-		std::cout << "JD_UTC_rem: " << JD_UTC_rem << "\n";
+		// std::cout << "MJD_J2000: " << MJD_J2000 << "\n";
+		// std::cout << "MJD_UTC: " << MJD_UTC << "\n";
+		// std::cout << "MJD_TAI: " << MJD_TAI << "\n";
+		// std::cout << "MJD_TT: " << MJD_TT << "\n";
+		// std::cout << "JD_UTC_rem: " << JD_UTC_rem << "\n";
 
 		//we will manually find values from iau1980.txt because lazy
-		std::cout << "You need to manually find this in iau1980.txt \n";
-		std::cout << "floor(MJD_UTC): " << floor(MJD_UTC) << "\n";
+		// std::cout << "You need to manually find this in iau1980.txt \n";
+		// std::cout << "floor(MJD_UTC): " << floor(MJD_UTC) << "\n";
 
 		//manual search found this:
 		// 1712 1 58088.00 I  0.124136 0.000022  0.236728 0.000035  I 0.2485001 0.0000084  1.5396 0.0061  I  -104.226    0.322    -8.561    0.160  0.124126  0.236687  0.2485227  -104.524    -8.685  
 		// 1712 2 58089.00 I  0.121708 0.000026  0.236266 0.000028  I 0.2469699 0.0000084  1.4837 0.0058  I  -104.143    0.322    -8.430    0.160  0.121669  0.236396  0.2469833  -105.014    -8.516
-		double PMx1 = 0.124126;
-		double PMx2 = 0.121669;
-		double PMy1 = 0.236687;
-		double PMy2 = 0.236396;
-		double UT1_UTC1 = 0.24852270;
-		double UT1_UTC2 = 0.24698330;
+		// double PMx1 = 0.124126;
+		// double PMx2 = 0.121669;
+		// double PMy1 = 0.236687;
+		// double PMy2 = 0.236396;
+		// double UT1_UTC1 = 0.24852270;
+		// double UT1_UTC2 = 0.24698330;
+
+		//get initial index of desired time
+		int tidx = round(floor(MJD_UTC) - iau1980ptr->coeff(0,0));
+
+		// std::cout << JD_UTC << "\n";
+
+		//extract values
+		double PMx1 = iau1980ptr->coeff(tidx,1);
+		double PMx2 = iau1980ptr->coeff(tidx+1,1);
+		double PMy1 = iau1980ptr->coeff(tidx,2);
+		double PMy2 = iau1980ptr->coeff(tidx+1,2);
+		double UT1_UTC1 = iau1980ptr->coeff(tidx,3);
+		double UT1_UTC2 = iau1980ptr->coeff(tidx+1,3);
 
 		//******** find rotation from precession ******************
 
@@ -218,10 +232,10 @@ namespace Util {
 		double theta = theta_deg*M_PI/(3600.0*180.0);
 		double z = z_deg*M_PI/(3600.0*180.0);
 
-		std::cout << "tsinceJ2000: " << tsinceJ2000 << "\n";
-		std::cout << "zeta: " << zeta << "\n";
-		std::cout << "theta: " << theta << "\n";
-		std::cout << "z: " << z << "\n";
+		// std::cout << "tsinceJ2000: " << tsinceJ2000 << "\n";
+		// std::cout << "zeta: " << zeta << "\n";
+		// std::cout << "theta: " << theta << "\n";
+		// std::cout << "z: " << z << "\n";
 
 		//create matrix
 		Eigen::Vector3d angles(z,-theta,zeta);
@@ -231,7 +245,7 @@ namespace Util {
 		//******** find rotation from nutation ******************
 
 		// load the parameters
-		Eigen::MatrixXd nut80 = LoadDatFile("../data/nut80.csv", 106, 10);
+		// Eigen::MatrixXd nut80 = LoadDatFile("../data/nut80.csv", 106, 10);
 
 		//find epsbar1980
 		double epsbar1980 = (84381.448 - 46.8150*tsinceJ2000 - 0.00059*pow(tsinceJ2000,2) + 0.001813*pow(tsinceJ2000,3))*M_PI/(3600.0*180.0);
@@ -251,11 +265,11 @@ namespace Util {
 		D_circle = D_circle*M_PI/180.0;
 		Ohm_moon = Ohm_moon*M_PI/180.0;
 
-		std::cout << "M_moon: " << M_moon << "\n";
-		std::cout << "M_cirle: " << M_cirle << "\n";
-		std::cout << "uM_moon: " << uM_moon << "\n";
-		std::cout << "D_circle: " << D_circle << "\n";
-		std::cout << "Ohm_moon: " << Ohm_moon << "\n";
+		// std::cout << "M_moon: " << M_moon << "\n";
+		// std::cout << "M_cirle: " << M_cirle << "\n";
+		// std::cout << "uM_moon: " << uM_moon << "\n";
+		// std::cout << "D_circle: " << D_circle << "\n";
+		// std::cout << "Ohm_moon: " << Ohm_moon << "\n";
 
 		//sum
 		double deltaPsi_1980 = 0.0;
@@ -263,16 +277,16 @@ namespace Util {
 		for (int ii = 0; ii < 106; ++ii) {
 
 			//extract locals
-			double an1 = nut80(ii,0);
-			double an2 = nut80(ii,1);
-			double an3 = nut80(ii,2);
-			double an4 = nut80(ii,3);
-			double an5 = nut80(ii,4);
-			double A = nut80(ii,5);
-			double B = nut80(ii,6);
-			double C = nut80(ii,7);
-			double D = nut80(ii,8);
-			double idx = nut80(ii,9);
+			double an1 = nut80ptr->coeff(ii,0);
+			double an2 = nut80ptr->coeff(ii,1);
+			double an3 = nut80ptr->coeff(ii,2);
+			double an4 = nut80ptr->coeff(ii,3);
+			double an5 = nut80ptr->coeff(ii,4);
+			double A = nut80ptr->coeff(ii,5);
+			double B = nut80ptr->coeff(ii,6);
+			double C = nut80ptr->coeff(ii,7);
+			double D = nut80ptr->coeff(ii,8);
+			double idx = nut80ptr->coeff(ii,9);
 
 			//aPi
 			double aPi = an1*M_moon + an2*M_cirle + an3*uM_moon + an4*D_circle + an5*Ohm_moon;
@@ -286,8 +300,8 @@ namespace Util {
 		deltaPsi_1980 = deltaPsi_1980*pow(10.0,-4)*M_PI/(3600.0*180.0);
 		deltaEsp_1980 = deltaEsp_1980*pow(10.0,-4)*M_PI/(3600.0*180.0);
 
-		std::cout << "deltaPsi_1980: " << deltaPsi_1980 << "\n";
-		std::cout << "deltaEsp_1980: " << deltaEsp_1980 << "\n";
+		// std::cout << "deltaPsi_1980: " << deltaPsi_1980 << "\n";
+		// std::cout << "deltaEsp_1980: " << deltaEsp_1980 << "\n";
 
 		//rotation
 		order = {1,3,1};
@@ -296,7 +310,7 @@ namespace Util {
 		angles[2] = -epsbar1980;
 		Eigen::Matrix3d N = Angle2RotM(angles,order);
 
-		std::cout << "angles: " << angles << "\n";
+		// std::cout << "angles: " << angles << "\n";
 
 		//******** find rotation from Polar Motion ******************
 
@@ -354,17 +368,17 @@ namespace Util {
 		W = OrthoNormMat(W);
 
 		//write out all the matricies
-		std::cout << "P:\n" << P << "\n";
-		std::cout << "N:\n" << N << "\n";
-		std::cout << "S:\n" << S << "\n";
-		std::cout << "W:\n" << W << "\n";
+		// std::cout << "P:\n" << P << "\n";
+		// std::cout << "N:\n" << N << "\n";
+		// std::cout << "S:\n" << S << "\n";
+		// std::cout << "W:\n" << W << "\n";
 
 		//Matrix
 		Eigen::Matrix3d Rotm = P*N*S*W;
 		Rotm = OrthoNormMat(Rotm);
 
 		//output
-		return Rotm*pos;
+		return Rotm;
 
 	} // ECEF2ECI()
 
@@ -463,5 +477,129 @@ namespace Util {
 
 		return JD;
 	}
+
+	EGM96Grav::EGM96Grav(){};
+
+	void EGM96Grav::LoadNormCoeffs(std::string C_file, std::string S_file){
+
+		this->C_norm_ = LoadDatFile(C_file, 361, 361);
+		this->S_norm_ = LoadDatFile(S_file, 361, 361);
+
+	} //LoadNormCoeffs
+
+	void EGM96Grav::NormCoeffs2Reg(){
+
+		//initialize matricies
+		this->C_ = Eigen::MatrixXd::Zero(361,361);
+		this->S_ = Eigen::MatrixXd::Zero(361,361);
+
+		for (double ll = 2; ll < 362; ++ll) {
+
+			for (double mm = 0; mm < ll+1; ++mm) {
+
+				
+				double k = 2.0;
+				if( (int) mm == 0) {
+					k = 1.0;
+				}
+
+				//intermediate values
+				//Note: tgamma(i+1) = factorial(i)
+				double a = tgamma(ll + mm + 1.0);
+				double b = tgamma(ll - mm + 1.0);
+				double c = (2.0*ll + 1.0);
+
+				//find factor
+				double Pi_lm = sqrt(a/(b*k*c));
+
+				//update
+				this->C_( (int) ll, (int) mm) = this->C_norm_( (int) ll, (int) mm)/Pi_lm;
+				this->S_( (int) ll, (int) mm) = this->S_norm_( (int) ll, (int) mm)/Pi_lm;
+			}
+		}
+
+	} //NormCoeffs2Reg
+
+	Eigen::Vector3d EGM96Grav::GetGravAccel(Eigen::Vector3d pos, double JD_UTC){
+
+		//make short namespace
+		namespace bm = boost::math;
+
+		//initialize output
+		Eigen::Vector3d accel;
+
+		//locals
+		double r = pos.norm();
+		double r2 = pow(r,2.0);
+		double r3 = pow(r,3.0);
+		double R = this->Rearth_;
+		double mu = this->mu_;
+		double pUpr = 0.0; //partial potential wrt radius
+		double pUpphi = 0.0; //partial potential wrt satellite latitude
+		double pUplamb = 0.0; //partial potential wrt satellite latitude
+		double nr_ij = sqrt(pow(pos[0],2.0) + pow(pos[1],2.0));
+
+		//matrix rotating from ECEF2ECI
+		Eigen::Matrix3d R_ecef2eci = ECEF2ECI(JD_UTC, this->nut80ptr_, this->iau1980ptr_);
+
+		//ecef position
+		Eigen::Vector3d pos_ecef = R_ecef2eci.transpose()*pos;
+
+		// std::cout << "pos_ecef: \n" << pos_ecef << "\n";
+
+		//lat and long
+		double phi = asin(pos_ecef[2]/r);
+		double lamb = atan2(pos_ecef[1],pos_ecef[0]);
+
+		// std::cout << "r: " << r << "\n phi: " << phi << "\n lamb: " << lamb << "\n";
+
+		//fixed order gravity model but have capability to do more
+		// for (double ll = 2; ll < 21; ++ll) {
+
+		// 	for (double mm = 0; mm < ll+1; ++mm) {
+
+		for (double ll = 2; ll < 3; ++ll) {
+
+			for (double mm = 0; mm < 1; ++mm) {
+
+				//locals
+				double powR = pow(R/r,ll);
+				double C = this->C_( (int) ll, (int) mm);
+				double S = this->S_( (int) ll, (int) mm);
+				double Plm = pow(-1.0,mm)*bm::legendre_p( (int) ll, (int) mm, sin(phi)); //pow(-1,m) to account for cordon shortley
+				// double Plm_plus = pow(-1.0,mm+1.0)*bm::legendre_p( (int) ll, ((int) mm) + 1, sin(phi));
+				double Plm_plus = pow(-1.0,mm)*bm::legendre_p( (int) ll - 1, (int) mm, sin(phi));
+
+				// std::cout << "l: " << ll << " m: " << mm << "\n";
+
+				pUpr += powR*(ll + 1.0)*Plm*(C*cos(mm*lamb) + S*sin(mm*lamb));
+				// pUpphi += powR*(Plm_plus - mm*tan(phi)*Plm) * (C*cos(mm*lamb) + S*sin(mm*lamb));
+				pUpphi += powR*(-ll*sin(phi)*(1/cos(phi))*Plm + (ll+mm)*(1/cos(phi))*Plm_plus) * (C*cos(mm*lamb) + S*sin(mm*lamb));
+				pUplamb += powR*mm*Plm*(S*cos(mm*lamb) - C*sin(mm*lamb));
+
+			}
+
+		}
+
+		//additional factors outside of sum for partials
+		pUpr = pUpr*(-mu/pow(r,2.0));
+		pUpphi = pUpphi*mu/r;
+		pUplamb = pUplamb*mu/r;
+
+		// pUpphi = -7.0036240305764034*pow(10.0,-8.0);
+
+		// std::cout << "pUpr: " << pUpr << "\n" << "pUpphi: " << pUpphi << "\n" << "pUplamb: " << pUplamb << "\n";
+
+		//calculate components of acceleration
+		accel[0] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[0] - pUplamb*pos[1]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[0]/r3;
+		accel[1] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[1] + pUplamb*pos[0]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[1]/r3;
+		accel[2] = pUpr*pos[2]/r + nr_ij*pUpphi/r2 - mu*pos[2]/r3;
+
+		//rotate accel into ECI
+		Eigen::Vector3d accel_eci = R_ecef2eci*accel;
+
+		return accel_eci;
+
+	} //GetGravAccel
 
 } //namespace Util

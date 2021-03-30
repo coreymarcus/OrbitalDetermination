@@ -321,30 +321,44 @@ namespace VehicleState {
 		//intermediate calcs
 		double r2 = pow(pos[0],2.0) + pow(pos[1],2.0) + pow(pos[2],2.0);
 		double r = sqrt(r2);
-		double eq1 = 3.0*pow(pos[2],2.0)/(2.0*r2) - 0.5;
 		double JD_UTC = t_JD_init + t/(24.0*60.0*60.0); //current UTC Julian Date in days
 		double d2r = M_PI/180.0; //degrees to radians
 
-		//two body acceleration
-		double k = -mu/pow(r,3);
-		state_type accel = {k*pos[0], k*pos[1], k*pos[2]};
+		//initalize acceleration
+		state_type accel = {0.0, 0.0, 0.0};
 
-		// std::cout << "item0: " << k*r << std::endl;
+		if(this->use20x20_){
 
-		if (this->useJ2_) { // J-2 accel
-			
-			double t2 = pow(pos[0],2);
-			double t3 = pow(pos[1],2);
-			double t4 = pow(pos[2],2);
-			double accel_j2_x = J2*pow(Rearth,2)*mu*pos[0]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
-			double accel_j2_y = J2*pow(Rearth,2)*mu*pos[1]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
-			double accel_j2_z = J2*pow(Rearth,2)*mu*pos[2]*1.0/pow(t2+t3+t4,7.0/2.0)*(t2*3.0+t3*3.0-t4*2.0)*(-3.0/2.0);
+			Eigen::Vector3d accelinit = this->gravmodel_->GetGravAccel(r_craft, JD_UTC);
 
-			// add J2 acceleration
-			accel[0] = accel[0] + accel_j2_x;
-			accel[1] = accel[1] + accel_j2_y;
-			accel[2] = accel[2] + accel_j2_z;
-		} // fi
+			accel[0] = accel[0] + accelinit[0];
+			accel[1] = accel[1] + accelinit[1];
+			accel[2] = accel[2] + accelinit[2];
+
+		} else {
+
+			//two body acceleration
+			double k = -mu/pow(r,3);
+			accel[0] = accel[0] + k*pos[0];
+			accel[1] = accel[1] + k*pos[1];
+			accel[2] = accel[2] + k*pos[2];
+
+			if (this->useJ2_) { // J-2 accel
+				
+				double t2 = pow(pos[0],2);
+				double t3 = pow(pos[1],2);
+				double t4 = pow(pos[2],2);
+				double accel_j2_x = J2*pow(Rearth,2)*mu*pos[0]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
+				double accel_j2_y = J2*pow(Rearth,2)*mu*pos[1]*(t2+t3-t4*4.0)*1.0/pow(t2+t3+t4,7.0/2.0)*(-3.0/2.0);
+				double accel_j2_z = J2*pow(Rearth,2)*mu*pos[2]*1.0/pow(t2+t3+t4,7.0/2.0)*(t2*3.0+t3*3.0-t4*2.0)*(-3.0/2.0);
+
+				// add J2 acceleration
+				accel[0] = accel[0] + accel_j2_x;
+				accel[1] = accel[1] + accel_j2_y;
+				accel[2] = accel[2] + accel_j2_z;
+			} // fi
+
+		}	
 
 		if (this->usedrag_) { // drag acceleration 
 			
@@ -364,32 +378,32 @@ namespace VehicleState {
 			accel[2] = accel[2] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
 		} //fi
 
+		//first, find the position of the sun in the ECI frame (vallado algo 29)
+
+		//assume JD_UTC = JD_UT1 (less than 1 second deviation)
+		// double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
+		double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
+		double lambda_M_sun = 280.460 + 36000.771285*T_UT1; // mean sun longitude [degrees]
+
+		//assume T_TBD = T_UT1
+		double M_sun = 357.528 + 35999.050957*T_UT1; // mean sun something [degrees]
+		double lambda_ecliptic = lambda_M_sun + 1.914666471*sin(M_sun*d2r) + 0.019994643*sin(2*M_sun*d2r);
+
+		//norm of position to sun [AU]
+		double r_sun_ECI_norm = 1.000140612 - 0.016708617*cos(M_sun*d2r) - 0.000139589*cos(2*M_sun*d2r);
+		double eps = 23.439291 - 0.0130042*T_UT1; //ecentricity of sun orbit?
+
+		//position of sun
+		r_sun_ECI[0] = r_sun_ECI_norm*cos(lambda_ecliptic*d2r)*AU2km;
+		r_sun_ECI[1] = r_sun_ECI_norm*cos(eps*d2r)*sin(lambda_ecliptic*d2r)*AU2km;
+		r_sun_ECI[2] = r_sun_ECI_norm*sin(eps*d2r)*sin(lambda_ecliptic*d2r)*AU2km;
+
+		//relative direction of sun in ECI frame
+		r_craft2sun = r_sun_ECI - r_craft;
+
+		bool in_sun = true; //boolean to track if we are in the sun or not
+
 		if (this->useSRP_) { //SRP acceleration
-
-			//first, find the position of the sun in the ECI frame (vallado algo 29)
-
-			//assume JD_UTC = JD_UT1 (less than 1 second deviation)
-			// double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
-			double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
-			double lambda_M_sun = 280.460 + 36000.771285*T_UT1; // mean sun longitude [degrees]
-
-			//assume T_TBD = T_UT1
-			double M_sun = 357.528 + 35999.050957*T_UT1; // mean sun something [degrees]
-			double lambda_ecliptic = lambda_M_sun + 1.914666471*sin(M_sun*d2r) + 0.019994643*sin(2*M_sun*d2r);
-
-			//norm of position to sun [AU]
-			double r_sun_ECI_norm = 1.000140612 - 0.016708617*cos(M_sun*d2r) - 0.000139589*cos(2*M_sun*d2r);
-			double eps = 23.439291 - 0.0130042*T_UT1; //ecentricity of sun orbit?
-
-			//position of sun
-			r_sun_ECI[0] = r_sun_ECI_norm*cos(lambda_ecliptic*d2r)*AU2km;
-			r_sun_ECI[1] = r_sun_ECI_norm*cos(eps*d2r)*sin(lambda_ecliptic*d2r)*AU2km;
-			r_sun_ECI[2] = r_sun_ECI_norm*sin(eps*d2r)*sin(lambda_ecliptic*d2r)*AU2km;
-
-			//relative direction of sun in ECI frame
-			r_craft2sun = r_sun_ECI - r_craft;
-
-			bool in_sun = true; //boolean to track if we are in the sun or not
 
 			//check to see if we are in the earth's shadow (vallado algo 34)
 			double sundotcraft = r_sun_ECI.dot(r_craft);
@@ -481,14 +495,6 @@ namespace VehicleState {
 			accel[0] = accel[0] + k_moon*r_craft2moon[0];
 			accel[1] = accel[1] + k_moon*r_craft2moon[1];
 			accel[2] = accel[2] + k_moon*r_craft2moon[2];
-
-			// std::cout << "item1: " << k_moon*r_craft2moon.norm() << std::endl;
-
-			// std::cout << "item2: " << k_sun*r_craft2sun.norm() << std::endl;
-
-			// exit(0);
-
-
 			
 		}
 
@@ -549,6 +555,10 @@ namespace VehicleState {
 		dxdt[3] = accel[0];
 		dxdt[4] = accel[1];
 		dxdt[5] = accel[2];
+
+		std::cout << "simple accel: \n" << accel[0] << "\n" << accel[1] << "\n" << accel[2] << "\n";
+
+		exit(0);
 
 	} //operator()
 

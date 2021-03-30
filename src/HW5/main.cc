@@ -34,25 +34,42 @@ int main() {
 
 	//parameters
 	propobj.useJ2_ = false;
+	propobj.use20x20_ = false;
 	propobj.usedrag_ = false;
 	propobj.useSRP_ = false;
 	propobj.useLuniSolar_ = false; //gravity of sun and moon
 
+	//form a gravity object
+	Util::EGM96Grav gravmodel;
+	gravmodel.LoadNormCoeffs("../data/egm96_C_normalized.csv", "../data/egm96_S_normalized.csv");
+	gravmodel.NormCoeffs2Reg();
+	gravmodel.mu_ = propobj.mu_;
+	gravmodel.Rearth_ = propobj.Rearth_;
+	Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
+	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modifiedHW6.csv",15, 4);
+	gravmodel.nut80ptr_ = &nut80; 
+	gravmodel.iau1980ptr_ = &iau1980;
+	propobj.gravmodel_ = &gravmodel;
+
 	//set objects position and velocity
 	Eigen::Vector3d pos0;
-	pos0[0] = 6990.077798814194;
-	pos0[1] = 1617.465311978378;
-	pos0[2] = 22.679810569245355;
+	pos0[0] = 6984.464593016789876855909824371337890625;
+	pos0[1] = 1612.2223725952417225926183164119720458984375;
+	pos0[2] = 13.0914313353482452129128432716242969036102294921875;
 
 	Eigen::Vector3d vel0;
-	vel0[0] = -1.67513972506056;
-	vel0[1] = 7.27372441330686;
-	vel0[2] = 0.252688512916741;
+	vel0[0] = -1.676644766682913623156991889118216931819915771484375;
+	vel0[1] = 7.26144494619244529332036108826287090778350830078125;
+	vel0[2] = 0.25988992108511244083501878776587545871734619140625;
 
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_ = 0.0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 2.0, 1.0, 5.0, 0.0, 0.0);
+
+	Eigen::Vector3d accel1 = gravmodel.GetGravAccel(pos0, propobj.t_JD_);
+
+	std::cout << "20x20 accel: \n" << accel1 << "\n";
 
 	//convert pos and vel into orbital elements
 	propobj.State2OE();
@@ -64,8 +81,8 @@ int main() {
 
 	//propagate the orbit
 	double dt = 60; //seconds for propagation
-	// int N = 21600/dt; // propagate for desired time
-	int N = 6*60;
+	int N = 21600/dt; // propagate for desired time
+	// int N = 6*60;
 	for (int ii = 0; ii < N; ++ii){
 
 		//propagate

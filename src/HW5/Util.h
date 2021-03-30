@@ -27,9 +27,9 @@ namespace Util {
 
 	//convert from ECEF (ITRF) [km] to ECI (ICRF) [km] using IAU-76/FK5 and julian date (UTC)
 	//	sourced from Vallado
-	Eigen::Vector3d ECEF2ECI(Eigen::Vector3d pos, double JD_UTC);
+	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr);
 
-	//load space seperated value data file
+	//load comma seperated value data file
 	Eigen::MatrixXd LoadDatFile(std::string file, int rows, int cols);
 
 	//raise a 3x3 matrix to a given power
@@ -40,6 +40,36 @@ namespace Util {
 
 	//convert a julian date in day month hour etc into a JD [days] (vallado algo 14)
 	double JulianDateNatural2JD(double year, double month, double day, double hour, double min, double sec);
+
+	//class for EGM-96 Gravity Model
+	class EGM96Grav{
+
+	public:
+
+		//parameters
+		double mu_;
+		double Rearth_; //radius of earth
+		Eigen::MatrixXd C_; //un-normalized C coeffs
+		Eigen::MatrixXd C_norm_; //normalized C coeffs
+		Eigen::MatrixXd S_; //un-normalized S coeffs
+		Eigen::MatrixXd S_norm_; //normalized S coeffs
+		Eigen::MatrixXd* nut80ptr_; //nutation matrix pointer
+		Eigen::MatrixXd* iau1980ptr_; //time matrix pointer
+
+		//constructor
+		EGM96Grav();
+
+		//Load normalized coeffs from a csv file
+		void LoadNormCoeffs(std::string C_file, std::string S_file);
+
+		//convert normalized coefficients to un-normalized ones
+		void NormCoeffs2Reg();
+
+		//get acceleration
+		Eigen::Vector3d GetGravAccel(Eigen::Vector3d pos, double JD_UTC);
+
+	}; //class EGM96Grav
+
 
 } //namespace Util
 

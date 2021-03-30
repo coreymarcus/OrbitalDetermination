@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <boost/numeric/odeint.hpp> //integrator
 #include <vector> // basic cpp vectors
+#include "Util.h" //utility functions
 
 namespace VehicleState{
 
@@ -23,6 +24,7 @@ namespace VehicleState{
 		bool usedrag_;
 		bool useSRP_; //SRP in propagation?
 		bool useLuniSolar_; //should we include the effects of sun and moon
+		bool use20x20_; //should we use a spherical harmonics 20x20 gravity model?
 
 		//vehicle position and velocity (ECI) [km] and [km/sec]
 		Eigen::Vector3d pos_;
@@ -55,6 +57,9 @@ namespace VehicleState{
 		double rho_0_; // standard air density, kg/m^3
 		double r0_; // param for air density calc, km
 		double H_; //param for air density calc, km
+
+		//higher order gravity model pointer
+		Util::EGM96Grav* gravmodel_;
 
 		//time
 		double t_; //seconds since initial time
