@@ -51,7 +51,7 @@ namespace Util {
 		} // for
 
 		//output
-		return R; // not super sure if this should actually be R.transpose()
+		return OrthoNormMat(R); // not super sure if this should actually be R.transpose()
 
 	} // Angle2RotM
 
@@ -155,7 +155,7 @@ namespace Util {
 
 		jac(5,0) = fun2;
 		jac(5,1) = fun1;
-		jac(5,3) = -mu*(x*x + y*y - 2*z*z)/fun4;
+		jac(5,2) = -mu*(x*x + y*y - 2*z*z)/fun4;
 
 		//return
 		return jac;
@@ -554,13 +554,13 @@ namespace Util {
 		// std::cout << "r: " << r << "\n phi: " << phi << "\n lamb: " << lamb << "\n";
 
 		//fixed order gravity model but have capability to do more
-		// for (double ll = 2; ll < 21; ++ll) {
+		for (double ll = 2; ll < 21; ++ll) {
 
-		// 	for (double mm = 0; mm < ll+1; ++mm) {
+			for (double mm = 0; mm < ll+1; ++mm) {
 
-		for (double ll = 2; ll < 3; ++ll) {
+		// for (double ll = 2; ll < 3; ++ll) {
 
-			for (double mm = 0; mm < 1; ++mm) {
+		// 	for (double mm = 0; mm < 1; ++mm) {
 
 				//locals
 				double powR = pow(R/r,ll);
@@ -582,21 +582,38 @@ namespace Util {
 		}
 
 		//additional factors outside of sum for partials
+		// pUpr = pUpr*(-mu/pow(r,2.0));
+		// pUpphi = pUpphi*mu/r;
+		// pUplamb = pUplamb*mu/r;
 		pUpr = pUpr*(-mu/pow(r,2.0));
-		pUpphi = pUpphi*mu/r;
-		pUplamb = pUplamb*mu/r;
+		pUpphi = pUpphi*mu/pow(r,2.0);
+		pUplamb = pUplamb*mu/pow(r,2.0)/cos(phi);
 
 		// pUpphi = -7.0036240305764034*pow(10.0,-8.0);
 
 		// std::cout << "pUpr: " << pUpr << "\n" << "pUpphi: " << pUpphi << "\n" << "pUplamb: " << pUplamb << "\n";
 
 		//calculate components of acceleration
-		accel[0] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[0] - pUplamb*pos[1]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[0]/r3;
-		accel[1] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[1] + pUplamb*pos[0]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[1]/r3;
-		accel[2] = pUpr*pos[2]/r + nr_ij*pUpphi/r2 - mu*pos[2]/r3;
+		// accel[0] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[0] - pUplamb*pos[1]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[0]/r3;
+		// accel[1] = (pUpr/r - pos[2]*pUpphi/(r2*nr_ij))*pos[1] + pUplamb*pos[0]/(pow(pos[0],2.0) + pow(pos[1],2.0)) - mu*pos[1]/r3;
+		// accel[2] = pUpr*pos[2]/r + nr_ij*pUpphi/r2 - mu*pos[2]/r3;
+		accel[0] = pUpr;
+		accel[1] = pUplamb;
+		accel[2] = pUpphi;
+
+		//rotation from spherical to cartesian
+		Eigen::Vector3d angles = {phi, -lamb, 0.0};
+		std::vector<int> order = {2,3,1};
+		Eigen::Matrix3d Rsp2cart = Angle2RotM(angles, order);
+
+		//we also need the central acceleration in ECI
+		Eigen::Vector3d accel_central = -(mu/r3)*pos;
 
 		//rotate accel into ECI
-		Eigen::Vector3d accel_eci = R_ecef2eci*accel;
+		Eigen::Vector3d accel_eci = R_ecef2eci*Rsp2cart*accel + accel_central;
+
+		// std::cout << "\n" << "accel ecef (no central): \n" << Rsp2cart*accel;
+		// std::cout << "\n" << "accel eci (with central: \n" << accel_eci;
 
 		return accel_eci;
 

@@ -455,8 +455,8 @@ namespace VehicleState {
 			//first, find the position of the moon in the ECI frame (vallado algo 31)
 
 			//assume JD_UTC = JD_TBD
-			double T_TBD = (2449470.5 - 2451545.0)/36525.0; // vallado numbers
-			// double T_TBD = (JD_UTC - 2451545.0)/36525.0; // julian centuries
+			// double T_TBD = (2449470.5 - 2451545.0)/36525.0; // vallado numbers
+			double T_TBD = (JD_UTC - 2451545.0)/36525.0; // julian centuries
 			
 			double lambda_ecliptic = 218.32 + 481267.8813*T_TBD + 6.29*sin(d2r*(134.9 + 477198.85*T_TBD))
 				- 1.27*sin(d2r*(259.2 - 413335.38*T_TBD)) + 0.66*sin(d2r*(235.7 + 890543.23*T_TBD))
@@ -483,18 +483,27 @@ namespace VehicleState {
 			//intermediate calcs
 			double r2 = pow(pos[0],2.0) + pow(pos[1],2.0) + pow(pos[2],2.0);
 			double r = sqrt(r2);
+			double r3craft2sun = pow(r_craft2sun.norm(),3.0);
+			double r3earth2sun = pow(AU2km*r_sun_ECI_norm,3.0);
+			double r3craft2moon = pow(r_craft2moon.norm(),3.0);
+			double r3earth2moon = pow(r_moon_ECI_norm,3.0);
+
+			// std::cout << "\n" << accel[0] << ", " << accel[1] << ", " << accel[2] << "\n";
 
 			//two body acceleration to sun
-			double k_sun = mu_sun/pow(r_craft2sun.norm(),3.0);
-			accel[0] = accel[0] + k_sun*r_craft2sun[0];
-			accel[1] = accel[1] + k_sun*r_craft2sun[1];
-			accel[2] = accel[2] + k_sun*r_craft2sun[2];
+			accel[0] = accel[0] + mu_sun*(r_craft2sun[0]/r3craft2sun - r_sun_ECI[0]/r3earth2sun);
+			accel[1] = accel[1] + mu_sun*(r_craft2sun[1]/r3craft2sun - r_sun_ECI[1]/r3earth2sun);
+			accel[2] = accel[2] + mu_sun*(r_craft2sun[2]/r3craft2sun - r_sun_ECI[2]/r3earth2sun);
+
+			// std::cout << "\n" << accel[0] << ", " << accel[1] << ", " << accel[2] << "\n";
 
 			//two body acceleration to moon
-			double k_moon = mu_moon/pow(r_craft2moon.norm(),3.0);
-			accel[0] = accel[0] + k_moon*r_craft2moon[0];
-			accel[1] = accel[1] + k_moon*r_craft2moon[1];
-			accel[2] = accel[2] + k_moon*r_craft2moon[2];
+			accel[0] = accel[0] + mu_moon*(r_craft2moon[0]/r3craft2moon - r_moon_ECI[0]/r3earth2moon);
+			accel[1] = accel[1] + mu_moon*(r_craft2moon[1]/r3craft2moon - r_moon_ECI[1]/r3earth2moon);
+			accel[2] = accel[2] + mu_moon*(r_craft2moon[2]/r3craft2moon - r_moon_ECI[2]/r3earth2moon);
+
+			// std::cout << "\n" << accel[0] << ", " << accel[1] << ", " << accel[2] << "\n";
+			// exit(0);
 			
 		}
 
@@ -556,11 +565,91 @@ namespace VehicleState {
 		dxdt[4] = accel[1];
 		dxdt[5] = accel[2];
 
-		std::cout << "simple accel: \n" << accel[0] << "\n" << accel[1] << "\n" << accel[2] << "\n";
+		// std::cout << "simple accel: \n" << accel[0] << "\n" << accel[1] << "\n" << accel[2] << "\n";
 
-		exit(0);
+		// exit(0);
 
 	} //operator()
+
+	Eigen::Vector2d Propagator::GetRangeAndRate(Eigen::Vector3d pos_station_ecef){
+
+		//locals
+		double JD_UTC = this->t_JD_ + this->t_/(24.0*60.0*60.0); //current UTC Julian Date in days
+		double earthrot = this->earthrotationspeed_;
+		Eigen::Vector3d pos_craft = this->pos_;
+		Eigen::Vector3d vel_craft = this->vel_;
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+
+
+		//convert station position to ECI
+		Eigen::Vector3d pos_station = R_ecef2eci*pos_station_ecef;
+
+		//initialize measurement
+		Eigen::Vector2d z;
+
+		//station ECI velocity
+		Eigen::Vector3d vel_station;
+		vel_station[0] = -1.0*earthrot*pos_station[1];
+		vel_station[1] = earthrot*pos_station[0];
+		vel_station[2] = 0.0;
+
+		//relative position and velocity
+		Eigen::Vector3d rel_pos = pos_craft - pos_station;
+		Eigen::Vector3d rel_vel  = vel_craft - vel_station;
+
+		//range
+		z[0] = rel_pos.norm();
+
+		//range rate
+		z[1] = rel_pos.dot(rel_vel)/z[0];
+
+		return z;
+
+	} //GetRangeAndRate
+
+	Eigen::MatrixXd Propagator::GetRangeAndRateJac(Eigen::Vector3d pos_station_ecef){
+
+		//locals
+		double JD_UTC = this->t_JD_ + this->t_/(24.0*60.0*60.0); //current UTC Julian Date in days
+		double earthrot = this->earthrotationspeed_;
+		Eigen::Vector3d pos_craft = this->pos_;
+		Eigen::Vector3d vel_craft = this->vel_;
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+
+		//convert station position to ECI
+		Eigen::Vector3d pos_station = R_ecef2eci*pos_station_ecef;
+
+		//station ECI velocity
+		Eigen::Vector3d vel_station;
+		vel_station[0] = -1.0*earthrot*pos_station[1];
+		vel_station[1] = earthrot*pos_station[0];
+		vel_station[2] = 0.0;
+
+		//relative position and velocity
+		Eigen::Vector3d rel_pos = pos_craft - pos_station;
+		Eigen::Vector3d rel_vel  = vel_craft - vel_station;
+
+		//initialize H
+		Eigen::MatrixXd H = Eigen::MatrixXd::Zero(2,6);
+
+		//range partials
+		H(0,0) = rel_pos[0]/rel_pos.norm();
+		H(0,1) = rel_pos[1]/rel_pos.norm();
+		H(0,2) = rel_pos[2]/rel_pos.norm();
+
+		//range rate partials
+		double rel32 = pow(pow(rel_pos[0],2.0) + pow(rel_pos[1],2.0) + pow(rel_pos[2],2.0), 1.5);
+		H(1,0) = (rel_vel[0]*pow(rel_pos[1],2.0) - rel_pos[0]*rel_vel[1]*rel_pos[1] + rel_vel[0]*pow(rel_pos[2],2.0) - rel_pos[0]*rel_vel[2]*rel_pos[2])/rel32;
+		H(1,1) = (rel_vel[1]*pow(rel_pos[0],2.0) - rel_pos[1]*rel_vel[0]*rel_pos[0] + rel_vel[1]*pow(rel_pos[2],2.0) - rel_pos[1]*rel_vel[2]*rel_pos[2])/rel32;
+		H(1,2) = (rel_vel[2]*pow(rel_pos[1],2.0) - rel_pos[2]*rel_vel[0]*rel_pos[0] + rel_vel[2]*pow(rel_pos[1],2.0) - rel_pos[2]*rel_vel[1]*rel_pos[1])/rel32;
+		H(1,3) = H(0,0);
+		H(1,4) = H(0,1);
+		H(1,5) = H(0,2);
+
+		return H;
+	} //GetRangeAndRateJac()
+
+
 
 
 } //namespace VehicleState
