@@ -32,6 +32,8 @@ int main() {
 	propobj.r0_ = 700.0 + propobj.Rearth_; //km
 	propobj.H_ = 88.6670; //km
 
+	double c = 299792.0; //speed of light km/sec
+
 	//parameters
 	propobj.useJ2_ = true;
 	propobj.use20x20_ = true;
@@ -141,14 +143,14 @@ int main() {
 	// propagate starting with the second measurement
 	for (int ii = 1; ii < N; ++ii){
 
-		//get the time to the next measurement
-		dt = z_true(ii,1) - z_true(ii-1,1);
+		//get this measurement time of flight
+		double tof = z_true(ii,2)/c;
+
+		//get the time we need to propagate to get to this measurement
+		dt = z_true(ii,1) - tof - z_true(ii-1,1);
 
 		//propagate
 		propobj.Propagate(dt, true);
-
-		//update orbital elements
-		propobj.State2OE();
 
 		//update STM
 		STM = propobj.STM_ * STM;
@@ -175,6 +177,12 @@ int main() {
 		//write
 		zbar.block(0,ii,2,1) = ziter;
 
+		//propagate forward to get to the measurement's time of arrival
+		propobj.Propagate(tof, true);
+
+		//update STM
+		STM = propobj.STM_ * STM;
+
 	}
 
 	//true propagation result for 20x20 grav and 6 hours
@@ -196,14 +204,14 @@ int main() {
 	// pos_true[2] = -144.825403424162;
 
 	//20x20 lunisolar drag SRP
-	pos_true[0] = -5153.78219138574;
-	pos_true[1] = -4954.43108360912;
-	pos_true[2] = -144.82549360719;
+	// pos_true[0] = -5153.78219138574;
+	// pos_true[1] = -4954.43108360912;
+	// pos_true[2] = -144.82549360719;
 
 	//matlab truth
-	// pos_true[0] = -5153.825353240956;
-	// pos_true[1] = -4954.386175839499;
-	// pos_true[2] = -144.823727065817;
+	pos_true[0] = -5153.825353240956;
+	pos_true[1] = -4954.386175839499;
+	pos_true[2] = -144.823727065817;
 
 	std::cout << "\n" << "Propagation Result: \n";
 	std::cout << "final position:\n" << propobj.pos_ << std::endl;
