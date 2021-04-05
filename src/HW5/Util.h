@@ -22,8 +22,8 @@ namespace Util {
 	//write eigen matrix or vector to csv file
 	void Eigen2csv(std::string file, Eigen::MatrixXd mat);
 
-	//Create the jacobian for a simple newtonian gravity field
-	Eigen::MatrixXd GetGravJac(Eigen::Vector3d pos, double mu);
+	//Create the jacobian for a gravity field with J2 and J3
+	Eigen::MatrixXd GetGravJac(Eigen::Vector3d pos, double Rearth, double mu, double J2, double J3);
 
 	//convert from ECEF (ITRF) [km] to ECI (ICRF) [km] using IAU-76/FK5 and julian date (UTC)
 	//	sourced from Vallado

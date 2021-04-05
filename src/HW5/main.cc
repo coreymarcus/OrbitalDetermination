@@ -12,7 +12,7 @@
 int main() {
 
 	//precision
-	std::cout << std::setprecision(17);
+	std::cout << std::setprecision(5);
 
 	//form a propagator object
 	VehicleState::Propagator propobj;
@@ -23,6 +23,7 @@ int main() {
 	propobj.mu_moon_ = 4902.800066; //km^3/sec^2
 	propobj.AU_ = 149597870.7;
 	propobj.J2_ = 0.00108248;
+	propobj.J3_ = 0.0000025327;
 	propobj.Rearth_ = 6378.1363; //km
 	propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
 	propobj.C_D_ = 1.88;
@@ -78,7 +79,8 @@ int main() {
 	// exit(0);
 
 	//find initial jacobian
-	Eigen::MatrixXd jac0 = Util::GetGravJac(pos0, propobj.mu_);
+	Eigen::MatrixXd jac0 = Util::GetGravJac(pos0, propobj.Rearth_, propobj.mu_,
+		propobj.J2_, propobj.J3_);
 
 	std::cout << "Initial Jacobian (A): \n" << jac0 << "\n";
 

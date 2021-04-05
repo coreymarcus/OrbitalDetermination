@@ -57,6 +57,10 @@ ylabel('Frequency')
 %residual
 res = zbar' - z_true(:,3:4);
 
+%RMS
+n = size(res,1);
+RMS = sqrt(sum(res.^2,1)/n);
+
 %time
 t = z_true(:,2)/3600;
 
@@ -65,8 +69,10 @@ subplot(2,1,1)
 scatter(t,res(:,1),'*')
 title('Pre-Fit Measurement Residuals')
 ylabel('Range Residual (km)')
+grid on
 
 subplot(2,1,2)
 scatter(t,res(:,2),'*');
 xlabel('Time (hours)')
 ylabel('Range Rate Residual (km/sec)')
+grid on

@@ -53,14 +53,7 @@ The dynamics jacobian, $A$, and measurement jacobian, $H$, were derived using ma
 
 \begin{equation}
 \label{eq:prob1A}
-A = \begin{bmatrix}
-	0 & 0 & 0 & 1 & 0 & 0 \\
-	0 & 0 & 0 & 0 & 1 & 0 \\
-	0 & 0 & 0 & 0 & 0 & 1 \\
-	2.00020688165E-6 & 7.1151788333E-7 & 5.77760715E-9 & 0 & 0 & 0 \\
-	7.1151788333E-7 & -9.1798909995 E-7 & 1.33364374E-9 & 0 & 0 & 0 \\
-	5.77760715E-9 & 1.33364374E-9 & -1.08221778170E-6 & 0 & 0 & 0 \\
-\end{bmatrix}
+A = \left[\begin{array}{cccccc} 0 & 0 & 0 & 1.0 & 0 & 0\\ 0 & 0 & 0 & 0 & 1.0 & 0\\ 0 & 0 & 0 & 0 & 0 & 1.0\\ 2.0054e-6 & 7.1304e-7 & 5.8147e-9 & 0 & 0 & 0\\ 7.1304e-7 & -9.1903e-7 & 1.3422e-9 & 0 & 0 & 0\\ 5.8147e-9 & 1.3422e-9 & -1.0864e-6 & 0 & 0 & 0 \end{array}\right]
 \end{equation}
 
 \begin{equation}
@@ -75,36 +68,82 @@ These matrices were differenced with their true values provided to produce relat
 
 \begin{equation}
 \label{eq:prob1Arel}
-A = \begin{bmatrix}
-0     &       0         &   0         &   0    &        0     &       0 \\
-0          &  0        &    0     &       0     &       0       &     0 \\
-0         &   0    &        0      &      0     &       0    &        0 \\
-5.7993e-04&   1.5365e-03  & 4.2505e-01 &   1 &   1  &  1 \\
-1.5368e-03  & 2.4958e-03  & 4.2648e-01 &   1  &  1  &  1 \\
-4.2505e-01  & 4.2648e-01 &  1.0394e-03  &  1  &  1  &  1
-\end{bmatrix}
+A_{\text{rel. err.}} = \left[\begin{array}{cccccc} 0 & 0 & 0 & 0 & 0 & 0\\ 0 & 0 & 0 & 0 & 0 & 0\\ 0 & 0 & 0 & 0 & 0 & 0\\ 0.0031876 & 0.00060269 & 0.42136 & 1.0 & 1.0 & 1.0\\ 0.00060241 & 0.0036308 & 0.42279 & 1.0 & 1.0 & 1.0\\ 0.42136 & 0.42279 & 0.0028131 & 1.0 & 1.0 & 1.0 \end{array}\right]
 \end{equation}
 
 \begin{equation}
 \label{eq:prob1Hrel}
-H = \begin{bmatrix}
+H_{\text{rel. err.}} = \begin{bmatrix}
 8.7030e-03 &  4.0309e-02  & 7.2897e-03    &        0   &         0    &        0 \\
 1.3608e-02 &  3.9726e-03  & 9.2600e-01  & 8.7030e-03  & 4.0309e-02 &  7.2897e-03
 \end{bmatrix}
 \end{equation}
 
-The base 10 logarithm of each element of the relative difference in A, Eqn \eqref{eq:prob1Arel}, was taken and plotted in a histogram. This is shown in Figure \ref{fig:prob1s}
+The base 10 logarithm of each element of the relative difference in A, Eqn \eqref{eq:prob1Arel}, was taken and plotted in a histogram. This is shown in Figure \ref{fig:prob1A}.
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.75\linewidth]{figs/prob1.png}
-	\label{fig:prob1}
 	\caption{Histogram of the log10 of each of the elements of the relative difference in $A$.}
+	\label{fig:prob1A}
 \end{figure}
 
 \section{Problem 2}
 
+The position, velocity, and state transition matrix were computed up through 21600 seconds. The final position and velocity are reported below in Eqn \eqref{eq:prob2posvel}. The first three elements correspond to position in km and the final three correspond to velocity in km/sec.
+
+\begin{equation}
+	\label{eq:prob2posvel}
+	\mathbf{X}(t_f) = \begin{bmatrix}
+	-5153.7889765296113 \\
+	-4954.4167389974418 \\
+	-144.82758237664743 \\
+	 5.1780598280691503 \\
+	-5.3874917868480843 \\
+	-0.21192904357397457	
+	\end{bmatrix}
+\end{equation}
+
+The STM, $\Phi(21600,0)$, was also calculated and is reported in Eqn \eqref{eq:prob2Phi}. The STM was found based on effects from the central gravity, J2, and J3. The base 10 logarithm of each element of the relative difference in $\Phi(21600,0)$, Eqn \eqref{eq:prob2Phirel}, was taken and plotted in a histogram. This is shown in Figure \ref{fig:prob2Phi}.
+
+\begin{equation}
+\label{eq:prob2Phi}
+\Phi(21600,0) = \left[\begin{array}{cccccc} -48.009 & -12.678 & -0.15002 & 8891.7 & -48107.0 & -1712.1\\ 45.765 & 12.944 & 0.19746 & -7429.1 & 45160.0 & 1617.3\\ 1.8203 & 0.54049 & -0.8333 & -305.14 & 1822.6 & -450.59\\ -0.051079 & -0.012882 & -0.00013147 & 9.8854 & -50.567 & -1.8046\\ -0.046303 & -0.012461 & -0.00016794 & 7.9844 & -45.048 & -1.5698\\ -0.0013417 & -0.00038558 & 0.00055598 & 0.2215 & -1.2753 & -0.89069 \end{array}\right]
+\end{equation}
+
+\begin{equation}
+\label{eq:prob2Phirel}
+\Phi(21600,0)_{\text{rel. err.}} = \left[\begin{array}{cccccc} 0.2204 & 0.20928 & 0.15961 & 0.22551 & 0.21265 & 0.24763\\ 0.13344 & 0.12986 & 0.3275 & 0.14051 & 0.13456 & 0.10739\\ 0.053889 & 0.055462 & 0.091134 & 0.04709 & 0.051003 & 0.48326\\ 0.11072 & 0.13016 & 0.44657 & 0.084963 & 0.1116 & 0.084971\\ 0.27918 & 0.26819 & 0.070979 & 0.30903 & 0.28636 & 0.33279\\ 0.31646 & 0.31381 & 0.4046 & 0.35189 & 0.33957 & 0.063488 \end{array}\right]
+\end{equation}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/prob2.png}
+	\caption{Histogram of the log10 of each of the elements of the relative difference in $\Phi(21600,0)$.}
+	\label{fig:prob2Phi}
+\end{figure}
+
 \section{Problem 3}
+
+Using the measurement model, the predicted range and range rate measurements were generated. The pre-fit residuals are shown in Figure \ref{fig:prob3}. \\
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/prob3.png}
+	\caption{The pre-fit measurement residuals for range and range-rate.}
+	\label{fig:prob3}
+\end{figure}
+
+The RMS values for these measurements were calculated and are shown in Equation \eqref{eq:prob3}. The first element corresponds to the range RMS values in km and the second element is range-rate RMS values in km/sec.
+
+\begin{equation}
+\label{eq:prob3}
+\text{RMS} = \begin{bmatrix}
+	1.4390e-02 \\
+	3.6719e-04
+\end{bmatrix}
+\end{equation}
+
 
 \newpage
 \appendix

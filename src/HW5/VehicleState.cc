@@ -297,6 +297,7 @@ namespace VehicleState {
 		double mu = this->mu_;
 		double Rearth = this->Rearth_;
 		double J2 = this->J2_;
+		double J3 = this->J3_;
 		state_type pos = {x[0], x[1], x[2]};
 		state_type vel = {x[3], x[4], x[5]};
 		double earthrot = this->earthrotationspeed_;
@@ -512,7 +513,7 @@ namespace VehicleState {
 
 			//get the jacobian
 			Eigen::Vector3d eigpos(pos.data());
-			Eigen::MatrixXd jac = Util::GetGravJac(eigpos, mu);
+			Eigen::MatrixXd jac = Util::GetGravJac(eigpos, Rearth, mu, J2, J3);
 
 			//extract the STM
 			Eigen::MatrixXd STM = Eigen::MatrixXd::Zero(6,6);

@@ -49,6 +49,7 @@ namespace VehicleState{
 		double mu_moon_; // moon gravity constant
 		double AU_; //length of one atstronomical unit [km]
 		double J2_; //higher order gravity parameters
+		double J3_;
 		double Rearth_; //radius of the earth [km]
 		double earthrotationspeed_; //rotation [rad/sec]
 		double C_D_; // coefficient of drag
