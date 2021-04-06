@@ -513,7 +513,7 @@ namespace VehicleState {
 
 			//current air density
 			double rho_A = rho_0*exp(-(r - r0)/H);
-			double drag_coeff = 1000.0*0.5*C_D*A*rho_A/m;
+			double drag_coeff = 1000.0*1000.0*0.5*C_D*A*rho_A/m;
 
 			//get the jacobian
 			Eigen::Vector3d eigpos(pos.data());

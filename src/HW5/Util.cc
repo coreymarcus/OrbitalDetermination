@@ -269,22 +269,22 @@ namespace Util {
 		/////////// begin matlab drag code /////////
 
 		t5 = wEarth*x;
-		t2 = -t5+v_y;
+		double t2 = -t5+v_y;
 		t3 = wEarth*y;
-		t4 = t3+v_x;
-		t6 = pow(t2,2.0);
+		double t4 = t3+v_x;
+		double t6 = pow(t2,2.0);
 		t7 = pow(t4,2.0);
-		t8 = pow(v_z,2.0);
+		double t8 = pow(v_z,2.0);
 		t9 = t6+t7+t8;
-		t10 = 1.0/sqrt(t9);
+		double t10 = 1.0/sqrt(t9);
 		t11 = sqrt(t9);
-		t12 = drag_coeff*t2*t4*t10*wEarth;
-		t13 = v_x*2.0;
+		double t12 = drag_coeff*t2*t4*t10*wEarth;
+		double t13 = v_x*2.0;
 		t14 = wEarth*y*2.0;
-		t15 = t13+t14;
-		t16 = v_y*2.0;
-		t18 = wEarth*x*2.0;
-		t17 = t16-t18;
+		double t15 = t13+t14;
+		double t16 = v_y*2.0;
+		double t18 = wEarth*x*2.0;
+		double t17 = t16-t18;
 		jac(3,0) += t12;
 		jac(4,0) += drag_coeff*t11*wEarth+drag_coeff*t6*t10*wEarth;
 		jac(5,0) += drag_coeff*t2*t10*v_z*wEarth;
@@ -300,6 +300,9 @@ namespace Util {
 		jac(3,5) += -drag_coeff*t4*t10*v_z;
 		jac(4,5) += -drag_coeff*t2*t10*v_z;
 		jac(5,5) += -drag_coeff*t11-drag_coeff*t8*t10;
+
+
+		////////////////////// end matlab drag code ////////////////
 
 
 		//return
