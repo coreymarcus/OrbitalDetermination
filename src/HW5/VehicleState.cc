@@ -511,9 +511,14 @@ namespace VehicleState {
 		//integrate the STM if needed
 		if (this->intSTM_) {
 
+			//current air density
+			double rho_A = rho_0*exp(-(r - r0)/H);
+			double drag_coeff = 1000.0*0.5*C_D*A*rho_A/m;
+
 			//get the jacobian
 			Eigen::Vector3d eigpos(pos.data());
-			Eigen::MatrixXd jac = Util::GetGravJac(eigpos, Rearth, mu, J2, J3);
+			Eigen::Vector3d eigvel(vel.data());
+			Eigen::MatrixXd jac = Util::GetGravJac(eigpos, eigvel, Rearth, earthrot, mu, J2, J3, drag_coeff);
 
 			//extract the STM
 			Eigen::MatrixXd STM = Eigen::MatrixXd::Zero(6,6);

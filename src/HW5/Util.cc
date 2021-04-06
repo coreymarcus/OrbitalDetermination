@@ -125,12 +125,15 @@ namespace Util {
 
 	} //Eigen2csv
 
-	Eigen::MatrixXd GetGravJac(Eigen::Vector3d pos, double Rearth, double mu, double J2, double J3){
+	Eigen::MatrixXd GetGravJac(Eigen::Vector3d pos, Eigen::Vector3d vel, double Rearth, double wEarth, double mu, double J2, double J3, double drag_coeff){
 
 		//extract locals
 		double x = pos[0];
 		double y = pos[1];
 		double z = pos[2];
+		double v_x = vel[0];
+		double v_y = vel[1];
+		double v_z = vel[2];
 
 		//initialize matrix
 		Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(6,6);
@@ -260,6 +263,43 @@ namespace Util {
 		jac(3,2) = A_vec[6];
 		jac(4,2) = A_vec[7];
 		jac(5,2) = A_vec[8];
+
+
+
+		/////////// begin matlab drag code /////////
+
+		t5 = wEarth*x;
+		t2 = -t5+v_y;
+		t3 = wEarth*y;
+		t4 = t3+v_x;
+		t6 = pow(t2,2.0);
+		t7 = pow(t4,2.0);
+		t8 = pow(v_z,2.0);
+		t9 = t6+t7+t8;
+		t10 = 1.0/sqrt(t9);
+		t11 = sqrt(t9);
+		t12 = drag_coeff*t2*t4*t10*wEarth;
+		t13 = v_x*2.0;
+		t14 = wEarth*y*2.0;
+		t15 = t13+t14;
+		t16 = v_y*2.0;
+		t18 = wEarth*x*2.0;
+		t17 = t16-t18;
+		jac(3,0) += t12;
+		jac(4,0) += drag_coeff*t11*wEarth+drag_coeff*t6*t10*wEarth;
+		jac(5,0) += drag_coeff*t2*t10*v_z*wEarth;
+		jac(3,1) += -drag_coeff*t11*wEarth-drag_coeff*t7*t10*wEarth;
+		jac(4,1) += -t12;
+		jac(5,1) += -drag_coeff*t4*t10*v_z*wEarth;
+		jac(3,3) += -drag_coeff*t11-drag_coeff*t4*t10*t15*(1.0/2.0);
+		jac(4,3) += drag_coeff*t2*t10*t15*(-1.0/2.0);
+		jac(5,3) += drag_coeff*t10*t15*v_z*(-1.0/2.0);
+		jac(3,4) += drag_coeff*t4*t10*t17*(-1.0/2.0);
+		jac(4,4) += -drag_coeff*t11-drag_coeff*t2*t10*t17*(1.0/2.0);
+		jac(5,4) += drag_coeff*t10*t17*v_z*(-1.0/2.0);
+		jac(3,5) += -drag_coeff*t4*t10*v_z;
+		jac(4,5) += -drag_coeff*t2*t10*v_z;
+		jac(5,5) += -drag_coeff*t11-drag_coeff*t8*t10;
 
 
 		//return

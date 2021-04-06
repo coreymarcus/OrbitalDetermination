@@ -78,9 +78,12 @@ int main() {
 	// gravmodel.GetGravAccel(pos0, propobj.t_JD_);
 	// exit(0);
 
+	//current air density
+	double rho_A = propob.rho_0_*exp(-(pos0.norm() - propobj.Rearth_)/propobj.H_);
+
 	//find initial jacobian
-	Eigen::MatrixXd jac0 = Util::GetGravJac(pos0, propobj.Rearth_, propobj.mu_,
-		propobj.J2_, propobj.J3_);
+	Eigen::MatrixXd jac0 = Util::GetGravJac(pos0, vel0, propobj.Rearth_, propobj.earthrotationspeed_,
+		propobj.mu_, propobj.J2_, propobj.J3_, 1000.0*0.5*propobj.C_D_*propobj.A_*rho_A/propobj.m_);
 
 	std::cout << "Initial Jacobian (A): \n" << jac0 << "\n";
 
