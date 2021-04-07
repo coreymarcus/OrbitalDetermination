@@ -27,6 +27,10 @@ add_executable(HW5 src/HW5/main.cc
 	src/HW5/Util.cc
 	src/HW5/VehicleState.cc
 	src/HW5/Estimators.cc)
+add_executable(project src/project/main.cc
+	src/project/Util.cc
+	src/project/VehicleState.cc
+	src/project/Estimators.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)
@@ -71,3 +75,5 @@ target_link_libraries(HW3 Eigen3::Eigen)
 target_link_libraries(HW4 Eigen3::Eigen)
 
 target_link_libraries(HW5 Eigen3::Eigen)
+
+target_link_libraries(project Eigen3::Eigen)
