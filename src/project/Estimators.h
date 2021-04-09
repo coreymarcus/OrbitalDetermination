@@ -87,6 +87,7 @@ namespace Estimate{
 		Eigen::MatrixXd Q_; //process noise covariance
 		Eigen::MatrixXd R_; //measurement noise covariance
 		int n_; //size of the state
+		int m_; //size of the measurement
 		Eigen::MatrixXd Xi_; //storage for sigma points
 		Eigen::VectorXd w_; //storage for weights
 
@@ -103,8 +104,8 @@ namespace Estimate{
 		// use the sigma points to calculate the new estimate
 		void SigmaPts2Estimate();
 
-		// Performs an update given measurement  y
-		void CalcEstimate(Eigen::VectorXd y);
+		// Performs an update given measurement  y and measurement sigma points Y
+		void CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y);
 
 	};
 

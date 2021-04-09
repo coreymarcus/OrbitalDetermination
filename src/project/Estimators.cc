@@ -140,7 +140,42 @@ namespace Estimate{
 
 	} //SigmaPts2Estimate()
 
-	void UKF::CalcEstimate(Eigen::VectorXd y){
+	void UKF::CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y){
+
+		//extract locals
+		Eigen::MatrixXd Xi = this->Xi_;
+		Eigen::VectorXd w = this->w_;
+		Eigen::VectorXd xhat = this->xhat_;
+		Eigen::MatrixXd Phat = this->Phat_;
+		int n = this->n_;
+		int m = this->m_;
+		int L = 2*n+1;
+
+		//initialize variables
+		Eigen::VectorXd yhat = Eigen::VectorXd::Zero(m);
+		Eigen::MatrixXd Pyy = this->R_;
+		Eigen::MatrixXd Pxy = Eigen::MatrixXd::Zero(n,m);
+
+		//get the measurement mean
+		for (int i = 0; i < L; ++i)	{
+			yhat += w(i)*Y.block(0,i,m,1);
+		}
+
+		//get the covariances
+		for (int i = 0; i < L; ++i)	{
+			
+			//differences
+			Eigen::MatrixXd diffY = Y.block(0,i,m,1) - yhat;
+			Eigen::MatrixXd diffX = Xi.block(0,i,n,1) - xhat;
+
+			Pyy += w(i)*diffY*diffY.transpose();
+			Pxy += w(i)*diffX*diffX.transpose();
+		}
+
+		//update state
+		this->xhat_ = xhat + Pxy*Pyy.inverse()*(y - yhat);
+		this->Phat_ = Phat - Pxy*Pyy.inverse()*Pxy.transpose();
+
 
 	} //CalcEstimate
 
