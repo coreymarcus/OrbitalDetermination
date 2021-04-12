@@ -12,7 +12,8 @@
 int main() {
 
 	//precision
-	std::cout << std::setprecision(5);
+	// std::cout << std::setprecision(5);
+	std::cout << std::setprecision(12);
 
 	//form a propagator object
 	VehicleState::Propagator propobj;
@@ -110,9 +111,6 @@ int main() {
 	ukf.n_ = 6;
 	ukf.m_ = 2;
 
-	std::cout << "xhat: \n" << ukf.xhat_ << "\n";
-	std::cout << "Phat: \n" << ukf.Phat_ << "\n";
-
 	//number of sigma points
 	int Nsig = 2*6 + 1;
 
@@ -131,6 +129,12 @@ int main() {
 
 	//initialize a vector of propagation objects for each sigma point
 	std::vector<VehicleState::Propagator> propobj_vec(Nsig, propobj);
+
+	//initialize data storage
+	Eigen::MatrixXd xhat_mat = Eigen::MatrixXd::Zero(6,N);
+	Eigen::MatrixXd Phat_mat = Eigen::MatrixXd::Zero(36,N);
+	Eigen::MatrixXd prefit_res = Eigen::MatrixXd::Zero(2,N);
+	Eigen::MatrixXd postfit_res = Eigen::MatrixXd::Zero(2,N);
 
 	//generate sigma points
 	ukf.GetSigmaPoints();
@@ -175,19 +179,39 @@ int main() {
 
 		//predicted measurement
 		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter);
+
+		//now that we have the predicted measurement, propagate forward to the current time
+		propobj_vec[i].Propagate(tof, false);
 	}
+
+	//assign estimate to propobj for residual calculation
+	propobj.pos_ = ukf.xhat_.segment(0,3);
+	propobj.vel_ = ukf.xhat_.segment(3,3);
+	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
 
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
 	ukf.CalcEstimate(ziter, Y);
 
-	std::cout << "xhat: \n" << ukf.xhat_ << "\n";
-	std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+	//assign estimate to propobj for residual calculation
+	propobj.pos_ = ukf.xhat_.segment(0,3);
+	propobj.vel_ = ukf.xhat_.segment(3,3);
+	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter);
 
-	exit(0);
+	//store data
+	xhat_mat.block(0,0,6,1) = ukf.xhat_;
+	Eigen::Map<Eigen::VectorXd> Phat_vec(ukf.Phat_.data(), ukf.Phat_.size());
+	Phat_mat.block(0,0,36,1) = Phat_vec;
+	prefit_res.block(0,0,2,1) = ziter - prefit_pred;
+	postfit_res.block(0,0,2,1) = ziter - postfit_pred;
 
 	// propagate starting with the second measurement
 	for (int ii = 1; ii < N; ++ii){
+
+		//////////////////// Propagate /////////////////////
+
+		//create UKF sigma points
+		ukf.GetSigmaPoints();
 
 		//get this measurement time of flight
 		tof = z(ii,2)/c;
@@ -195,55 +219,130 @@ int main() {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - z(ii-1,1);
 
-		//propagate
-		propobj.Propagate(dt, false);
+		//propagate each sigma point
+		for (int j = 1; j < Nsig; ++j){
 
-		// //detirmine which tracking station was used
-		// stationID = (int) z(ii, 0);
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
 
-		// switch(stationID) {
-		// 	case 1:
-		// 		ziter = propobj.GetRangeAndRate(obs_station1);
-		// 		break;
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
 
-		// 	case 2:
-		// 		ziter = propobj.GetRangeAndRate(obs_station2);
-		// 		break;
+			//propagate
+			propobj_vec[j].Propagate(dt,false);
 
-		// 	case 3:
-		// 		ziter = propobj.GetRangeAndRate(obs_station3);
-		// 		break;
+			//update sigma point
+			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+			ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+		}
 
-		// 	default: std::cout << "Error: bad case in measurement \n";
-		// }
+		//Update the estimate
+		ukf.SigmaPts2Estimate();
 
-		//propagate forward to get to the measurement's time of arrival
-		propobj.Propagate(tof, false);
+		//Get new sigma points
+		ukf.GetSigmaPoints();
 
+		//update time on the propobj
+		propobj.t_ = propobj_vec[0].t_;
+
+		//////////////////// Update /////////////////////
+
+
+		//detirmine which tracking station was used
+		stationID = (int) z(ii, 0);
+
+		switch(stationID) {
+			case 1:
+				obs_station_iter = obs_station1;
+				ukf.R_ = R1;
+				break;
+
+			case 2:
+				obs_station_iter = obs_station2;
+				ukf.R_ = R2;
+				break;
+
+			case 3:
+				obs_station_iter = obs_station3;
+				ukf.R_ = R3;
+				break;
+
+			default: std::cout << "Error: bad case in measurement \n";
+		}
+
+		//assign estimate to propobj for residual calculation
+		propobj.pos_ = ukf.xhat_.segment(0,3);
+		propobj.vel_ = ukf.xhat_.segment(3,3);
+		prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+
+		//cycle through sigma points, writing them to each element of the list
+		//and getting a predicted measurement
+		for (int j = 0; j < Nsig; ++j)	{
+			
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
+
+			//predicted measurement
+			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter);
+		}
+
+		//measurement
+		ziter = z.block(ii,2,1,2).transpose();
+
+		//perform update
+		ukf.CalcEstimate(ziter, Y);
+		ukf.GetSigmaPoints();
+
+		//assign estimate to propobj for residual calculation
+		propobj.pos_ = ukf.xhat_.segment(0,3);
+		propobj.vel_ = ukf.xhat_.segment(3,3);
+		postfit_pred = propobj.GetRangeAndRate(obs_station_iter);
+
+		std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+
+		//store data
+		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
+		Eigen::Map<Eigen::VectorXd> Phat_vec_iter(ukf.Phat_.data(), ukf.Phat_.size());
+		Phat_mat.block(0,ii,36,1) = Phat_vec_iter;
+		prefit_res.block(0,ii,2,1) = ziter - prefit_pred;
+		postfit_res.block(0,ii,2,1) = ziter - postfit_pred;
+
+		//////////// Propagate through the TOF ///////////////
+
+		//propagate each sigma point
+		for (int j = 1; j < Nsig; ++j){
+
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
+
+			//propagate
+			propobj_vec[j].Propagate(tof,false);
+
+			//update sigma point
+			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+			ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+		}
+
+		//use sigma points to update estimate
+		ukf.SigmaPts2Estimate();
+
+		//////////////////////////////////////////////////////////////////
 	}
 
-	//true propagation result for 20x20 grav and 6 hours
-	Eigen::Vector3d pos_true;
-
-	//20x20 only
-	// pos_true[0] = -5153.77192464701;
-	// pos_true[1] = -4954.43582198601;
-	// pos_true[2] = -144.832817220038;
-
-	//20x20 plus lunisolar
-	// pos_true[0] = -5153.7904826402;
-	// pos_true[1] = -4954.42147166823;
-	// pos_true[2] = -144.825029304757;
-
-	//20x20 lunisolar drag
-	// pos_true[0] = -5153.78037301524;
-	// pos_true[1] = -4954.43083112784;
-	// pos_true[2] = -144.825403424162;
-
-	//20x20 lunisolar drag SRP
-	// pos_true[0] = -5153.78219138574;
-	// pos_true[1] = -4954.43108360912;
-	// pos_true[2] = -144.82549360719;
+	//write out data
+	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
+	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
+	Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
+	Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
 
 
 	return 0;

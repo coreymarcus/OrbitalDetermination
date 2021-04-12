@@ -156,10 +156,16 @@ namespace Estimate{
 		Eigen::MatrixXd Pyy = this->R_;
 		Eigen::MatrixXd Pxy = Eigen::MatrixXd::Zero(n,m);
 
+		// std::cout << "R: \n" << Pyy << "\n";
+		// std::cout << "y: \n" << y << "\n";
+		// std::cout << "w: \n" << w << "\n";
+
 		//get the measurement mean
 		for (int i = 0; i < L; ++i)	{
 			yhat += w(i)*Y.block(0,i,m,1);
 		}
+
+		// std::cout << "yhat: \n" << yhat << "\n";
 
 		//get the covariances
 		for (int i = 0; i < L; ++i)	{
@@ -168,9 +174,13 @@ namespace Estimate{
 			Eigen::MatrixXd diffY = Y.block(0,i,m,1) - yhat;
 			Eigen::MatrixXd diffX = Xi.block(0,i,n,1) - xhat;
 
-			Pyy += w(i)*diffY*diffY.transpose();
-			Pxy += w(i)*diffX*diffX.transpose();
+			// std::cout << "Pxy +=: \n" << w(i)*diffY*diffY.transpose() << "\n";
+
+			Pyy = Pyy + w(i)*diffY*diffY.transpose();
+			Pxy = Pxy + w(i)*diffX*diffY.transpose();
 		}
+		// std::cout << "Pyy: \n" << Pyy << "\n";
+		// std::cout << "Pxy: \n" << Pxy << "\n";
 
 		//update state
 		this->xhat_ = xhat + Pxy*Pyy.inverse()*(y - yhat);
