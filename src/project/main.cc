@@ -84,7 +84,9 @@ int main() {
 
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
-	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
+
+	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
 	//convert pos and vel into orbital elements
 	propobj.State2OE();
@@ -99,8 +101,8 @@ int main() {
 
 	//initial estimate
 	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(6,6);
-	Phat0.block(0,0,3,3) = 3.0*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 0.1*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
 	Eigen::VectorXd xhat0(6);
 	xhat0.segment(0,3) = pos0;
 	xhat0.segment(3,3) = vel0;
@@ -111,15 +113,23 @@ int main() {
 	ukf.n_ = 6;
 	ukf.m_ = 2;
 
+	//process noise matrix
+	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
+	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
+	double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
+	// double var_i = pow(10.0,-6.0);
+	Q_sub = var_i*Q_sub;
+	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
+
 	//number of sigma points
 	int Nsig = 2*6 + 1;
 
 	// timing
 	double dt; //seconds for propagation
-	int N = 113; // number of measurements
+	int N = 435; // number of measurements
 
 	//load the measurements
-	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",435,4);
+	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
 
 	//process the first measurement outside the loop
 	double tof = z(0,2)/c;
@@ -148,16 +158,22 @@ int main() {
 		case 1:
 			obs_station_iter = obs_station1;
 			ukf.R_ = R1;
+
+			// std::cout << "Station 1 \n";
 			break;
 
 		case 2:
 			obs_station_iter = obs_station2;
 			ukf.R_ = R2;
+
+			// std::cout << "Station 2 \n";
 			break;
 
 		case 3:
 			obs_station_iter = obs_station3;
 			ukf.R_ = R3;
+
+			// std::cout << "Station 3 \n";
 			break;
 
 		default: std::cout << "Error: bad case in measurement \n";
@@ -185,8 +201,6 @@ int main() {
 	}
 
 	//assign estimate to propobj for residual calculation
-	propobj.pos_ = ukf.xhat_.segment(0,3);
-	propobj.vel_ = ukf.xhat_.segment(3,3);
 	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
 
 	//use these sigma points to find an estimate
@@ -205,13 +219,13 @@ int main() {
 	prefit_res.block(0,0,2,1) = ziter - prefit_pred;
 	postfit_res.block(0,0,2,1) = ziter - postfit_pred;
 
+	std::cout << ziter - prefit_pred << "\n";
+	// exit(0);
+
 	// propagate starting with the second measurement
 	for (int ii = 1; ii < N; ++ii){
 
 		//////////////////// Propagate /////////////////////
-
-		//create UKF sigma points
-		ukf.GetSigmaPoints();
 
 		//get this measurement time of flight
 		tof = z(ii,2)/c;
@@ -219,8 +233,18 @@ int main() {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - z(ii-1,1);
 
+		//add process noise
+		Q.block(0,0,3,3) = 0.25*pow(dt,4.0)*Q_sub;
+		Q.block(0,3,3,3) = 0.5*pow(dt,3.0)*Q_sub;
+		Q.block(3,0,3,3) = 0.5*pow(dt,3.0)*Q_sub;
+		Q.block(3,3,3,3) = 0.25*pow(dt,2.0)*Q_sub;
+		ukf.Phat_ = ukf.Phat_ + Q;
+
+		//create UKF sigma points
+		ukf.GetSigmaPoints();
+
 		//propagate each sigma point
-		for (int j = 1; j < Nsig; ++j){
+		for (int j = 0; j < Nsig; ++j){
 
 			//extract sig state
 			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
@@ -249,7 +273,7 @@ int main() {
 		//////////////////// Update /////////////////////
 
 
-		//detirmine which tracking station was used
+		//determine which tracking station was used
 		stationID = (int) z(ii, 0);
 
 		switch(stationID) {
@@ -303,8 +327,6 @@ int main() {
 		propobj.vel_ = ukf.xhat_.segment(3,3);
 		postfit_pred = propobj.GetRangeAndRate(obs_station_iter);
 
-		std::cout << "Phat: \n" << ukf.Phat_ << "\n";
-
 		//store data
 		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
 		Eigen::Map<Eigen::VectorXd> Phat_vec_iter(ukf.Phat_.data(), ukf.Phat_.size());
@@ -315,7 +337,7 @@ int main() {
 		//////////// Propagate through the TOF ///////////////
 
 		//propagate each sigma point
-		for (int j = 1; j < Nsig; ++j){
+		for (int j = 0; j < Nsig; ++j){
 
 			//extract sig state
 			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
@@ -336,6 +358,11 @@ int main() {
 		ukf.SigmaPts2Estimate();
 
 		//////////////////////////////////////////////////////////////////
+
+		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
+		std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+		std::cout << "Q: \n" << Q << "\n";
+
 	}
 
 	//write out data
@@ -343,7 +370,6 @@ int main() {
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
 	Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 	Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
-
 
 	return 0;
 	
