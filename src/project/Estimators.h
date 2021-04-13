@@ -105,7 +105,8 @@ namespace Estimate{
 		void SigmaPts2Estimate();
 
 		// Performs an update given measurement  y and measurement sigma points Y
-		void CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y);
+		// Returns Pyy, or the innovation covariance
+		Eigen::MatrixXd CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y);
 
 	};
 

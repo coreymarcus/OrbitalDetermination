@@ -140,7 +140,7 @@ namespace Estimate{
 
 	} //SigmaPts2Estimate()
 
-	void UKF::CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y){
+	Eigen::MatrixXd UKF::CalcEstimate(Eigen::VectorXd y, Eigen::MatrixXd Y){
 
 		//extract locals
 		Eigen::MatrixXd Xi = this->Xi_;
@@ -185,6 +185,9 @@ namespace Estimate{
 		//update state
 		this->xhat_ = xhat + Pxy*Pyy.inverse()*(y - yhat);
 		this->Phat_ = Phat - Pxy*Pyy.inverse()*Pxy.transpose();
+
+		//Return Pyy
+		return Pyy;
 
 
 	} //CalcEstimate

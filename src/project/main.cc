@@ -116,8 +116,8 @@ int main() {
 	//process noise matrix
 	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
 	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
-	double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
-	// double var_i = pow(10.0,-6.0);
+	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
+	double var_i = 5.0*pow(10.0,-15.0);
 	Q_sub = var_i*Q_sub;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
@@ -143,6 +143,7 @@ int main() {
 	//initialize data storage
 	Eigen::MatrixXd xhat_mat = Eigen::MatrixXd::Zero(6,N);
 	Eigen::MatrixXd Phat_mat = Eigen::MatrixXd::Zero(36,N);
+	Eigen::MatrixXd Pyy_mat = Eigen::MatrixXd::Zero(4,N);
 	Eigen::MatrixXd prefit_res = Eigen::MatrixXd::Zero(2,N);
 	Eigen::MatrixXd postfit_res = Eigen::MatrixXd::Zero(2,N);
 
@@ -205,7 +206,7 @@ int main() {
 
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
-	ukf.CalcEstimate(ziter, Y);
+	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
 
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
@@ -215,7 +216,9 @@ int main() {
 	//store data
 	xhat_mat.block(0,0,6,1) = ukf.xhat_;
 	Eigen::Map<Eigen::VectorXd> Phat_vec(ukf.Phat_.data(), ukf.Phat_.size());
+	Eigen::Map<Eigen::VectorXd> Pyy_vec(Pyy.data(), Pyy.size());
 	Phat_mat.block(0,0,36,1) = Phat_vec;
+	Pyy_mat.block(0,0,4,1) = Pyy_vec;
 	prefit_res.block(0,0,2,1) = ziter - prefit_pred;
 	postfit_res.block(0,0,2,1) = ziter - postfit_pred;
 
@@ -319,7 +322,7 @@ int main() {
 		ziter = z.block(ii,2,1,2).transpose();
 
 		//perform update
-		ukf.CalcEstimate(ziter, Y);
+		Pyy = ukf.CalcEstimate(ziter, Y);
 		ukf.GetSigmaPoints();
 
 		//assign estimate to propobj for residual calculation
@@ -330,7 +333,9 @@ int main() {
 		//store data
 		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
 		Eigen::Map<Eigen::VectorXd> Phat_vec_iter(ukf.Phat_.data(), ukf.Phat_.size());
+		Eigen::Map<Eigen::VectorXd> Pyy_vec_iter(Pyy.data(), Pyy.size());
 		Phat_mat.block(0,ii,36,1) = Phat_vec_iter;
+		Pyy_mat.block(0,ii,4,1) = Pyy_vec_iter;
 		prefit_res.block(0,ii,2,1) = ziter - prefit_pred;
 		postfit_res.block(0,ii,2,1) = ziter - postfit_pred;
 
@@ -360,14 +365,15 @@ int main() {
 		//////////////////////////////////////////////////////////////////
 
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
-		std::cout << "Phat: \n" << ukf.Phat_ << "\n";
-		std::cout << "Q: \n" << Q << "\n";
+		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+		// std::cout << "Q: \n" << Q << "\n";
 
 	}
 
 	//write out data
 	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
+	Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
 	Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 	Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
 

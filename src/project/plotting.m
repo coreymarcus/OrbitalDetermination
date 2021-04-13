@@ -16,25 +16,39 @@ xhat = csvread("../../data/xhat_proj.csv");
 Phat = csvread("../../data/Phat_proj.csv");
 prefit = csvread("../../data/prefit_res_proj.csv");
 postfit = csvread("../../data/postfit_res_proj.csv");
+Pyy = csvread("../../data/Pyy_proj.csv");
 z = csvread("../../data/meas_proj_set1.csv");
+
+%target indexes for plotting
+idxs = 100:length(z(:,2));
 
 %plot residuals
 
 figure
 subplot(2,1,1)
-scatter(z(:,2),postfit(1,:),4,'filled')
+scatter(z(idxs,2),postfit(1,idxs),4,'filled')
+hold on
+plot(z(idxs,2),3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2),-3*sqrt(Pyy(1,idxs)),'r')
 title('Post-Fit Residuals')
+grid on
 
 subplot(2,1,2)
-scatter(z(:,2),postfit(2,:),4,'filled')
+scatter(z(idxs,2),postfit(2,idxs),4,'filled')
+grid on
+hold on
+plot(z(idxs,2),3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2),-3*sqrt(Pyy(4,idxs)),'r')
 
 figure
 subplot(2,1,1)
-scatter(z(:,2),prefit(1,:),4,'filled')
+scatter(z(idxs,2),prefit(1,idxs),4,'filled')
 title('Pre-Fit Residuals')
+grid on
 
 subplot(2,1,2)
-scatter(z(:,2),prefit(2,:),4,'filled')
+scatter(z(idxs,2),prefit(2,idxs),4,'filled')
+grid on
 
 % figure
 % plot3(xhat(1,:),xhat(2,:),xhat(3,:))
@@ -43,6 +57,6 @@ scatter(z(:,2),prefit(2,:),4,'filled')
 % ylabel('y')
 % zlabel('z')
 
-figure
-plot(z(:,2),xhat(3,:))
-title('Position Estimate')
+% figure
+% plot(z(:,2),xhat(3,:))
+% title('Position Estimate')
