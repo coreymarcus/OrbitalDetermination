@@ -82,6 +82,11 @@ int main() {
 	R2(1,1) = pow(1.0/1000000.0,2);
 	R3(1,1) = pow(0.5/1000000.0,2);
 
+	//selectively choose which site to use
+	R1 = 1000000*R1;
+	// R2 = 1000000*R2;
+	R3 = 1000000*R3;
+
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
