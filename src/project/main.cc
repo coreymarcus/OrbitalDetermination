@@ -83,13 +83,14 @@ int main() {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//selectively choose which site to use
-	R1 = 1000000*R1;
+	// R1 = 1000000*R1;
 	// R2 = 1000000*R2;
-	R3 = 1000000*R3;
+	// R3 = 1000000*R3;
 
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -211,6 +212,10 @@ int main() {
 
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
+
+	if (stationID == 3)	{
+		ziter[0] += 0.020;
+	}
 	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
 
 	//assign estimate to propobj for residual calculation
@@ -381,6 +386,36 @@ int main() {
 	Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
 	Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 	Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
+
+	//do the final propagation for the NAG
+	double t_remain = 24.0*60.0*60.0 - propobj_vec[0].t_;
+
+	//create UKF sigma points
+	ukf.GetSigmaPoints();
+
+	//propagate each sigma point
+	for (int j = 0; j < Nsig; ++j){
+
+		//extract sig state
+		Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+		//assign
+		propobj_vec[j].pos_ = xi.segment(0,3);
+		propobj_vec[j].vel_ = xi.segment(3,3);
+
+		//propagate
+		propobj_vec[j].Propagate(t_remain,false);
+
+		//update sigma point
+		ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+		ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+	}
+
+	//use sigma points to update estimate
+	ukf.SigmaPts2Estimate();
+
+	std::cout << "xhat: \n" << ukf.xhat_ << "\n";
+	std::cout << "Phat: \n" << ukf.xhat_ << "\n";		
 
 	return 0;
 	

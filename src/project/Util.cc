@@ -7,6 +7,7 @@
 #include <iomanip>  // std::setprecision()
 #include <string> //filenames
 #include <boost/math/special_functions/legendre.hpp> //legendre polynomials for gravity
+#include "VehicleState.h" // headerfile containing propagator class
 
 namespace Util {
 
@@ -766,5 +767,172 @@ namespace Util {
 		return accel_eci;
 
 	} //GetGravAccel
+
+	double GetCost(double x0, double y0, double z0, double vx0, double vy0, double vz0){
+
+		//form a propagator object
+		VehicleState::Propagator propobj;
+
+		//set physics constants
+		propobj.mu_ = 398600.4415; // km^3/sec^2
+		propobj.mu_sun_ = 132712440018.0; //km^3/sec^2
+		propobj.mu_moon_ = 4902.800066; //km^3/sec^2
+		propobj.AU_ = 149597870.7;
+		propobj.J2_ = 0.00108248;
+		propobj.J3_ = 0.0000025327;
+		propobj.Rearth_ = 6378.1363; //km
+		propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
+		propobj.C_D_ = 1.88;
+		propobj.A_ = 3.6; // m^2
+		propobj.m_ = 2000.0; //kg
+		propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
+		propobj.r0_ = 700.0 + propobj.Rearth_; //km
+		propobj.H_ = 88.6670; //km
+
+		double c = 299792.0; //speed of light km/sec
+
+		//parameters
+		propobj.useJ2_ = true;
+		propobj.use20x20_ = true;
+		propobj.usedrag_ = true;
+		propobj.useSRP_ = true;
+		propobj.useLuniSolar_ = true; //gravity of sun and moon
+
+		//form a gravity object
+		Util::EGM96Grav gravmodel;
+		gravmodel.LoadNormCoeffs("../data/egm96_C_normalized.csv", "../data/egm96_S_normalized.csv");
+		gravmodel.NormCoeffs2Reg();
+		gravmodel.mu_ = propobj.mu_;
+		gravmodel.Rearth_ = propobj.Rearth_;
+		Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
+		Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modifiedHW6.csv",15, 4);
+		gravmodel.nut80ptr_ = &nut80; 
+		gravmodel.iau1980ptr_ = &iau1980;
+		propobj.gravmodel_ = &gravmodel;
+
+		//set objects position and velocity
+		Eigen::Vector3d pos0;
+		pos0[0] = x0;
+		pos0[1] = y0;
+		pos0[2] = z0;
+
+		Eigen::Vector3d vel0;
+		vel0[0] = vx0;
+		vel0[1] = vy0;
+		vel0[2] = vz0;
+
+		//set observation station ECEF location
+		Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
+		Eigen::Vector3d obs_station2{1907.295, 6030.810, -817.119}; //diego garcia
+		Eigen::Vector3d obs_station3{2390.310, -5564.341, 1994.578}; //arecibo
+
+		propobj.pos_ = pos0;
+		propobj.vel_ = vel0;
+		propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
+
+		//set tolerance options
+		// propobj.abstol_ = 1.0*pow(10.0,-16.0);
+		// propobj.reltol_ = 3.0*pow(10.0,-14.0);
+		// propobj.dt_var_ = 0.1;
+		propobj.abstol_ = 1.0*pow(10.0,-14.0);
+		propobj.reltol_ = 3.0*pow(10.0,-12.0);
+		propobj.dt_var_ = 0.1;
+
+		// timing
+		double dt; //seconds for propagation
+		// int N = 435; // number of measurements
+		int N = 50; // number of measurements
+
+		//load the measurements
+		Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+
+		//process the first measurement outside the loop
+		double tof = z(0,2)/c;
+
+		//start at the predicted time
+		propobj.t_ = -1.0*tof;
+
+		//initialize data storage
+		Eigen::VectorXd prefit_res = Eigen::VectorXd::Zero(2*N,1);
+
+		//detirmine which tracking station was used
+		int stationID = (int) z(0, 0);
+
+		//measurement
+		Eigen::Vector2d ziter = z.block(0,2,1,2).transpose();
+
+		//get the station position
+		Eigen::Vector3d obs_station_iter;
+		switch(stationID) {
+			case 1:
+				obs_station_iter = obs_station1;
+				break;
+
+			case 2:
+				obs_station_iter = obs_station2;
+				break;
+
+			case 3:
+				obs_station_iter = obs_station3;
+				break;
+
+			default: std::cout << "Error: bad case in measurement \n";
+		}
+
+		//residual calculation
+		Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+
+		//store data
+		prefit_res.segment(0,2) = ziter - prefit_pred;
+
+		// propagate starting with the second measurement
+		for (int ii = 1; ii < N; ++ii){
+
+			//get this measurement time of flight
+			tof = z(ii,2)/c;
+
+			//get the time we need to propagate to get to this measurement
+			dt = z(ii,1) - tof - z(ii-1,1);
+
+			//propagate
+			propobj.Propagate(dt,false);
+
+			//determine which tracking station was used
+			stationID = (int) z(ii, 0);
+
+			switch(stationID) {
+				case 1:
+					obs_station_iter = obs_station1;
+					break;
+
+				case 2:
+					obs_station_iter = obs_station2;
+					break;
+
+				case 3:
+					obs_station_iter = obs_station3;
+					break;
+
+				default: std::cout << "Error: bad case in measurement \n";
+			}
+
+			//assign estimate to propobj for residual calculation
+			prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+
+			//measurement
+			ziter = z.block(ii,2,1,2).transpose();
+
+			//store data
+			prefit_res.segment(2*ii,2) = ziter - prefit_pred;
+
+			// Propagate through the TOF
+			propobj.Propagate(tof,false);
+
+		}
+
+		//return norm of residuals
+		return prefit_res.norm();
+
+	} //GetCost
 
 } //namespace Util

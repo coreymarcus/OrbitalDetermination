@@ -70,6 +70,10 @@ namespace Util {
 
 	}; //class EGM96Grav
 
+	//cost function for nonlinear optimization of residuals across all measurements
+	double GetCost(double x0, double y0, double z0,
+		double vx0, double vy0, double vz0);
+
 
 } //namespace Util
 
