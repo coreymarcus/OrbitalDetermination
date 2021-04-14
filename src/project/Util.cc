@@ -768,7 +768,12 @@ namespace Util {
 
 	} //GetGravAccel
 
-	double GetCost(double x0, double y0, double z0, double vx0, double vy0, double vz0){
+	double GetCost(Eigen::MatrixXd x0, Eigen::MatrixXd bias){
+
+		//extract bias
+		Eigen::Vector2d bias1 = bias.block(0,0,2,1);
+		Eigen::Vector2d bias2 = bias.block(2,0,2,1);
+		Eigen::Vector2d bias3 = bias.block(4,0,2,1);
 
 		//form a propagator object
 		VehicleState::Propagator propobj;
@@ -812,14 +817,14 @@ namespace Util {
 
 		//set objects position and velocity
 		Eigen::Vector3d pos0;
-		pos0[0] = x0;
-		pos0[1] = y0;
-		pos0[2] = z0;
+		pos0[0] = x0(0,0);
+		pos0[1] = x0(1,0);
+		pos0[2] = x0(2,0);
 
 		Eigen::Vector3d vel0;
-		vel0[0] = vx0;
-		vel0[1] = vy0;
-		vel0[2] = vz0;
+		vel0[0] = x0(3,0);
+		vel0[1] = x0(4,0);
+		vel0[2] = x0(5,0);
 
 		//set observation station ECEF location
 		Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
@@ -863,17 +868,21 @@ namespace Util {
 
 		//get the station position
 		Eigen::Vector3d obs_station_iter;
+		Eigen::Vector2d bias_iter;
 		switch(stationID) {
 			case 1:
 				obs_station_iter = obs_station1;
+				bias_iter = bias1;
 				break;
 
 			case 2:
 				obs_station_iter = obs_station2;
+				bias_iter = bias2;
 				break;
 
 			case 3:
 				obs_station_iter = obs_station3;
+				bias_iter = bias3;
 				break;
 
 			default: std::cout << "Error: bad case in measurement \n";
@@ -903,14 +912,17 @@ namespace Util {
 			switch(stationID) {
 				case 1:
 					obs_station_iter = obs_station1;
+					bias_iter = bias1;
 					break;
 
 				case 2:
 					obs_station_iter = obs_station2;
+					bias_iter = bias2;
 					break;
 
 				case 3:
 					obs_station_iter = obs_station3;
+					bias_iter = bias3;
 					break;
 
 				default: std::cout << "Error: bad case in measurement \n";
@@ -923,7 +935,7 @@ namespace Util {
 			ziter = z.block(ii,2,1,2).transpose();
 
 			//store data
-			prefit_res.segment(2*ii,2) = ziter - prefit_pred;
+			prefit_res.segment(2*ii,2) = ziter - prefit_pred - bias_iter;
 
 			// Propagate through the TOF
 			propobj.Propagate(tof,false);

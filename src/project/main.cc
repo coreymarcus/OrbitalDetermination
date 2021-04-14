@@ -13,7 +13,7 @@ int main() {
 
 	//precision
 	// std::cout << std::setprecision(5);
-	std::cout << std::setprecision(12);
+	std::cout << std::setprecision(17);
 
 	//form a propagator object
 	VehicleState::Propagator propobj;
@@ -55,16 +55,27 @@ int main() {
 	gravmodel.iau1980ptr_ = &iau1980;
 	propobj.gravmodel_ = &gravmodel;
 
-	//set objects position and velocity
+	//set objects position and velocity (from assignment document)
+	// Eigen::Vector3d pos0;
+	// pos0[0] = 6984.45711518852;
+	// pos0[1] = 1612.2547582643;
+	// pos0[2] = 13.0925904314402;
+
+	// Eigen::Vector3d vel0;
+	// vel0[0] = -1.67667852227336;
+	// vel0[1] = 7.26143715396544;
+	// vel0[2] = 0.259889857225218;
+
+	//set objects position and velocity (from optimization)
 	Eigen::Vector3d pos0;
-	pos0[0] = 6984.45711518852;
-	pos0[1] = 1612.2547582643;
-	pos0[2] = 13.0925904314402;
+	pos0[0] = 6980.3967323588;
+	pos0[1] = 1619.61802198332;
+	pos0[2] = 15.1399428739289;
 
 	Eigen::Vector3d vel0;
-	vel0[0] = -1.67667852227336;
-	vel0[1] = 7.26143715396544;
-	vel0[2] = 0.259889857225218;
+	vel0[0] = -1.66690187359566;
+	vel0[1] = 7.2578409459164;
+	vel0[2] = 0.261907498000759;
 
 	//set observation station ECEF location
 	Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
@@ -86,6 +97,16 @@ int main() {
 	// R1 = 1000000*R1;
 	// R2 = 1000000*R2;
 	// R3 = 1000000*R3;
+
+	// //disable range rate
+	// R1(1,1) = 10000000;
+	// R2(1,1) = 10000000;
+	// R3(1,1) = 10000000;
+
+	// //disable range
+	// R1(0,0) = 10000000;
+	// R2(0,0) = 10000000;
+	// R3(0,0) = 10000000;
 
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
@@ -123,7 +144,8 @@ int main() {
 	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
 	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
 	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
-	double var_i = 5.0*pow(10.0,-15.0);
+	double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
 	Q_sub = var_i*Q_sub;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
@@ -213,9 +235,9 @@ int main() {
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
 
-	if (stationID == 3)	{
-		ziter[0] += 0.020;
-	}
+	// if (stationID == 3)	{
+	// 	ziter[0] += 0.020;
+	// }
 	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
 
 	//assign estimate to propobj for residual calculation
@@ -414,8 +436,8 @@ int main() {
 	//use sigma points to update estimate
 	ukf.SigmaPts2Estimate();
 
-	std::cout << "xhat: \n" << ukf.xhat_ << "\n";
-	std::cout << "Phat: \n" << ukf.xhat_ << "\n";		
+	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";
+	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";		
 
 	return 0;
 	
