@@ -175,7 +175,8 @@ int main(int argc, char** argv) {
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 25.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -470,7 +471,7 @@ int main(int argc, char** argv) {
 	//do the final propagation for the NAG
 	double t_total = 24.0*60.0*60.0*(t_dV1 - propobj_vec[0].t_JD_);
 	double t_remain = t_total - propobj_vec[0].t_;
-
+	
 	std::cout << "Propating X seconds to delivery time: " << t_remain << "\n";
 
 	//create UKF sigma points
@@ -492,6 +493,8 @@ int main(int argc, char** argv) {
 		//update sigma point
 		ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
 		ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+
+		std::cout << "Completed point " << j << "\n";
 	}
 
 	//use sigma points to update estimate
