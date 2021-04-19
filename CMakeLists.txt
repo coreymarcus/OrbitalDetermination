@@ -45,7 +45,7 @@ message("-- PROJECT_SOURCE_DIR : " ${PROJECT_SOURCE_DIR})
 find_package(Boost REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
 # FIND_PACKAGE(Matlab REQUIRED)
-find_package(Python3 COMPONENTS Development)
+# find_package(Python3 COMPONENTS Development)
 
 #link
 # target_link_libraries(HW0 Eigen3::Eigen)
