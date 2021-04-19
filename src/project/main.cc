@@ -9,7 +9,10 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 
-int main() {
+int main(int argc, char** argv) {
+
+	//process inputs
+	std::string project_case = argv[1];
 
 	//precision
 	// std::cout << std::setprecision(5);
@@ -28,7 +31,7 @@ int main() {
 	propobj.Rearth_ = 6378.1363; //km
 	propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
 	propobj.C_D_ = 1.88;
-	propobj.A_ = 3.6; // m^2
+	propobj.A_ = 22; // m^2
 	propobj.m_ = 2000.0; //kg
 	propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
 	propobj.r0_ = 700.0 + propobj.Rearth_; //km
@@ -68,14 +71,14 @@ int main() {
 
 	//set objects position and velocity (from optimization)
 	Eigen::Vector3d pos0;
-	pos0[0] = 6980.3967323588;
-	pos0[1] = 1619.61802198332;
-	pos0[2] = 15.1399428739289;
+	pos0[0] = 6978.83947078333;
+	pos0[1] = 1617.08566078009;
+	pos0[2] = 19.5045324160835;
 
 	Eigen::Vector3d vel0;
-	vel0[0] = -1.66690187359566;
-	vel0[1] = 7.2578409459164;
-	vel0[2] = 0.261907498000759;
+	vel0[0] = -1.66346314624123;
+	vel0[1] = 7.26036443567597;
+	vel0[2] = 0.270402425183416;
 
 	//set observation station ECEF location
 	Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
@@ -93,25 +96,86 @@ int main() {
 	R2(1,1) = pow(1.0/1000000.0,2);
 	R3(1,1) = pow(0.5/1000000.0,2);
 
-	//selectively choose which site to use
-	// R1 = 1000000*R1;
-	// R2 = 1000000*R2;
-	// R3 = 1000000*R3;
+	//different cases
+	std::string xhat_NAG_filename;
+	std::string Phat_NAG_filename;
 
-	// //disable range rate
-	// R1(1,1) = 10000000;
-	// R2(1,1) = 10000000;
-	// R3(1,1) = 10000000;
+	//process noise matrix
+	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
+	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
+	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
+	// double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
+	double var_i;
 
-	// //disable range
-	// R1(0,0) = 10000000;
-	// R2(0,0) = 10000000;
-	// R3(0,0) = 10000000;
+	// case A
+	if(project_case.compare("A") == 0) {
+		std::cout << "Case A\n";
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+		xhat_NAG_filename = "../data/xhat_A_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_A_NAG.csv";
+		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	}
+
+	// case B
+	if(project_case.compare("B") == 0) {
+		std::cout << "Case B\n";
+		R1(0,0) = 10000000;
+		R2(0,0) = 10000000;
+		R3(0,0) = 10000000;
+		xhat_NAG_filename = "../data/xhat_B_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_B_NAG.csv";
+		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	}
+
+	// case C
+	if(project_case.compare("C") == 0) {
+		std::cout << "Case C\n";
+		R2 = 1000000*R2;
+		R3 = 1000000*R3;
+		xhat_NAG_filename = "../data/xhat_C_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_C_NAG.csv";
+		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	}
+
+	// case D
+	if(project_case.compare("D") == 0) {
+		std::cout << "Case D\n";
+		R1 = 1000000*R2;
+		R3 = 1000000*R3;
+		xhat_NAG_filename = "../data/xhat_D_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_D_NAG.csv";
+		var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
+	}
+
+	// case E
+	if(project_case.compare("E") == 0) {
+		std::cout << "Case E\n";
+		R1 = 1000000*R2;
+		R2 = 1000000*R3;
+		xhat_NAG_filename = "../data/xhat_E_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_E_NAG.csv";
+		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	}
+
+	// case F
+	if(project_case.compare("F") == 0) {
+		std::cout << "Case F\n";
+		xhat_NAG_filename = "../data/xhat_F_NAG.csv";
+		Phat_NAG_filename = "../data/Phat_F_NAG.csv";
+		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	}
+
+	//construct rest of Q
+	Q_sub = var_i*Q_sub;
+	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -139,15 +203,6 @@ int main() {
 	ukf.k_ = 0.5;
 	ukf.n_ = 6;
 	ukf.m_ = 2;
-
-	//process noise matrix
-	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
-	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
-	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
-	double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
-	Q_sub = var_i*Q_sub;
-	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
 	//number of sigma points
 	int Nsig = 2*6 + 1;
@@ -396,21 +451,27 @@ int main() {
 
 		//////////////////////////////////////////////////////////////////
 
+		std::cout << "Project Case: " << project_case << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
 
 	}
 
-	//write out data
+	//write out data (to avoid dumb mistakes, only write residuals for case F)
 	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
-	Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
-	Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
-	Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
-
+	if (xhat_NAG_filename.compare("../data/xhat_F_NAG.csv") == 0) {
+		Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
+		Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
+		Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
+	}
+	
 	//do the final propagation for the NAG
-	double t_remain = 24.0*60.0*60.0 - propobj_vec[0].t_;
+	double t_total = 24.0*60.0*60.0*(t_dV1 - propobj_vec[0].t_JD_);
+	double t_remain = t_total - propobj_vec[0].t_;
+
+	std::cout << "Propating X seconds to delivery time: " << t_remain << "\n";
 
 	//create UKF sigma points
 	ukf.GetSigmaPoints();
@@ -437,7 +498,10 @@ int main() {
 	ukf.SigmaPts2Estimate();
 
 	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";
-	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";		
+	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";
+
+	Util::Eigen2csv(xhat_NAG_filename, ukf.xhat_.segment(0,6));
+	Util::Eigen2csv(Phat_NAG_filename, ukf.Phat_.block(0,0,3,3));				
 
 	return 0;
 	
