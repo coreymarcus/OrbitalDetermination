@@ -16,25 +16,36 @@ clc
 %     0
 %     0.020
 %     0];
-x0 = [6980.3967323588
-    1619.61802198332
-    15.1399428739289
-    -1.66690187359566
-    7.2578409459164
-    0.261907498000759
-    0
-    0
-    0
-    0
-    0.020
-    0];
+% x0 = [6978.83947078333
+%     1617.08566078009
+%     19.5045324160835
+%     -1.66346314624123
+%     7.26036443567597
+%     0.270402425183416
+%     0
+%     0
+%     0
+%     0
+%     0
+%     0
+%     1.88];
+% x0 = [6978.83947078333
+%     1617.08566078009
+%     19.5045324160835
+%     -1.66346314624123
+%     7.26036443567597
+%     0.270402425183416
+%     1.88];
+x0 = [1.88];
 
 
 %change units a bit
-x0(4:9) = 1000*x0(4:9);
+% x0(4:6) = 1000*x0(4:6);
+% x0(7:12) = 1000000*x0(7:12);
 
 options = optimoptions('lsqnonlin','Algorithm','levenberg-marquardt','Display',...
-    'iter','UseParallel',false,'StepTolerance',1E-8);
+    'iter-detailed','UseParallel',false,'StepTolerance',1E-8,...
+    'MaxFunctionEvaluations',1E8,'MaxIterations',1E4);
 
 %function
 fun = @(x) GetCost(x);
@@ -43,7 +54,8 @@ fun = @(x) GetCost(x);
 xf = lsqnonlin(fun,x0,[],[],options);
 
 %change units back
-xf(4:9) = xf(4:9)/1000;
+% xf(4:6) = xf(4:6)/1000;
+% xf(7:12) = xf(7:12)/1000000;
 
 %write units
 writematrix(xf,"../../data/optimized_x0.csv");

@@ -71,7 +71,7 @@ namespace Util {
 	}; //class EGM96Grav
 
 	//cost function for nonlinear optimization of residuals across all measurements
-	double GetCost(Eigen::MatrixXd x0, Eigen::MatrixXd bias);
+	double GetCost(Eigen::MatrixXd x0, Eigen::MatrixXd bias, double Cd);
 
 
 } //namespace Util

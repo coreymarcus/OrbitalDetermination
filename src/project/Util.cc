@@ -768,7 +768,7 @@ namespace Util {
 
 	} //GetGravAccel
 
-	double GetCost(Eigen::MatrixXd x0, Eigen::MatrixXd bias){
+	double GetCost(Eigen::MatrixXd x0, Eigen::MatrixXd bias, double Cd){
 
 		//extract bias
 		Eigen::Vector2d bias1 = bias.block(0,0,2,1);
@@ -787,8 +787,8 @@ namespace Util {
 		propobj.J3_ = 0.0000025327;
 		propobj.Rearth_ = 6378.1363; //km
 		propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
-		propobj.C_D_ = 1.88;
-		propobj.A_ = 3.6; // m^2
+		propobj.C_D_ = Cd;
+		propobj.A_ = 10.0; // m^2
 		propobj.m_ = 2000.0; //kg
 		propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
 		propobj.r0_ = 700.0 + propobj.Rearth_; //km
@@ -845,8 +845,8 @@ namespace Util {
 
 		// timing
 		double dt; //seconds for propagation
-		// int N = 435; // number of measurements
-		int N = 50; // number of measurements
+		int N = 435; // number of measurements
+		// int N = 150; // number of measurements
 
 		//load the measurements
 		Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
