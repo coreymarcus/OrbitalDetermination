@@ -86,13 +86,23 @@ Filter initialization is a challenge for many nonlinear extensions of the Kalman
 	J(x_0) = \sum_{i=0}^{i=50} \left( z_i - h(f_{0}^{i}(x_0)) \right)^2 
 \end{equation}
 
-The resulting $x0$ is shown in Equation \eqref{eq:LM_IC}. The initial estimate covariance, $P_0$, was chosen arbitrarily to achieve a filter which converged for all test cases. This matrix is shown in Equation \eqref{eq:P0}.
+The resulting $x0$ is shown in Equation \eqref{eq:LM_IC}. The units are $km$ and $km/s$. The initial estimate covariance, $P_0$, was chosen arbitrarily to achieve a filter which converged for all test cases. This matrix is shown in Equation \eqref{eq:P0}. To correspond with the state, the units are $km^2$ and $km^2/s^2$. $diag \{a, b, c, ... \}$ is shorthand for a diagonal matrix with its arguments on the diagonal.
 
 \begin{equation}
 	\label{eq:LM_IC}
 	x_0 = \begin{bmatrix}
-		
+	6980.3967323588 \\
+	1619.61802198332 \\
+	15.1399428739289 \\
+	-1.66690187359566 \\
+	7.2578409459164 \\
+	0.261907498000759 \\	
 	\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+	\label{eq:P0}
+	P_0 = diag \{ 100, 100, 100, 0.01, 0.01, 0.01 \}
 \end{equation}
 
 \section{Deliverables}
