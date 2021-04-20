@@ -109,11 +109,21 @@ The resulting $x0$ is shown in Equation \eqref{eq:LM_IC}. The units are $km$ and
 
 \subsection{Prefit Residuals}
 
+Figure \ref{fig:prefit} shows the prefit measurement residuals when all measurement types and sensors are considered.
+
 \subsection{Postfit Residuals}
+
+Figure \ref{fig:postfit} shows the postfit measurement residuals when all measurement types and sensors are considered.
 
 \subsection{State Estimates at $\Delta V_1$}
 
+To investigate the consitency of the estimates, case F (all data and all sensors) was designated as the best estimated trajectory. A transformation was found to map vectors into the Radial-Intrack-Crosstrack (RQW) coordinate frame described by the best estimate. For each case, the associated deviation from best-estimate and estimate covariance was transformed into the RQW frame. Figures \ref{fig:rad_cross}, \ref{fig:rad_in}, and \ref{fig:cross_in} showcase these deviations and covariances.
+ 
 \section{Discussion}
+
+From the Deliverables, we can form a variety of conclusions. We begin with a discussion of the prefit residuals. First we note that residuals at the beginning of the epoch are low, this indicates that our LM optimization scheme has most likely provided us an accurate initial state estimate. We also note that residuals are high immediately after a measurement gap; this is expected. Any estimation error immediately before a measurement gap is bound to grow during the nonlinear orbital propagation without any updates. Even if we had perfect estimation, error is bound to grow due to the unmodeled dynamics of our system. It is possible that our simplifications in dynamics modeling are contributing significantly to the growth of these residuals. We may be able to increase estimator performance by increasing the fidelity of our drag and SRP models. These large residuals also indicate that our estimate propagation to $\Delta V_1$ is likely to contain significant error.
+
+Next, we discuss the postfit residuals.
 
 \section{Conclusion}
 
