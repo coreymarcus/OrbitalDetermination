@@ -325,6 +325,8 @@ namespace VehicleState {
 		double JD_UTC = t_JD_init + t/(24.0*60.0*60.0); //current UTC Julian Date in days
 		double d2r = M_PI/180.0; //degrees to radians
 
+		// std::cout << "t: " << t << " state: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5]; 
+
 		//initalize acceleration
 		state_type accel = {0.0, 0.0, 0.0};
 
@@ -382,8 +384,8 @@ namespace VehicleState {
 		//first, find the position of the sun in the ECI frame (vallado algo 29)
 
 		//assume JD_UTC = JD_UT1 (less than 1 second deviation)
-		// double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
-		double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
+		double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
+		// double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
 		double lambda_M_sun = 280.460 + 36000.771285*T_UT1; // mean sun longitude [degrees]
 
 		//assume T_TBD = T_UT1

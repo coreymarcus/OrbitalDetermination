@@ -345,6 +345,7 @@ namespace Util {
 		//we will manually find values from iau1980.txt because lazy
 		// std::cout << "You need to manually find this in iau1980.txt \n";
 		// std::cout << "floor(MJD_UTC): " << floor(MJD_UTC) << "\n";
+		// exit(0);
 
 		//manual search found this:
 		// 1712 1 58088.00 I  0.124136 0.000022  0.236728 0.000035  I 0.2485001 0.0000084  1.5396 0.0061  I  -104.226    0.322    -8.561    0.160  0.124126  0.236687  0.2485227  -104.524    -8.685  
@@ -700,7 +701,7 @@ namespace Util {
 		double phi = asin(pos_ecef[2]/r);
 		double lamb = atan2(pos_ecef[1],pos_ecef[0]);
 
-		// std::cout << "r: " << r << "\n phi: " << phi << "\n lamb: " << lamb << "\n";
+		// std::cout << " JD_UTC: " << JD_UTC << " r: " << r << " phi: " << phi << " lamb: " << lamb << "\n";
 
 		//fixed order gravity model but have capability to do more
 		for (double ll = 2; ll < 21; ++ll) {

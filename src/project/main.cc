@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 	gravmodel.mu_ = propobj.mu_;
 	gravmodel.Rearth_ = propobj.Rearth_;
 	Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
-	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modifiedHW6.csv",15, 4);
+	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modifiedProject.csv",100, 4);
 	gravmodel.nut80ptr_ = &nut80; 
 	gravmodel.iau1980ptr_ = &iau1980;
 	propobj.gravmodel_ = &gravmodel;
@@ -175,8 +175,8 @@ int main(int argc, char** argv) {
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 25.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 25.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -471,7 +471,7 @@ int main(int argc, char** argv) {
 	//do the final propagation for the NAG
 	double t_total = 24.0*60.0*60.0*(t_dV1 - propobj_vec[0].t_JD_);
 	double t_remain = t_total - propobj_vec[0].t_;
-	
+
 	std::cout << "Propating X seconds to delivery time: " << t_remain << "\n";
 
 	//create UKF sigma points
