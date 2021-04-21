@@ -435,8 +435,8 @@ namespace VehicleState {
 			if (in_sun)	{
 				
 				//approximate Area * C_s
-				double SRPcoeff = 0.04*15.0 + 0.59*7.0;
-				// double SRPcoeff = 1.8*15.0;
+				// double SRPcoeff = 0.04*15.0 + 0.59*7.0;
+				double SRPcoeff = 1.8*15.0;
 
 				//vallado srp
 				double p_srp = 4.57*pow(10.0,-6.0);

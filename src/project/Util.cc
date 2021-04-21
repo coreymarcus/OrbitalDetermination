@@ -360,7 +360,7 @@ namespace Util {
 		//get initial index of desired time
 		int tidx = round(floor(MJD_UTC) - iau1980ptr->coeff(0,0));
 
-		// std::cout << JD_UTC << "\n";
+		// std::cout << "located at index: " << tidx << "\n";
 
 		//extract values
 		double PMx1 = iau1980ptr->coeff(tidx,1);
@@ -517,7 +517,7 @@ namespace Util {
 		S = OrthoNormMat(S);
 		W = OrthoNormMat(W);
 
-		//write out all the matricies
+		// //write out all the matricies
 		// std::cout << "P:\n" << P << "\n";
 		// std::cout << "N:\n" << N << "\n";
 		// std::cout << "S:\n" << S << "\n";
@@ -695,7 +695,7 @@ namespace Util {
 		//ecef position
 		Eigen::Vector3d pos_ecef = R_ecef2eci.transpose()*pos;
 
-		// std::cout << "pos_ecef: \n" << pos_ecef << "\n";
+		std::cout << "pos_ecef: \n" << pos_ecef << "\n";
 
 		//lat and long
 		double phi = asin(pos_ecef[2]/r);
@@ -763,7 +763,9 @@ namespace Util {
 		Eigen::Vector3d accel_eci = R_ecef2eci*Rsp2cart*accel + accel_central;
 
 		// std::cout << "\n" << "accel ecef (no central): \n" << Rsp2cart*accel;
-		// std::cout << "\n" << "accel eci (with central: \n" << accel_eci;
+		std::cout << "\n" << "accel eci (with central): \n" << accel_eci;
+
+		exit(0);
 
 		return accel_eci;
 
