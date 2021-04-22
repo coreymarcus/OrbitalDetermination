@@ -695,7 +695,7 @@ namespace Util {
 		//ecef position
 		Eigen::Vector3d pos_ecef = R_ecef2eci.transpose()*pos;
 
-		std::cout << "pos_ecef: \n" << pos_ecef << "\n";
+		// std::cout << "pos_ecef: \n" << pos_ecef << "\n";
 
 		//lat and long
 		double phi = asin(pos_ecef[2]/r);
@@ -763,9 +763,9 @@ namespace Util {
 		Eigen::Vector3d accel_eci = R_ecef2eci*Rsp2cart*accel + accel_central;
 
 		// std::cout << "\n" << "accel ecef (no central): \n" << Rsp2cart*accel;
-		std::cout << "\n" << "accel eci (with central): \n" << accel_eci;
+		// std::cout << "\n" << "accel eci (with central): \n" << accel_eci;
 
-		exit(0);
+		// exit(0);
 
 		return accel_eci;
 

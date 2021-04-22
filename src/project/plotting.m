@@ -34,6 +34,21 @@ PhatE = csvread("../../data/Phat_E_NAG.csv");
 xhatF = csvread("../../data/xhat_F_NAG.csv");
 PhatF = csvread("../../data/Phat_F_NAG.csv");
 
+%data for NAG
+marcus_pos_caseA = xhatA(1:3);
+marcus_pos_caseB = xhatB(1:3);
+marcus_pos_caseC = xhatC(1:3);
+marcus_pos_caseD = xhatD(1:3);
+marcus_pos_caseE = xhatE(1:3);
+marcus_pos_caseF = xhatF(1:3);
+marcus_poscov_caseA = PhatA(1:3,1:3);
+marcus_poscov_caseB = PhatB(1:3,1:3);
+marcus_poscov_caseC = PhatC(1:3,1:3);
+marcus_poscov_caseD = PhatD(1:3,1:3);
+marcus_poscov_caseE = PhatE(1:3,1:3);
+marcus_poscov_caseF = PhatF(1:3,1:3);
+save("marcus.mat","marcus*");
+
 %target indexes for plotting
 % idxs = 100:length(z(:,2));
 idxs = 1:length(z(:,2));
@@ -84,41 +99,53 @@ sqrtR(2,station3idx) = 0.5/(1000*1000);
 
 figure
 subplot(2,1,1)
-scatter(z(idxs,2)/3600,postfit(1,idxs),4,'filled')
+scatter(z(station1idx,2)/3600,postfit(1,station1idx),4,'filled')
 hold on
-plot(z(idxs,2)/3600,3*sqrtR(1,idxs),'r');
-plot(z(idxs,2)/3600,-3*sqrtR(1,idxs),'r');
+scatter(z(station2idx,2)/3600,postfit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,postfit(1,station3idx),4,'filled')
+plot(z(idxs,2)/3600,3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,-3*sqrt(Pyy(1,idxs)),'r')
 title('Post-Fit Residuals')
 grid on
 ylabel('Range [km]')
+legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(idxs,2)/3600,postfit(2,idxs),4,'filled')
-grid on
+scatter(z(station1idx,2)/3600,postfit(2,station1idx),4,'filled')
 hold on
-plot(z(idxs,2)/3600,3*sqrtR(2,idxs),'r');
-plot(z(idxs,2)/3600,-3*sqrtR(2,idxs),'r');
+scatter(z(station2idx,2)/3600,postfit(2,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,postfit(2,station3idx),4,'filled')
+plot(z(idxs,2)/3600,3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,-3*sqrt(Pyy(4,idxs)),'r')
 ylabel('Range Rate [km/sec]')
 xlabel('Time (hours)')
+grid on
+legend('Station 1','Station 2','Station 3')
 
 figure
 subplot(2,1,1)
-scatter(z(idxs,2)/3600,prefit(1,idxs),4,'filled')
+scatter(z(station1idx,2)/3600,prefit(1,station1idx),4,'filled')
 hold on
+scatter(z(station2idx,2)/3600,prefit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,prefit(1,station3idx),4,'filled')
 plot(z(idxs,2)/3600,3*sqrt(Pyy(1,idxs)),'r')
 plot(z(idxs,2)/3600,-3*sqrt(Pyy(1,idxs)),'r')
 title('Pre-Fit Residuals')
 grid on
 ylabel('Range [km]')
+legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(idxs,2)/3600,prefit(2,idxs),4,'filled')
+scatter(z(station1idx,2)/3600,prefit(1,station1idx),4,'filled')
 hold on
+scatter(z(station2idx,2)/3600,prefit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,prefit(1,station3idx),4,'filled')
 plot(z(idxs,2)/3600,3*sqrt(Pyy(4,idxs)),'r')
 plot(z(idxs,2)/3600,-3*sqrt(Pyy(4,idxs)),'r')
 grid on
 ylabel('Range Rate [km/sec]')
 xlabel('Time (hours)')
+legend('Station 1','Station 2','Station 3')
 
 % figure
 % plot3(xhat(1,:),xhat(2,:),xhat(3,:))
@@ -148,12 +175,12 @@ plot_elipse(xyfig,PhatdevE([1 2],[1 2]),devE([1 2]),1,'',false)
 plot_elipse(xyfig,PhatdevF([1 2],[1 2]),devF([1 2]),1,'',false)
 xlabel('Radial [km]')
 ylabel('In Track [km]')
-text(devA(1)+20,devA(2),'A')
-text(devB(1)+20,devB(2),'B')
-text(devC(1)+20,devC(2),'C')
-text(devD(1)+20,devD(2),'D')
-text(devE(1)-15,devE(2),'E')
-text(devF(1)+20,devF(2),'F')
+text(devA(1)+.005,devA(2),'A')
+text(devB(1)+.005,devB(2),'B')
+text(devC(1)+.005,devC(2),'C')
+text(devD(1)+.005,devD(2),'D')
+text(devE(1)-.005,devE(2),'E')
+text(devF(1)+.005,devF(2),'F')
 
 xzfig = figure;
 scatter(devA(1),devA(3),'x')
@@ -171,12 +198,12 @@ plot_elipse(xzfig,PhatdevE([1 3],[1 3]),devE([1 3]),1,'',false)
 plot_elipse(xzfig,PhatdevF([1 3],[1 3]),devF([1 3]),1,'',false)
 xlabel('Radial [km]')
 ylabel('Cross Track [km]')
-text(devA(1)+20,devA(3),'A')
-text(devB(1)+20,devB(3),'B')
-text(devC(1)+20,devC(3),'C')
-text(devD(1)+20,devD(3),'D')
-text(devE(1)-15,devE(3),'E')
-text(devF(1)+20,devF(3),'F')
+text(devA(1)+.005,devA(3),'A')
+text(devB(1)+.005,devB(3),'B')
+text(devC(1)+.005,devC(3),'C')
+text(devD(1)+.005,devD(3),'D')
+text(devE(1)-.005,devE(3),'E')
+text(devF(1)+.005,devF(3),'F')
 
 yzfig = figure;
 scatter(devA(2),devA(3),'x')
@@ -194,10 +221,10 @@ plot_elipse(yzfig,PhatdevE([2 3],[2 3]),devE([2 3]),1,'',false)
 plot_elipse(yzfig,PhatdevF([2 3],[2 3]),devF([2 3]),1,'',false)
 xlabel('In Track [km]')
 ylabel('Cross Track [km]')
-text(devA(2)+20,devA(3),'A')
-text(devB(2)+20,devB(3),'B')
-text(devC(2)+20,devC(3),'C')
-text(devD(2)+20,devD(3),'D')
-text(devE(2)-15,devE(3),'E')
-text(devF(2)+20,devF(3),'F')
+text(devA(2)+.005,devA(3),'A')
+text(devB(2)+.005,devB(3),'B')
+text(devC(2)+.005,devC(3),'C')
+text(devD(2)+.005,devD(3),'D')
+text(devE(2)-.005,devE(3),'E')
+text(devF(2)+.005,devF(3),'F')
 

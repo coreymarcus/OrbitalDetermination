@@ -596,14 +596,26 @@ namespace VehicleState {
 		Eigen::Vector2d z;
 
 		//station ECI velocity
-		Eigen::Vector3d vel_station;
-		vel_station[0] = -1.0*earthrot*pos_station[1];
-		vel_station[1] = earthrot*pos_station[0];
-		vel_station[2] = 0.0;
+		// Eigen::Vector3d vel_station;
+		// vel_station[0] = -1.0*earthrot*pos_station[1];
+		// vel_station[1] = earthrot*pos_station[0];
+		// vel_station[2] = 0.0;
+
+		// std::cout << "vel1: \n" << vel_station << "\n";
+
+		//station ECEF velocity
+		Eigen::Vector3d vel_station_ecef;
+		vel_station_ecef[0] = -1.0*earthrot*pos_station_ecef[1];
+		vel_station_ecef[1] = earthrot*pos_station_ecef[0];
+		vel_station_ecef[2] = 0.0;
+
+		// std::cout << "vel2: \n" << R_ecef2eci*vel_station_ecef << "\n";
+
+		// exit(0);
 
 		//relative position and velocity
 		Eigen::Vector3d rel_pos = pos_craft - pos_station;
-		Eigen::Vector3d rel_vel  = vel_craft - vel_station;
+		Eigen::Vector3d rel_vel  = vel_craft - R_ecef2eci*vel_station_ecef;
 
 		//range
 		z[0] = rel_pos.norm();
