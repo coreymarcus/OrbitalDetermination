@@ -615,7 +615,7 @@ namespace VehicleState {
 		vel_station_pef[2] = 0.0;
 
 		//station ECI velocity
-		Eigen::Vector3d vel_station_eci = matvec[0]*matvec[1]*matvec[2]*vel_station_pef;
+		Eigen::Vector3d vel_station_eci = Util::OrthoNormMat(matvec[0]*matvec[1]*matvec[2])*vel_station_pef;
 
 		// std::cout << "vel2: \n" << R_ecef2eci*vel_station_ecef << "\n";
 
