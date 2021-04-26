@@ -405,13 +405,6 @@ int main(int argc, char** argv) {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - z(ii-1,1);
 
-		//add process noise
-		Q.block(0,0,3,3) = 0.25*pow(dt,4.0)*Q_sub;
-		Q.block(0,3,3,3) = 0.5*pow(dt,3.0)*Q_sub;
-		Q.block(3,0,3,3) = 0.5*pow(dt,3.0)*Q_sub;
-		Q.block(3,3,3,3) = 0.25*pow(dt,2.0)*Q_sub;
-		ukf.Phat_ = ukf.Phat_ + Q;
-
 		//create UKF sigma points
 		ukf.GetSigmaPoints();
 
@@ -435,6 +428,13 @@ int main(int argc, char** argv) {
 
 		//Update the estimate
 		ukf.SigmaPts2Estimate();
+
+		//add process noise
+		Q.block(0,0,3,3) = 0.25*pow(dt,4.0)*Q_sub;
+		Q.block(0,3,3,3) = 0.5*pow(dt,3.0)*Q_sub;
+		Q.block(3,0,3,3) = 0.5*pow(dt,3.0)*Q_sub;
+		Q.block(3,3,3,3) = 0.25*pow(dt,2.0)*Q_sub;
+		ukf.Phat_ = ukf.Phat_ + Q;
 
 		//Get new sigma points
 		ukf.GetSigmaPoints();
@@ -558,13 +558,6 @@ int main(int argc, char** argv) {
 
 	std::cout << "Propating X seconds to delivery time: " << t_remain << "\n";
 
-	//add process noise
-	Q.block(0,0,3,3) = 0.25*pow(t_remain,4.0)*Q_sub;
-	Q.block(0,3,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
-	Q.block(3,0,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
-	Q.block(3,3,3,3) = 0.25*pow(t_remain,2.0)*Q_sub;
-	ukf.Phat_ = ukf.Phat_ + Q;
-
 	//create UKF sigma points
 	ukf.GetSigmaPoints();
 
@@ -590,6 +583,14 @@ int main(int argc, char** argv) {
 
 	//use sigma points to update estimate
 	ukf.SigmaPts2Estimate();
+
+	//add process noise
+	Q.block(0,0,3,3) = 0.25*pow(t_remain,4.0)*Q_sub;
+	Q.block(0,3,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
+	Q.block(3,0,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
+	Q.block(3,3,3,3) = 0.25*pow(t_remain,2.0)*Q_sub;
+	ukf.Phat_ = ukf.Phat_ + Q;
+
 
 	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";
 	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";

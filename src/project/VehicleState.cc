@@ -625,6 +625,9 @@ namespace VehicleState {
 		Eigen::Vector3d rel_pos = pos_craft - pos_station;
 		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
 
+		// std::cout << "station ECI vel: \n" << vel_station_eci << "\n";
+		// exit(0);
+
 		//range
 		z[0] = rel_pos.norm();
 
