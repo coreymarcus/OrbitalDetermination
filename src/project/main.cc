@@ -110,7 +110,8 @@ int main(int argc, char** argv) {
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
 	Eigen::Vector2d bias2(0.0,0.0);
-	Eigen::Vector2d bias3(0.020,0.0);
+	Eigen::Vector2d bias3(0.026,0.0);
+	// Eigen::Vector2d bias3(0.0,0.0);
 
 	//different cases
 	std::string xhat_NAG_filename;
@@ -123,6 +124,9 @@ int main(int argc, char** argv) {
 	// double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
 	double var_i;
+
+	//write residuals logic
+	bool writeresiduals = false;
 
 	// case A
 	if(project_case.compare("A") == 0) {
@@ -188,12 +192,50 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_F_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		writeresiduals = true;
 		// R1(1,1) = 10000000;
 		// R2(1,1) = 10000000;
 		// R3(1,1) = 10000000;
 	}
 
-	var_i = 1.0*pow(10.0,-14.0); //used for finding bias
+	// stations 1 and 2 only
+	if(project_case.compare("12") == 0){
+		std::cout << "Case 1 and 2 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only12.csv";
+		Phat_NAG_filename = "../data/Phat_only12.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R3 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+	}
+
+	// stations 1 and 3 only
+	if(project_case.compare("13") == 0){
+		std::cout << "Case 1 and 3 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only13.csv";
+		Phat_NAG_filename = "../data/Phat_only13.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R2 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+	}
+
+	// stations 2 and 3 only
+	if(project_case.compare("23") == 0){
+		std::cout << "Case 2 and 3 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only23.csv";
+		Phat_NAG_filename = "../data/Phat_only23.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R1 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+	}
 
 	//construct rest of Q
 	Q_sub = var_i*Q_sub;
@@ -202,8 +244,8 @@ int main(int argc, char** argv) {
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -243,10 +285,12 @@ int main(int argc, char** argv) {
 
 	// timing
 	double dt; //seconds for propagation
-	int N = 435; // number of measurements
+	// int N = 435; // number of measurements for set 1
+	int N = 1289; //number of measurements for set 2
 
 	//load the measurements
-	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set2.csv",N,4);
 
 	//process the first measurement outside the loop
 	double tof = z(0,2)/c;
@@ -492,7 +536,7 @@ int main(int argc, char** argv) {
 
 		//////////////////////////////////////////////////////////////////
 
-		std::cout << "Project Case: " << project_case << "\n";
+		std::cout << "Project Case: " << project_case << " Station ID: "<< stationID << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
@@ -502,7 +546,7 @@ int main(int argc, char** argv) {
 	//write out data (to avoid dumb mistakes, only write residuals for case F)
 	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
-	if (xhat_NAG_filename.compare("../data/xhat_F_NAG.csv") == 0) {
+	if (writeresiduals) {
 		Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
 		Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 		Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
@@ -561,7 +605,7 @@ int main(int argc, char** argv) {
 	}
 
 	//for case F, propagate back to t0 to get an initial estimate	
-	if(project_case.compare("F") == 0){
+	if(project_case.compare("F") == 0 && false){
 
 		std::cout << "Estimating in reverse to get initial conditions... \n";
 

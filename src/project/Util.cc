@@ -311,7 +311,7 @@ namespace Util {
 
 	} //GetGravJac
 
-	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr){
+	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr, std::vector<Eigen::Matrix3d>* matvecptr){
 
 		//********* deal with time ******************
 
@@ -523,6 +523,12 @@ namespace Util {
 		// std::cout << "S:\n" << S << "\n";
 		// std::cout << "W:\n" << W << "\n";
 
+		//write each matrix to the vector
+		(*matvecptr)[0] = P;
+		(*matvecptr)[1] = N;
+		(*matvecptr)[2] = S;
+		(*matvecptr)[3] = W;
+
 		//Matrix
 		Eigen::Matrix3d Rotm = P*N*S*W;
 		Rotm = OrthoNormMat(Rotm);
@@ -690,7 +696,8 @@ namespace Util {
 		double nr_ij = sqrt(pow(pos[0],2.0) + pow(pos[1],2.0));
 
 		//matrix rotating from ECEF2ECI
-		Eigen::Matrix3d R_ecef2eci = ECEF2ECI(JD_UTC, this->nut80ptr_, this->iau1980ptr_);
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = ECEF2ECI(JD_UTC, this->nut80ptr_, this->iau1980ptr_, &matvec);
 
 		//ecef position
 		Eigen::Vector3d pos_ecef = R_ecef2eci.transpose()*pos;

@@ -27,7 +27,7 @@ namespace Util {
 
 	//convert from ECEF (ITRF) [km] to ECI (ICRF) [km] using IAU-76/FK5 and julian date (UTC)
 	//	sourced from Vallado
-	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr);
+	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr, std::vector<Eigen::Matrix3d>* matvecptr);
 
 	//load comma seperated value data file
 	Eigen::MatrixXd LoadDatFile(std::string file, int rows, int cols);

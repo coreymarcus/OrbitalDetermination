@@ -27,7 +27,8 @@ int main() {
 	std::cout << "Julian Date: " << t_JD << "\n";
 
 	// get rotation matrix
-	Eigen::Matrix3d R = Util::ECEF2ECI(t_JD, &nut80, &iau1980);
+	std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+	Eigen::Matrix3d R = Util::ECEF2ECI(t_JD, &nut80, &iau1980, &matvec);
 
 	//rotate
 	Eigen::Vector3d pos_ECI = R*pos_ECEF;

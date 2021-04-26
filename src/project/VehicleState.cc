@@ -586,7 +586,8 @@ namespace VehicleState {
 		double earthrot = this->earthrotationspeed_;
 		Eigen::Vector3d pos_craft = this->pos_;
 		Eigen::Vector3d vel_craft = this->vel_;
-		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_, &matvec); //matrix rotating from ECEF2ECI
 
 
 		//convert station position to ECI
@@ -603,11 +604,18 @@ namespace VehicleState {
 
 		// std::cout << "vel1: \n" << vel_station << "\n";
 
-		//station ECEF velocity
-		Eigen::Vector3d vel_station_ecef;
-		vel_station_ecef[0] = -1.0*earthrot*pos_station_ecef[1];
-		vel_station_ecef[1] = earthrot*pos_station_ecef[0];
-		vel_station_ecef[2] = 0.0;
+		// Vallado IAU-76/FK5 transformation for velocity
+		//convert station position to PEF 
+		Eigen::Vector3d pos_station_pef = matvec[3]*pos_station_ecef;
+
+		//station PEF velocity
+		Eigen::Vector3d vel_station_pef;
+		vel_station_pef[0] = -1.0*earthrot*pos_station_pef[1];
+		vel_station_pef[1] = earthrot*pos_station_pef[0];
+		vel_station_pef[2] = 0.0;
+
+		//station ECI velocity
+		Eigen::Vector3d vel_station_eci = matvec[0]*matvec[1]*matvec[2]*vel_station_pef;
 
 		// std::cout << "vel2: \n" << R_ecef2eci*vel_station_ecef << "\n";
 
@@ -615,7 +623,7 @@ namespace VehicleState {
 
 		//relative position and velocity
 		Eigen::Vector3d rel_pos = pos_craft - pos_station;
-		Eigen::Vector3d rel_vel  = vel_craft - R_ecef2eci*vel_station_ecef;
+		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
 
 		//range
 		z[0] = rel_pos.norm();
@@ -634,7 +642,8 @@ namespace VehicleState {
 		double earthrot = this->earthrotationspeed_;
 		Eigen::Vector3d pos_craft = this->pos_;
 		Eigen::Vector3d vel_craft = this->vel_;
-		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_, &matvec); //matrix rotating from ECEF2ECI
 
 		//convert station position to ECI
 		Eigen::Vector3d pos_station = R_ecef2eci*pos_station_ecef;
