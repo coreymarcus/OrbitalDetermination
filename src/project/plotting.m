@@ -20,7 +20,7 @@ Phat = csvread("../../data/Phat_proj.csv");
 prefit = csvread("../../data/prefit_res_proj.csv");
 postfit = csvread("../../data/postfit_res_proj.csv");
 Pyy = csvread("../../data/Pyy_proj.csv");
-z = csvread("../../data/meas_proj_set1.csv");
+z = csvread("../../data/meas_proj_set2.csv");
 xhatA = csvread("../../data/xhat_A_NAG.csv");
 PhatA = csvread("../../data/Phat_A_NAG.csv");
 xhatB = csvread("../../data/xhat_B_NAG.csv");
@@ -54,7 +54,7 @@ save("marcus.mat","marcus*");
 idxs = 1:length(z(:,2));
 
 %get orbital elements for best estimate
-best_est = xhatF;
+best_est = xhatA;
 d2r = pi/180;
 [~, ~, i, Ohm, w, theta] = FunState2OE(best_est(1:3),best_est(4:6));
 
@@ -140,6 +140,31 @@ scatter(z(station1idx,2)/3600,1000*prefit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*prefit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*prefit(1,station3idx),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
+grid on
+ylabel('Range Rate [m/sec]')
+xlabel('Time (hours)')
+legend('Station 1','Station 2','Station 3')
+
+figure
+subplot(2,1,1)
+scatter(z(station1idx,2)/3600,1000*(postfit(1,station1idx) - prefit(1,station1idx)),4,'filled')
+hold on
+scatter(z(station2idx,2)/3600,1000*(postfit(1,station2idx) - prefit(1,station2idx)),4,'filled')
+scatter(z(station3idx,2)/3600,1000*(postfit(1,station3idx) - prefit(1,station3idx)),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
+title('Update in Residuals')
+grid on
+ylabel('Range [m]')
+legend('Station 1','Station 2','Station 3')
+
+subplot(2,1,2)
+scatter(z(station1idx,2)/3600,1000*(postfit(2,station1idx) - prefit(2,station1idx)),4,'filled')
+hold on
+scatter(z(station2idx,2)/3600,1000*(postfit(2,station2idx) - prefit(2,station2idx)),4,'filled')
+scatter(z(station3idx,2)/3600,1000*(postfit(2,station3idx) - prefit(2,station3idx)),4,'filled')
 % plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
 % plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
