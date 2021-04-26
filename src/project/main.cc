@@ -253,8 +253,8 @@ int main(int argc, char** argv) {
 	propobj.State2OE();
 
 	//set tolerance options
-	propobj.abstol_ = 1.0*pow(10.0,-16.0);
-	propobj.reltol_ = 3.0*pow(10.0,-14.0);
+	propobj.abstol_ = 1.0*pow(10.0,-12.0);
+	propobj.reltol_ = 3.0*pow(10.0,-10.0);
 	propobj.dt_var_ = 0.1;
 
 	//create an estimator
