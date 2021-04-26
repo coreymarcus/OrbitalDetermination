@@ -99,51 +99,51 @@ sqrtR(2,station3idx) = 0.5/(1000*1000);
 
 figure
 subplot(2,1,1)
-scatter(z(station1idx,2)/3600,postfit(1,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,1000*postfit(1,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,postfit(1,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,postfit(1,station3idx),4,'filled')
-plot(z(idxs,2)/3600,3*sqrt(Pyy(1,idxs)),'r')
-plot(z(idxs,2)/3600,-3*sqrt(Pyy(1,idxs)),'r')
+scatter(z(station2idx,2)/3600,1000*postfit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,1000*postfit(1,station3idx),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Post-Fit Residuals')
 grid on
-ylabel('Range [km]')
+ylabel('Range [m]')
 legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(station1idx,2)/3600,postfit(2,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,1000*postfit(2,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,postfit(2,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,postfit(2,station3idx),4,'filled')
-plot(z(idxs,2)/3600,3*sqrt(Pyy(4,idxs)),'r')
-plot(z(idxs,2)/3600,-3*sqrt(Pyy(4,idxs)),'r')
-ylabel('Range Rate [km/sec]')
+scatter(z(station2idx,2)/3600,1000*postfit(2,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,1000*postfit(2,station3idx),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
+ylabel('Range Rate [m/sec]')
 xlabel('Time (hours)')
 grid on
 legend('Station 1','Station 2','Station 3')
 
 figure
 subplot(2,1,1)
-scatter(z(station1idx,2)/3600,prefit(1,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,1000*prefit(1,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,prefit(1,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,prefit(1,station3idx),4,'filled')
-plot(z(idxs,2)/3600,3*sqrt(Pyy(1,idxs)),'r')
-plot(z(idxs,2)/3600,-3*sqrt(Pyy(1,idxs)),'r')
+scatter(z(station2idx,2)/3600,1000*prefit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,1000*prefit(1,station3idx),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Pre-Fit Residuals')
 grid on
-ylabel('Range [km]')
+ylabel('Range [m]')
 legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(station1idx,2)/3600,prefit(1,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,1000*prefit(1,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,prefit(1,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,prefit(1,station3idx),4,'filled')
-plot(z(idxs,2)/3600,3*sqrt(Pyy(4,idxs)),'r')
-plot(z(idxs,2)/3600,-3*sqrt(Pyy(4,idxs)),'r')
+scatter(z(station2idx,2)/3600,1000*prefit(1,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,1000*prefit(1,station3idx),4,'filled')
+% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
-ylabel('Range Rate [km/sec]')
+ylabel('Range Rate [m/sec]')
 xlabel('Time (hours)')
 legend('Station 1','Station 2','Station 3')
 
