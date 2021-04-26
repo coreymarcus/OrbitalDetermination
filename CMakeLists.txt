@@ -34,6 +34,9 @@ add_executable(project src/project/main.cc
 add_executable(project_cost src/project/main_cost.cc
 	src/project/Util.cc
 	src/project/VehicleState.cc)
+add_executable(unit_test src/project/unit_test.cc
+	src/project/Util.cc
+	src/project/VehicleState.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)
@@ -82,3 +85,5 @@ target_link_libraries(HW5 Eigen3::Eigen)
 target_link_libraries(project Eigen3::Eigen)
 
 target_link_libraries(project_cost Eigen3::Eigen)
+
+target_link_libraries(unit_test Eigen3::Eigen)

@@ -325,6 +325,8 @@ namespace VehicleState {
 		double JD_UTC = t_JD_init + t/(24.0*60.0*60.0); //current UTC Julian Date in days
 		double d2r = M_PI/180.0; //degrees to radians
 
+		// std::cout << "t: " << t << " state: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5]; 
+
 		//initalize acceleration
 		state_type accel = {0.0, 0.0, 0.0};
 
@@ -382,8 +384,8 @@ namespace VehicleState {
 		//first, find the position of the sun in the ECI frame (vallado algo 29)
 
 		//assume JD_UTC = JD_UT1 (less than 1 second deviation)
-		// double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
-		double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
+		double T_UT1 = (JD_UTC - 2451545.0)/36525.0; // julian centuries
+		// double T_UT1 = (2453827.5 - 2451545.0)/36525.0; // vallado numbers for checking
 		double lambda_M_sun = 280.460 + 36000.771285*T_UT1; // mean sun longitude [degrees]
 
 		//assume T_TBD = T_UT1
@@ -433,8 +435,8 @@ namespace VehicleState {
 			if (in_sun)	{
 				
 				//approximate Area * C_s
-				double SRPcoeff = 0.04*15.0 + 0.59*7.0;
-				// double SRPcoeff = 1.8*15.0;
+				// double SRPcoeff = 0.04*15.0 + 0.59*7.0;
+				double SRPcoeff = 1.8*15.0;
 
 				//vallado srp
 				double p_srp = 4.57*pow(10.0,-6.0);
@@ -584,7 +586,8 @@ namespace VehicleState {
 		double earthrot = this->earthrotationspeed_;
 		Eigen::Vector3d pos_craft = this->pos_;
 		Eigen::Vector3d vel_craft = this->vel_;
-		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_, &matvec); //matrix rotating from ECEF2ECI
 
 
 		//convert station position to ECI
@@ -594,14 +597,33 @@ namespace VehicleState {
 		Eigen::Vector2d z;
 
 		//station ECI velocity
-		Eigen::Vector3d vel_station;
-		vel_station[0] = -1.0*earthrot*pos_station[1];
-		vel_station[1] = earthrot*pos_station[0];
-		vel_station[2] = 0.0;
+		// Eigen::Vector3d vel_station;
+		// vel_station[0] = -1.0*earthrot*pos_station[1];
+		// vel_station[1] = earthrot*pos_station[0];
+		// vel_station[2] = 0.0;
+
+		// std::cout << "vel1: \n" << vel_station << "\n";
+
+		// Vallado IAU-76/FK5 transformation for velocity
+		//convert station position to PEF 
+		Eigen::Vector3d pos_station_pef = matvec[3]*pos_station_ecef;
+
+		//station PEF velocity
+		Eigen::Vector3d vel_station_pef;
+		vel_station_pef[0] = -1.0*earthrot*pos_station_pef[1];
+		vel_station_pef[1] = earthrot*pos_station_pef[0];
+		vel_station_pef[2] = 0.0;
+
+		//station ECI velocity
+		Eigen::Vector3d vel_station_eci = matvec[0]*matvec[1]*matvec[2]*vel_station_pef;
+
+		// std::cout << "vel2: \n" << R_ecef2eci*vel_station_ecef << "\n";
+
+		// exit(0);
 
 		//relative position and velocity
 		Eigen::Vector3d rel_pos = pos_craft - pos_station;
-		Eigen::Vector3d rel_vel  = vel_craft - vel_station;
+		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
 
 		//range
 		z[0] = rel_pos.norm();
@@ -620,7 +642,8 @@ namespace VehicleState {
 		double earthrot = this->earthrotationspeed_;
 		Eigen::Vector3d pos_craft = this->pos_;
 		Eigen::Vector3d vel_craft = this->vel_;
-		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_); //matrix rotating from ECEF2ECI
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = Util::ECEF2ECI(JD_UTC, this->gravmodel_->nut80ptr_, this->gravmodel_->iau1980ptr_, &matvec); //matrix rotating from ECEF2ECI
 
 		//convert station position to ECI
 		Eigen::Vector3d pos_station = R_ecef2eci*pos_station_ecef;

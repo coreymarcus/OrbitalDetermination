@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 	gravmodel.mu_ = propobj.mu_;
 	gravmodel.Rearth_ = propobj.Rearth_;
 	Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
-	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modifiedHW6.csv",15, 4);
+	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modified.csv",17563, 4);
 	gravmodel.nut80ptr_ = &nut80; 
 	gravmodel.iau1980ptr_ = &iau1980;
 	propobj.gravmodel_ = &gravmodel;
@@ -70,15 +70,26 @@ int main(int argc, char** argv) {
 	// vel0[2] = 0.259889857225218;
 
 	//set objects position and velocity (from optimization)
+	// Eigen::Vector3d pos0;
+	// pos0[0] = 6978.83947078333;
+	// pos0[1] = 1617.08566078009;
+	// pos0[2] = 19.5045324160835;
+
+	// Eigen::Vector3d vel0;
+	// vel0[0] = -1.66346314624123;
+	// vel0[1] = 7.26036443567597;
+	// vel0[2] = 0.270402425183416;
+
+	//set objects position and velocity (from backwards prop)
 	Eigen::Vector3d pos0;
-	pos0[0] = 6978.83947078333;
-	pos0[1] = 1617.08566078009;
-	pos0[2] = 19.5045324160835;
+	pos0[0] = 6978.6333198140128;
+	pos0[1] = 1616.5877041718923;
+	pos0[2] = 19.521992036638412;
 
 	Eigen::Vector3d vel0;
-	vel0[0] = -1.66346314624123;
-	vel0[1] = 7.26036443567597;
-	vel0[2] = 0.270402425183416;
+	vel0[0] = -1.6630417308551808;
+	vel0[1] = 7.2607803252380343;
+	vel0[2] = 0.27056529506678861;
 
 	//set observation station ECEF location
 	Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
@@ -96,6 +107,12 @@ int main(int argc, char** argv) {
 	R2(1,1) = pow(1.0/1000000.0,2);
 	R3(1,1) = pow(0.5/1000000.0,2);
 
+	//observation station biases
+	Eigen::Vector2d bias1(0.0,0.0);
+	Eigen::Vector2d bias2(0.0,0.0);
+	Eigen::Vector2d bias3(0.026,0.0);
+	// Eigen::Vector2d bias3(0.0,0.0);
+
 	//different cases
 	std::string xhat_NAG_filename;
 	std::string Phat_NAG_filename;
@@ -108,6 +125,9 @@ int main(int argc, char** argv) {
 	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
 	double var_i;
 
+	//write residuals logic
+	bool writeresiduals = false;
+
 	// case A
 	if(project_case.compare("A") == 0) {
 		std::cout << "Case A\n";
@@ -116,7 +136,8 @@ int main(int argc, char** argv) {
 		R3(1,1) = 10000000;
 		xhat_NAG_filename = "../data/xhat_A_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_A_NAG.csv";
-		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case B
@@ -127,7 +148,8 @@ int main(int argc, char** argv) {
 		R3(0,0) = 10000000;
 		xhat_NAG_filename = "../data/xhat_B_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_B_NAG.csv";
-		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case C
@@ -137,7 +159,8 @@ int main(int argc, char** argv) {
 		R3 = 1000000*R3;
 		xhat_NAG_filename = "../data/xhat_C_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_C_NAG.csv";
-		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case D
@@ -147,7 +170,8 @@ int main(int argc, char** argv) {
 		R3 = 1000000*R3;
 		xhat_NAG_filename = "../data/xhat_D_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_D_NAG.csv";
-		var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
+		// var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case E
@@ -157,7 +181,8 @@ int main(int argc, char** argv) {
 		R2 = 1000000*R3;
 		xhat_NAG_filename = "../data/xhat_E_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_E_NAG.csv";
-		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case F
@@ -165,7 +190,51 @@ int main(int argc, char** argv) {
 		std::cout << "Case F\n";
 		xhat_NAG_filename = "../data/xhat_F_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_F_NAG.csv";
-		var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		writeresiduals = true;
+		// R1(1,1) = 10000000;
+		// R2(1,1) = 10000000;
+		// R3(1,1) = 10000000;
+	}
+
+	// stations 1 and 2 only
+	if(project_case.compare("12") == 0){
+		std::cout << "Case 1 and 2 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only12.csv";
+		Phat_NAG_filename = "../data/Phat_only12.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R3 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+	}
+
+	// stations 1 and 3 only
+	if(project_case.compare("13") == 0){
+		std::cout << "Case 1 and 3 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only13.csv";
+		Phat_NAG_filename = "../data/Phat_only13.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R2 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
+	}
+
+	// stations 2 and 3 only
+	if(project_case.compare("23") == 0){
+		std::cout << "Case 2 and 3 only\n";
+		writeresiduals = true;
+		xhat_NAG_filename = "../data/xhat_only23.csv";
+		Phat_NAG_filename = "../data/Phat_only23.csv";
+		var_i = 1.0*pow(10.0,-19.0);
+		R1 = 10000000*Eigen::Matrix2d::Identity(2,2);
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	//construct rest of Q
@@ -175,8 +244,8 @@ int main(int argc, char** argv) {
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
 	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 25.0, 8.0, 55.0, 3.0);
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -193,8 +262,13 @@ int main(int argc, char** argv) {
 
 	//initial estimate
 	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(6,6);
-	Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+	// Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
+	// Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+
+	//values from backwards prop
+	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
+
 	Eigen::VectorXd xhat0(6);
 	xhat0.segment(0,3) = pos0;
 	xhat0.segment(3,3) = vel0;
@@ -202,6 +276,7 @@ int main(int argc, char** argv) {
 	ukf.Phat_ = Phat0;
 	ukf.xhat_ = xhat0;
 	ukf.k_ = 0.5;
+	// ukf.k_ = 0.9;
 	ukf.n_ = 6;
 	ukf.m_ = 2;
 
@@ -210,10 +285,12 @@ int main(int argc, char** argv) {
 
 	// timing
 	double dt; //seconds for propagation
-	int N = 435; // number of measurements
+	// int N = 435; // number of measurements for set 1
+	int N = 1289; //number of measurements for set 2
 
 	//load the measurements
-	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set2.csv",N,4);
 
 	//process the first measurement outside the loop
 	double tof = z(0,2)/c;
@@ -239,10 +316,12 @@ int main(int argc, char** argv) {
 
 	//get the station position
 	Eigen::Vector3d obs_station_iter;
+	Eigen::Vector2d bias_iter;
 	switch(stationID) {
 		case 1:
 			obs_station_iter = obs_station1;
 			ukf.R_ = R1;
+			bias_iter = bias1;
 
 			// std::cout << "Station 1 \n";
 			break;
@@ -250,6 +329,7 @@ int main(int argc, char** argv) {
 		case 2:
 			obs_station_iter = obs_station2;
 			ukf.R_ = R2;
+			bias_iter = bias2;
 
 			// std::cout << "Station 2 \n";
 			break;
@@ -257,6 +337,7 @@ int main(int argc, char** argv) {
 		case 3:
 			obs_station_iter = obs_station3;
 			ukf.R_ = R3;
+			bias_iter = bias3;
 
 			// std::cout << "Station 3 \n";
 			break;
@@ -279,7 +360,7 @@ int main(int argc, char** argv) {
 		propobj_vec[i].vel_ = xi.segment(3,3);
 
 		//predicted measurement
-		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter);
+		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter) + bias_iter;
 
 		//now that we have the predicted measurement, propagate forward to the current time
 		propobj_vec[i].Propagate(tof, false);
@@ -307,8 +388,8 @@ int main(int argc, char** argv) {
 	Eigen::Map<Eigen::VectorXd> Pyy_vec(Pyy.data(), Pyy.size());
 	Phat_mat.block(0,0,36,1) = Phat_vec;
 	Pyy_mat.block(0,0,4,1) = Pyy_vec;
-	prefit_res.block(0,0,2,1) = ziter - prefit_pred;
-	postfit_res.block(0,0,2,1) = ziter - postfit_pred;
+	prefit_res.block(0,0,2,1) = ziter - prefit_pred - bias_iter;
+	postfit_res.block(0,0,2,1) = ziter - postfit_pred - bias_iter;
 
 	std::cout << ziter - prefit_pred << "\n";
 	// exit(0);
@@ -371,16 +452,19 @@ int main(int argc, char** argv) {
 			case 1:
 				obs_station_iter = obs_station1;
 				ukf.R_ = R1;
+				bias_iter = bias1;
 				break;
 
 			case 2:
 				obs_station_iter = obs_station2;
 				ukf.R_ = R2;
+				bias_iter = bias2;
 				break;
 
 			case 3:
 				obs_station_iter = obs_station3;
 				ukf.R_ = R3;
+				bias_iter = bias3;
 				break;
 
 			default: std::cout << "Error: bad case in measurement \n";
@@ -389,7 +473,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+		prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
 
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
@@ -403,7 +487,7 @@ int main(int argc, char** argv) {
 			propobj_vec[j].vel_ = xi.segment(3,3);
 
 			//predicted measurement
-			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter);
+			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter) + bias_iter;
 		}
 
 		//measurement
@@ -416,7 +500,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		postfit_pred = propobj.GetRangeAndRate(obs_station_iter);
+		postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
 
 		//store data
 		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
@@ -452,7 +536,7 @@ int main(int argc, char** argv) {
 
 		//////////////////////////////////////////////////////////////////
 
-		std::cout << "Project Case: " << project_case << "\n";
+		std::cout << "Project Case: " << project_case << " Station ID: "<< stationID << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
@@ -462,7 +546,7 @@ int main(int argc, char** argv) {
 	//write out data (to avoid dumb mistakes, only write residuals for case F)
 	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
-	if (xhat_NAG_filename.compare("../data/xhat_F_NAG.csv") == 0) {
+	if (writeresiduals) {
 		Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
 		Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 		Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
@@ -471,8 +555,15 @@ int main(int argc, char** argv) {
 	//do the final propagation for the NAG
 	double t_total = 24.0*60.0*60.0*(t_dV1 - propobj_vec[0].t_JD_);
 	double t_remain = t_total - propobj_vec[0].t_;
-	
+
 	std::cout << "Propating X seconds to delivery time: " << t_remain << "\n";
+
+	//add process noise
+	Q.block(0,0,3,3) = 0.25*pow(t_remain,4.0)*Q_sub;
+	Q.block(0,3,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
+	Q.block(3,0,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
+	Q.block(3,3,3,3) = 0.25*pow(t_remain,2.0)*Q_sub;
+	ukf.Phat_ = ukf.Phat_ + Q;
 
 	//create UKF sigma points
 	ukf.GetSigmaPoints();
@@ -504,7 +595,160 @@ int main(int argc, char** argv) {
 	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";
 
 	Util::Eigen2csv(xhat_NAG_filename, ukf.xhat_.segment(0,6));
-	Util::Eigen2csv(Phat_NAG_filename, ukf.Phat_.block(0,0,3,3));				
+	Util::Eigen2csv(Phat_NAG_filename, ukf.Phat_.block(0,0,3,3));
+
+	//update tolerances for backwards propagation
+	for (int i = 0; i < Nsig; ++i){
+		propobj_vec[i].abstol_ = 1.0*pow(10.0,-16.0);
+		propobj_vec[i].reltol_ = 3.0*pow(10.0,-14.0);
+		propobj_vec[i].dt_var_ = -0.1;
+	}
+
+	//for case F, propagate back to t0 to get an initial estimate	
+	if(project_case.compare("F") == 0 && false){
+
+		std::cout << "Estimating in reverse to get initial conditions... \n";
+
+		for (int ii = N-1; ii >= 0; --ii){
+
+			//////////////////// Propagate /////////////////////
+
+			//get this measurement time of flight
+			tof = z(ii,2)/c;
+
+			//difference between current time and time of measurement arrival
+			dt = propobj_vec[0].t_ - z(ii,1);
+
+			//magnitude of time to propagate
+			double tprop = dt + tof;
+
+			//add process noise
+			Q.block(0,0,3,3) = 0.25*pow(tprop,4.0)*Q_sub;
+			Q.block(0,3,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
+			Q.block(3,0,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
+			Q.block(3,3,3,3) = 0.25*pow(tprop,2.0)*Q_sub;
+			ukf.Phat_ = ukf.Phat_ + Q;
+
+			//create UKF sigma points
+			ukf.GetSigmaPoints();
+
+			//propagate each sigma point
+			for (int j = 0; j < Nsig; ++j){
+
+				//extract sig state
+				Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+				//assign
+				propobj_vec[j].pos_ = xi.segment(0,3);
+				propobj_vec[j].vel_ = xi.segment(3,3);
+
+				//propagate backwards in time
+				propobj_vec[j].Propagate(-1.0*tprop,false);
+
+				//update sigma point
+				ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+				ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+			}
+
+			//Update the estimate
+			ukf.SigmaPts2Estimate();
+
+			//Get new sigma points
+			ukf.GetSigmaPoints();
+
+			//////////////////// Update /////////////////////
+
+
+			//determine which tracking station was used
+			stationID = (int) z(ii, 0);
+
+			switch(stationID) {
+				case 1:
+					obs_station_iter = obs_station1;
+					ukf.R_ = R1;
+					bias_iter = bias1;
+					break;
+
+				case 2:
+					obs_station_iter = obs_station2;
+					ukf.R_ = R2;
+					bias_iter = bias2;
+					break;
+
+				case 3:
+					obs_station_iter = obs_station3;
+					ukf.R_ = R3;
+					bias_iter = bias3;
+					break;
+
+				default: std::cout << "Error: bad case in measurement \n";
+			}
+
+			//cycle through sigma points, writing them to each element of the list
+			//and getting a predicted measurement
+			for (int j = 0; j < Nsig; ++j)	{
+				
+				//extract sig state
+				Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+				//assign
+				propobj_vec[j].pos_ = xi.segment(0,3);
+				propobj_vec[j].vel_ = xi.segment(3,3);
+
+				//predicted measurement
+				Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter) + bias_iter;
+			}
+
+			//measurement
+			ziter = z.block(ii,2,1,2).transpose();
+
+			//perform update
+			Pyy = ukf.CalcEstimate(ziter, Y);
+			ukf.GetSigmaPoints();
+
+			//assign estimate to propobj for residual calculation
+			propobj.pos_ = ukf.xhat_.segment(0,3);
+			propobj.vel_ = ukf.xhat_.segment(3,3);
+			propobj.t_ = propobj_vec[0].t_;
+			postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+
+			//////////////////////////////////////////////////////////////////
+
+			std::cout << "Backwards Prop time: " << propobj_vec[0].t_ << "\n";
+			std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
+			// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+			// std::cout << "Q: \n" << Q << "\n";
+
+		}
+
+		//prop to t=0
+
+		//propagate each sigma point
+		for (int j = 0; j < Nsig; ++j){
+
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
+			propobj_vec[j].dt_var_ = 0.1;
+
+			//propagate backwards in time
+			propobj_vec[j].Propagate(tof,false);
+
+			//update sigma point
+			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+			ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+		}
+
+		//Update the estimate
+		ukf.SigmaPts2Estimate();
+
+		std::cout << "Initial Time: \n" << propobj_vec[0].t_ << "\n";
+		std::cout << "Initial Estimate after Backwards Prop: \n" << ukf.xhat_ << "\n";
+		std::cout << "Initial Estimate Covariance after Backwards Prop: \n" << ukf.Phat_ << "\n";
+	}			
 
 	return 0;
 	

@@ -311,7 +311,7 @@ namespace Util {
 
 	} //GetGravJac
 
-	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr){
+	Eigen::Matrix3d ECEF2ECI(double JD_UTC, Eigen::MatrixXd* nut80ptr, Eigen::MatrixXd* iau1980ptr, std::vector<Eigen::Matrix3d>* matvecptr){
 
 		//********* deal with time ******************
 
@@ -345,6 +345,7 @@ namespace Util {
 		//we will manually find values from iau1980.txt because lazy
 		// std::cout << "You need to manually find this in iau1980.txt \n";
 		// std::cout << "floor(MJD_UTC): " << floor(MJD_UTC) << "\n";
+		// exit(0);
 
 		//manual search found this:
 		// 1712 1 58088.00 I  0.124136 0.000022  0.236728 0.000035  I 0.2485001 0.0000084  1.5396 0.0061  I  -104.226    0.322    -8.561    0.160  0.124126  0.236687  0.2485227  -104.524    -8.685  
@@ -359,7 +360,7 @@ namespace Util {
 		//get initial index of desired time
 		int tidx = round(floor(MJD_UTC) - iau1980ptr->coeff(0,0));
 
-		// std::cout << JD_UTC << "\n";
+		// std::cout << "located at index: " << tidx << "\n";
 
 		//extract values
 		double PMx1 = iau1980ptr->coeff(tidx,1);
@@ -516,11 +517,17 @@ namespace Util {
 		S = OrthoNormMat(S);
 		W = OrthoNormMat(W);
 
-		//write out all the matricies
+		// //write out all the matricies
 		// std::cout << "P:\n" << P << "\n";
 		// std::cout << "N:\n" << N << "\n";
 		// std::cout << "S:\n" << S << "\n";
 		// std::cout << "W:\n" << W << "\n";
+
+		//write each matrix to the vector
+		(*matvecptr)[0] = P;
+		(*matvecptr)[1] = N;
+		(*matvecptr)[2] = S;
+		(*matvecptr)[3] = W;
 
 		//Matrix
 		Eigen::Matrix3d Rotm = P*N*S*W;
@@ -689,7 +696,8 @@ namespace Util {
 		double nr_ij = sqrt(pow(pos[0],2.0) + pow(pos[1],2.0));
 
 		//matrix rotating from ECEF2ECI
-		Eigen::Matrix3d R_ecef2eci = ECEF2ECI(JD_UTC, this->nut80ptr_, this->iau1980ptr_);
+		std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+		Eigen::Matrix3d R_ecef2eci = ECEF2ECI(JD_UTC, this->nut80ptr_, this->iau1980ptr_, &matvec);
 
 		//ecef position
 		Eigen::Vector3d pos_ecef = R_ecef2eci.transpose()*pos;
@@ -700,7 +708,7 @@ namespace Util {
 		double phi = asin(pos_ecef[2]/r);
 		double lamb = atan2(pos_ecef[1],pos_ecef[0]);
 
-		// std::cout << "r: " << r << "\n phi: " << phi << "\n lamb: " << lamb << "\n";
+		// std::cout << " JD_UTC: " << JD_UTC << " r: " << r << " phi: " << phi << " lamb: " << lamb << "\n";
 
 		//fixed order gravity model but have capability to do more
 		for (double ll = 2; ll < 21; ++ll) {
@@ -762,7 +770,9 @@ namespace Util {
 		Eigen::Vector3d accel_eci = R_ecef2eci*Rsp2cart*accel + accel_central;
 
 		// std::cout << "\n" << "accel ecef (no central): \n" << Rsp2cart*accel;
-		// std::cout << "\n" << "accel eci (with central: \n" << accel_eci;
+		// std::cout << "\n" << "accel eci (with central): \n" << accel_eci;
+
+		// exit(0);
 
 		return accel_eci;
 
