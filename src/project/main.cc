@@ -420,7 +420,47 @@ int main(int argc, char** argv) {
 		//create UKF sigma points
 		ukf.GetSigmaPoints();
 
-		//propagate each sigma point
+		//propagate through the intervals
+		if(N_prop > 0) {
+
+			for (int k = 0; k < N_prop; ++k) {
+
+				//propagate each sigma point
+				for (int j = 0; j < Nsig; ++j){
+
+					//extract sig state
+					Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+					//assign
+					propobj_vec[j].pos_ = xi.segment(0,3);
+					propobj_vec[j].vel_ = xi.segment(3,3);
+
+					//propagate
+					propobj_vec[j].Propagate(maxproptime,false);
+
+					//update sigma point
+					ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+					ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+				}
+
+				//Update the estimate
+				ukf.SigmaPts2Estimate();
+
+				//add process noise
+				Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_sub;
+				Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
+				Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
+				Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_sub;
+				ukf.Phat_ = ukf.Phat_ + Q;
+
+				//Get new sigma points
+				ukf.GetSigmaPoints();
+
+			}
+
+		}
+
+		//propagate through the remainder
 		for (int j = 0; j < Nsig; ++j){
 
 			//extract sig state
@@ -431,7 +471,7 @@ int main(int argc, char** argv) {
 			propobj_vec[j].vel_ = xi.segment(3,3);
 
 			//propagate
-			propobj_vec[j].Propagate(dt,false);
+			propobj_vec[j].Propagate(rem,false);
 
 			//update sigma point
 			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
@@ -442,10 +482,10 @@ int main(int argc, char** argv) {
 		ukf.SigmaPts2Estimate();
 
 		//add process noise
-		Q.block(0,0,3,3) = 0.25*pow(dt,4.0)*Q_sub;
-		Q.block(0,3,3,3) = 0.5*pow(dt,3.0)*Q_sub;
-		Q.block(3,0,3,3) = 0.5*pow(dt,3.0)*Q_sub;
-		Q.block(3,3,3,3) = 0.25*pow(dt,2.0)*Q_sub;
+		Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_sub;
+		Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_sub;
+		Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_sub;
+		Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_sub;
 		ukf.Phat_ = ukf.Phat_ + Q;
 
 		//Get new sigma points
