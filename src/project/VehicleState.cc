@@ -608,6 +608,10 @@ namespace VehicleState {
 		//convert station position to PEF 
 		Eigen::Vector3d pos_station_pef = matvec[3]*pos_station_ecef;
 
+		//modify earth rate
+		double LOD = matvec[4](0,0);
+		earthrot = earthrot*(1.0 - LOD/86400.0);
+
 		//station PEF velocity
 		Eigen::Vector3d vel_station_pef;
 		vel_station_pef[0] = -1.0*earthrot*pos_station_pef[1];

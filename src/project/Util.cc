@@ -369,6 +369,8 @@ namespace Util {
 		double PMy2 = iau1980ptr->coeff(tidx+1,2);
 		double UT1_UTC1 = iau1980ptr->coeff(tidx,3);
 		double UT1_UTC2 = iau1980ptr->coeff(tidx+1,3);
+		double LOD1 = iau1980ptr->coeff(tidx,4);
+		double LOD2 = iau1980ptr->coeff(tidx+1,4);
 
 		//******** find rotation from precession ******************
 
@@ -528,6 +530,11 @@ namespace Util {
 		(*matvecptr)[1] = N;
 		(*matvecptr)[2] = S;
 		(*matvecptr)[3] = W;
+
+		//do something horrific and insert the LOD value into a new element of the matvecptr
+		Eigen::Matrix3d horror = Eigen::Matrix3d::Zero(3,3);
+		horror(0,0) = LOD1 + JD_UTC_rem*(LOD2 - LOD1);
+		matvecptr->push_back(horror);
 
 		//Matrix
 		Eigen::Matrix3d Rotm = P*N*S*W;

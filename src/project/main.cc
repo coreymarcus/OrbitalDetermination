@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 	gravmodel.mu_ = propobj.mu_;
 	gravmodel.Rearth_ = propobj.Rearth_;
 	Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
-	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modified.csv",17563, 4);
+	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modified.csv",17563, 5);
 	gravmodel.nut80ptr_ = &nut80; 
 	gravmodel.iau1980ptr_ = &iau1980;
 	propobj.gravmodel_ = &gravmodel;
