@@ -408,7 +408,7 @@ int main(int argc, char** argv) {
 		tof = z(ii,2)/c;
 
 		//get the time we need to propagate to get to this measurement
-		dt = z(ii,1) - tof - z(ii-1,1);
+		dt = z(ii,1) - tof - propobj_vec[0].t_;
 
 		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
 		double maxproptime = 90.0; 
