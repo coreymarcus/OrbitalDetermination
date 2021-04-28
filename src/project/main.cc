@@ -108,9 +108,9 @@ int main(int argc, char** argv) {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//underweight range measurements
-	R1(1,1) = 2.0*R1(1,1);
-	R2(1,1) = 2.0*R2(1,1);
-	R3(1,1) = 2.0*R3(1,1);
+	// R1(1,1) = 2.0*R1(1,1);
+	// R2(1,1) = 2.0*R2(1,1);
+	// R3(1,1) = 2.0*R3(1,1);
 
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_A_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_A_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case B
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_B_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_B_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case C
@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_C_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_C_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case D
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_D_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_D_NAG.csv";
 		// var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case E
@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_E_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_E_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 	}
 
 	// case F
@@ -196,7 +196,7 @@ int main(int argc, char** argv) {
 		xhat_NAG_filename = "../data/xhat_F_NAG.csv";
 		Phat_NAG_filename = "../data/Phat_F_NAG.csv";
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-		var_i = 1.0*pow(10.0,-19.0); //used for finding bias
+		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 		writeresiduals = true;
 		// R1(1,1) = 10000000;
 		// R2(1,1) = 10000000;
@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
 		writeresiduals = true;
 		xhat_NAG_filename = "../data/xhat_only12.csv";
 		Phat_NAG_filename = "../data/Phat_only12.csv";
-		var_i = 1.0*pow(10.0,-19.0);
+		// var_i = 1.0*pow(10.0,-19.0);
 		R3 = 10000000*Eigen::Matrix2d::Identity(2,2);
 		R1(1,1) = 10000000;
 		R2(1,1) = 10000000;
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
 		writeresiduals = true;
 		xhat_NAG_filename = "../data/xhat_only13.csv";
 		Phat_NAG_filename = "../data/Phat_only13.csv";
-		var_i = 1.0*pow(10.0,-19.0);
+		// var_i = 1.0*pow(10.0,-19.0);
 		R2 = 10000000*Eigen::Matrix2d::Identity(2,2);
 		R1(1,1) = 10000000;
 		R2(1,1) = 10000000;
@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 		writeresiduals = true;
 		xhat_NAG_filename = "../data/xhat_only23.csv";
 		Phat_NAG_filename = "../data/Phat_only23.csv";
-		var_i = 1.0*pow(10.0,-19.0);
+		// var_i = 1.0*pow(10.0,-19.0);
 		R1 = 10000000*Eigen::Matrix2d::Identity(2,2);
 		R1(1,1) = 10000000;
 		R2(1,1) = 10000000;
@@ -243,6 +243,7 @@ int main(int argc, char** argv) {
 	}
 
 	//construct rest of Q
+	var_i = 1.0*pow(10.0,-19.0);
 	Q_sub = var_i*Q_sub;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
