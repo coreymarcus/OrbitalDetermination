@@ -461,7 +461,7 @@ int main(int argc, char** argv) {
 				double inc = propobj_vec[Nsig - 1].i_;
 				double theta = propobj_vec[Nsig - 1].nu_;
 
-				std::vector<int> order(3,1,3);
+				std::vector<int> order{3,1,3};
 				Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 				Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
@@ -516,7 +516,7 @@ int main(int argc, char** argv) {
 		double inc = propobj_vec[Nsig - 1].i_;
 		double theta = propobj_vec[Nsig - 1].nu_;
 
-		std::vector<int> order(3,1,3);
+		std::vector<int> order{3,1,3};
 		Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 		Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
@@ -716,7 +716,7 @@ int main(int argc, char** argv) {
 			double inc = propobj_vec[Nsig - 1].i_;
 			double theta = propobj_vec[Nsig - 1].nu_;
 
-			std::vector<int> order(3,1,3);
+			std::vector<int> order{3,1,3};
 			Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 			Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
@@ -771,7 +771,7 @@ int main(int argc, char** argv) {
 	double inc = propobj_vec[Nsig - 1].i_;
 	double theta = propobj_vec[Nsig - 1].nu_;
 
-	std::vector<int> order(3,1,3);
+	std::vector<int> order{3,1,3};
 	Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 	Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
