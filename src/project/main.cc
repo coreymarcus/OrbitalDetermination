@@ -296,10 +296,12 @@ int main(int argc, char** argv) {
 	// timing
 	double dt; //seconds for propagation
 	// int N = 435; // number of measurements for set 1
-	int N = 1289; //number of measurements for set 2
+	// int N = 1289; //number of measurements for set 2
+	int N = 2570; //number of measurements for set 3
 
 	//load the measurements
 	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
+	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set2.csv",N,4);
 	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set3.csv",N,4);
 
 	//process the first measurement outside the loop
