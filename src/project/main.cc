@@ -108,9 +108,9 @@ int main(int argc, char** argv) {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//underweight range measurements
-	// R1(1,1) = 2.0*R1(1,1);
-	// R2(1,1) = 2.0*R2(1,1);
-	// R3(1,1) = 2.0*R3(1,1);
+	R1(1,1) = 2.0*R1(1,1);
+	R2(1,1) = 2.0*R2(1,1);
+	R3(1,1) = 2.0*R3(1,1);
 
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
