@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
 	Eigen::Vector2d bias2(0.0,0.0);
-	Eigen::Vector2d bias3(0.026,0.0);
+	Eigen::Vector2d bias3(0.020,0.0);
 	// Eigen::Vector2d bias3(0.0,0.0);
 
 	//different cases
@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
 	}
 
 	//construct rest of Q
-	var_i = 1.0*pow(10.0,-19.0);
+	var_i = 1.0*pow(10.0,-16.0);
 	Q_sub = var_i*Q_sub;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
