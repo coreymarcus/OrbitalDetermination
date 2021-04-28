@@ -410,6 +410,12 @@ int main(int argc, char** argv) {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - z(ii-1,1);
 
+		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
+		double N_prop = floor(dt/90.0);
+		double rem = remainder(dt,90.0);
+
+		std::cout << "dt: " << dt << " N: " << N_prop << " rem: " << rem << "\n";
+		 
 		//create UKF sigma points
 		ukf.GetSigmaPoints();
 
