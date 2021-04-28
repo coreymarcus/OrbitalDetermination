@@ -465,8 +465,8 @@ int main(int argc, char** argv) {
 				Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 				Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-				Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
-				Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
+				Eigen::Matrix3d R_ECI2PQW = Util::Angle2RotM(angles1, order);
+				Eigen::Matrix3d R_PQW2RSW = Util::Angle2RotM(angles2, order);
 				Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
 				Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
@@ -520,8 +520,8 @@ int main(int argc, char** argv) {
 		Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 		Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-		Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
-		Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
+		Eigen::Matrix3d R_ECI2PQW = Util::Angle2RotM(angles1, order);
+		Eigen::Matrix3d R_PQW2RSW = Util::Angle2RotM(angles2, order);
 		Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
 		Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
@@ -720,8 +720,8 @@ int main(int argc, char** argv) {
 			Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 			Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-			Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
-			Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
+			Eigen::Matrix3d R_ECI2PQW = Util::Angle2RotM(angles1, order);
+			Eigen::Matrix3d R_PQW2RSW = Util::Angle2RotM(angles2, order);
 			Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
 			Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
@@ -775,8 +775,8 @@ int main(int argc, char** argv) {
 	Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 	Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-	Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
-	Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
+	Eigen::Matrix3d R_ECI2PQW = Util::Angle2RotM(angles1, order);
+	Eigen::Matrix3d R_PQW2RSW = Util::Angle2RotM(angles2, order);
 	Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
 	Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
