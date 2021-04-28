@@ -412,7 +412,7 @@ int main(int argc, char** argv) {
 
 		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
 		double N_prop = floor(dt/90.0);
-		double rem = remainder(dt,90.0);
+		double rem = remainder(90.0 + dt,90.0);
 
 		std::cout << "dt: " << dt << " N: " << N_prop << " rem: " << rem << "\n";
 		 
