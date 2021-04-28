@@ -522,10 +522,16 @@ int main(int argc, char** argv) {
 			default: std::cout << "Error: bad case in measurement \n";
 		}
 
+		//set time appropriately for dopplar shift
+		propobj.t_ += tof;
+
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
 		prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+
+		//undo timeshift for dopplar
+		propobj.t_ -= tof;
 
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
@@ -538,8 +544,14 @@ int main(int argc, char** argv) {
 			propobj_vec[j].pos_ = xi.segment(0,3);
 			propobj_vec[j].vel_ = xi.segment(3,3);
 
+			//set time properly for dopplar shift
+			propobj_vec[j].t_ += tof;
+
 			//predicted measurement
 			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter) + bias_iter;
+
+			//reset dopplar correction
+			propobj_vec[j].t_ -= tof;
 		}
 
 		//measurement
@@ -613,7 +625,57 @@ int main(int argc, char** argv) {
 	//create UKF sigma points
 	ukf.GetSigmaPoints();
 
-	//propagate each sigma point
+	//we will propagate no more than 90 seconds at a time to avoid issues with process noise
+	double maxproptime = 90.0; 
+	double N_prop = floor(t_remain/maxproptime);
+	double rem = t_remain - N_prop*maxproptime;
+
+	std::cout << "N: " << N_prop << " rem: " << rem << "\n";
+
+	//create UKF sigma points
+	ukf.GetSigmaPoints();
+
+	//propagate through the intervals
+	if(N_prop > 0) {
+
+		for (int k = 0; k < N_prop; ++k) {
+
+			//propagate each sigma point
+			for (int j = 0; j < Nsig; ++j){
+
+				//extract sig state
+				Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+				//assign
+				propobj_vec[j].pos_ = xi.segment(0,3);
+				propobj_vec[j].vel_ = xi.segment(3,3);
+
+				//propagate
+				propobj_vec[j].Propagate(maxproptime,false);
+
+				//update sigma point
+				ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+				ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+			}
+
+			//Update the estimate
+			ukf.SigmaPts2Estimate();
+
+			//add process noise
+			Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_sub;
+			Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
+			Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
+			Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_sub;
+			ukf.Phat_ = ukf.Phat_ + Q;
+
+			//Get new sigma points
+			ukf.GetSigmaPoints();
+
+		}
+
+	}
+
+	//propagate through the remainder
 	for (int j = 0; j < Nsig; ++j){
 
 		//extract sig state
@@ -624,25 +686,22 @@ int main(int argc, char** argv) {
 		propobj_vec[j].vel_ = xi.segment(3,3);
 
 		//propagate
-		propobj_vec[j].Propagate(t_remain,false);
+		propobj_vec[j].Propagate(rem,false);
 
 		//update sigma point
 		ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
 		ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
-
-		std::cout << "Completed point " << j << "\n";
 	}
 
-	//use sigma points to update estimate
+	//Update the estimate
 	ukf.SigmaPts2Estimate();
 
 	//add process noise
-	Q.block(0,0,3,3) = 0.25*pow(t_remain,4.0)*Q_sub;
-	Q.block(0,3,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
-	Q.block(3,0,3,3) = 0.5*pow(t_remain,3.0)*Q_sub;
-	Q.block(3,3,3,3) = 0.25*pow(t_remain,2.0)*Q_sub;
+	Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_sub;
+	Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_sub;
+	Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_sub;
+	Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_sub;
 	ukf.Phat_ = ukf.Phat_ + Q;
-
 
 	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";
 	std::cout << "Phat: \n" << ukf.Phat_.block(0,0,3,3) << "\n";
