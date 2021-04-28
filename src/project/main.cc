@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
 
 	//load the measurements
 	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
-	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set2.csv",N,4);
+	Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set3.csv",N,4);
 
 	//process the first measurement outside the loop
 	double tof = z(0,2)/c;
