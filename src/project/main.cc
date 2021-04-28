@@ -122,14 +122,6 @@ int main(int argc, char** argv) {
 	std::string xhat_NAG_filename;
 	std::string Phat_NAG_filename;
 
-	//process noise matrix
-	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
-	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
-	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
-	// double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
-	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
-	double var_i;
-
 	//write residuals logic
 	bool writeresiduals = false;
 
@@ -242,9 +234,21 @@ int main(int argc, char** argv) {
 		R3(1,1) = 10000000;
 	}
 
+
+	//process noise matrix
+	Eigen::MatrixXd Q_sub = Eigen::MatrixXd::Identity(3,3);
+	// double var_i = sqrt((1.0/3.0)*pow(25.0/(21600.0*21600.0),2));
+	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
+	// double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
+	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
+	double var_rad = 1.0*pow(10.0,-16.0);
+	double var_in = 1.0*pow(10.0,-17.0);
+	double var_cross = 1.0*pow(10.0,-17.0);
+
 	//construct rest of Q
-	var_i = 1.0*pow(10.0,-16.0);
-	Q_sub = var_i*Q_sub;
+	Q_sub(0,0) = var_rad;
+	Q_sub(1,1) = var_in;
+	Q_sub(2,2) = var_cross;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
 	propobj.pos_ = pos0;
@@ -447,11 +451,31 @@ int main(int argc, char** argv) {
 				//Update the estimate
 				ukf.SigmaPts2Estimate();
 
+				//get orbital elements
+				propobj_vec[Nsig - 1].State2OE();
+
+				//create rotation matricies
+				double d2r = M_PI/180.0;
+				double Ohm = propobj_vec[Nsig - 1].ascend_;
+				double w = propobj_vec[Nsig - 1].periap_;
+				double inc = propobj_vec[Nsig - 1].i_;
+				double theta = propobj_vec[Nsig - 1].nu_;
+
+				std::vector<int> order(3,1,3);
+				Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
+				Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
+
+				Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
+				Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+				Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
+
+				Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+
 				//add process noise
-				Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_sub;
-				Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
-				Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
-				Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_sub;
+				Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_iter;
+				Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
+				Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
+				Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_iter;
 				ukf.Phat_ = ukf.Phat_ + Q;
 
 				//Get new sigma points
@@ -482,11 +506,31 @@ int main(int argc, char** argv) {
 		//Update the estimate
 		ukf.SigmaPts2Estimate();
 
+		//get orbital elements
+		propobj_vec[Nsig - 1].State2OE();
+
+		//create rotation matricies
+		double d2r = M_PI/180.0;
+		double Ohm = propobj_vec[Nsig - 1].ascend_;
+		double w = propobj_vec[Nsig - 1].periap_;
+		double inc = propobj_vec[Nsig - 1].i_;
+		double theta = propobj_vec[Nsig - 1].nu_;
+
+		std::vector<int> order(3,1,3);
+		Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
+		Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
+
+		Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
+		Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+		Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
+
+		Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+
 		//add process noise
-		Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_sub;
-		Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_sub;
-		Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_sub;
-		Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_sub;
+		Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_iter;
+		Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_iter;
+		Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_iter;
+		Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_iter;
 		ukf.Phat_ = ukf.Phat_ + Q;
 
 		//Get new sigma points
@@ -662,11 +706,31 @@ int main(int argc, char** argv) {
 			//Update the estimate
 			ukf.SigmaPts2Estimate();
 
+			//get orbital elements
+			propobj_vec[Nsig - 1].State2OE();
+
+			//create rotation matricies
+			double d2r = M_PI/180.0;
+			double Ohm = propobj_vec[Nsig - 1].ascend_;
+			double w = propobj_vec[Nsig - 1].periap_;
+			double inc = propobj_vec[Nsig - 1].i_;
+			double theta = propobj_vec[Nsig - 1].nu_;
+
+			std::vector<int> order(3,1,3);
+			Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
+			Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
+
+			Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
+			Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+			Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
+
+			Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+
 			//add process noise
-			Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_sub;
-			Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
-			Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_sub;
-			Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_sub;
+			Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_iter;
+			Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
+			Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
+			Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_iter;
 			ukf.Phat_ = ukf.Phat_ + Q;
 
 			//Get new sigma points
@@ -697,11 +761,31 @@ int main(int argc, char** argv) {
 	//Update the estimate
 	ukf.SigmaPts2Estimate();
 
+	//get orbital elements
+	propobj_vec[Nsig - 1].State2OE();
+
+	//create rotation matricies
+	double d2r = M_PI/180.0;
+	double Ohm = propobj_vec[Nsig - 1].ascend_;
+	double w = propobj_vec[Nsig - 1].periap_;
+	double inc = propobj_vec[Nsig - 1].i_;
+	double theta = propobj_vec[Nsig - 1].nu_;
+
+	std::vector<int> order(3,1,3);
+	Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
+	Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
+
+	Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
+	Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+	Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
+
+	Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+
 	//add process noise
-	Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_sub;
-	Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_sub;
-	Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_sub;
-	Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_sub;
+	Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_iter;
+	Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_iter;
+	Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_iter;
+	Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_iter;
 	ukf.Phat_ = ukf.Phat_ + Q;
 
 	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";

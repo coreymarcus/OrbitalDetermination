@@ -33,7 +33,7 @@ namespace VehicleState{
 		//storage for most recent STM calculation by Propagate()
 		Eigen::MatrixXd STM_;
 
-		//orbital elements
+		//orbital elements (all angles should be degrees)
 		double a_; //semi-major axis
 		double e_; //eccentricity
 		double i_; //inclination
