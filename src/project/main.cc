@@ -465,11 +465,11 @@ int main(int argc, char** argv) {
 				Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 				Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-				Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
-				Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+				Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
+				Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
 				Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
-				Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+				Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
 
 				//add process noise
 				Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_iter;
@@ -520,11 +520,11 @@ int main(int argc, char** argv) {
 		Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 		Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-		Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
-		Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+		Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
+		Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
 		Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
-		Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+		Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
 
 		//add process noise
 		Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_iter;
@@ -720,11 +720,11 @@ int main(int argc, char** argv) {
 			Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 			Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-			Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
-			Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+			Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
+			Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
 			Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
-			Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+			Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
 
 			//add process noise
 			Q.block(0,0,3,3) = 0.25*pow(maxproptime,4.0)*Q_iter;
@@ -775,11 +775,11 @@ int main(int argc, char** argv) {
 	Eigen::Vector3d angles1(Ohm*d2r, inc*d2r, w*d2r);
 	Eigen::Vector3d angles2(-1.0*theta*d2r, 0.0, 0.0);
 
-	Eigen::Matrix3d R_ECI2PQW = Angle2RotM(angles1, order);
-	Eigen::Matrix3d R_PQW2RSW = Angle2RotM(angles2, order);
+	Eigen::Matrix3d R_ECI2PQW = Util::Angle2Rotm(angles1, order);
+	Eigen::Matrix3d R_PQW2RSW = Util::Angle2Rotm(angles2, order);
 	Eigen::Matrix3d R_total = R_PQW2RSW*R_ECI2PQW;
 
-	Eigen::Matrix Q_iter = R_total*Q_sub*R_total.transpose();
+	Eigen::Matrix3d Q_iter = R_total*Q_sub*R_total.transpose();
 
 	//add process noise
 	Q.block(0,0,3,3) = 0.25*pow(rem,4.0)*Q_iter;
