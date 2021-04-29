@@ -241,9 +241,13 @@ int main(int argc, char** argv) {
 	// double var_i = pow(2.0*5.0/(21600.0*21600.0),2.0);
 	// double var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 	// double var_i = 5.0*pow(10.0,-14.0); //used for NAG1 - case D
-	double var_rad = 1.0*pow(10.0,-16.0);
-	double var_in = 1.0*pow(10.0,-17.0);
-	double var_cross = 1.0*pow(10.0,-17.0);
+	// double var_rad = 1.0*pow(10.0,-16.0); //try 1E-12 * 1E-12
+	// double var_in = 1.0*pow(10.0,-17.0);
+	// double var_cross = 1.0*pow(10.0,-17.0);
+	double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
+	double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+
 
 	//construct rest of Q
 	Q_sub(0,0) = var_rad;

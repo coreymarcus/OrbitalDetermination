@@ -20,7 +20,7 @@ Phat = csvread("../../data/Phat_proj.csv");
 prefit = csvread("../../data/prefit_res_proj.csv");
 postfit = csvread("../../data/postfit_res_proj.csv");
 Pyy = csvread("../../data/Pyy_proj.csv");
-z = csvread("../../data/meas_proj_set2.csv");
+z = csvread("../../data/meas_proj_set3.csv");
 xhatA = csvread("../../data/xhat_A_NAG.csv");
 PhatA = csvread("../../data/Phat_A_NAG.csv");
 xhatB = csvread("../../data/xhat_B_NAG.csv");
@@ -103,8 +103,8 @@ scatter(z(station1idx,2)/3600,1000*postfit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*postfit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*postfit(1,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Post-Fit Residuals')
 grid on
 ylabel('Range [m]')
@@ -115,8 +115,8 @@ scatter(z(station1idx,2)/3600,1000*postfit(2,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*postfit(2,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*postfit(2,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 ylabel('Range Rate [m/sec]')
 xlabel('Time (hours)')
 grid on
@@ -128,8 +128,8 @@ scatter(z(station1idx,2)/3600,1000*prefit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*prefit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*prefit(1,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Pre-Fit Residuals')
 grid on
 ylabel('Range [m]')
