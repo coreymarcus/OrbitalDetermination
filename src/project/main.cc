@@ -383,20 +383,17 @@ int main(int argc, char** argv) {
 	}
 
 	//assign estimate to propobj for residual calculation
-	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
 
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
 
-	// if (stationID == 3)	{
-	// 	ziter[0] += 0.020;
-	// }
 	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
 
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
 	propobj.vel_ = ukf.xhat_.segment(3,3);
-	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter);
+	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
 
 	//store data
 	xhat_mat.block(0,0,6,1) = ukf.xhat_;
@@ -581,9 +578,6 @@ int main(int argc, char** argv) {
 		propobj.vel_ = ukf.xhat_.segment(3,3);
 		prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
 
-		//undo timeshift for dopplar
-		propobj.t_ -= tof;
-
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
 		for (int j = 0; j < Nsig; ++j)	{
@@ -616,6 +610,9 @@ int main(int argc, char** argv) {
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
 		postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+
+		//undo timeshift for dopplar
+		propobj.t_ -= tof;
 
 		//store data
 		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
