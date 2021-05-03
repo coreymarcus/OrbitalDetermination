@@ -358,9 +358,11 @@ namespace Util {
 		// double UT1_UTC2 = 0.24698330;
 
 		//get initial index of desired time
+		int test = floor(MJD_UTC) - iau1980ptr->coeff(0,0);
 		int tidx = round(floor(MJD_UTC) - iau1980ptr->coeff(0,0));
 
-		// std::cout << "located at index: " << tidx << "\n";
+		std::cout << "located at index: " << tidx << " or at: " << test << "\n";
+		exit(0);
 
 		//extract values
 		double PMx1 = iau1980ptr->coeff(tidx,1);
