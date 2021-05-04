@@ -417,13 +417,13 @@ namespace Util {
 		D_circle = D_circle*M_PI/180.0;
 		Ohm_moon = Ohm_moon*M_PI/180.0;
 
-		std::cout << "M_moon: " << M_moon << "\n";
-		std::cout << "M_cirle: " << M_cirle << "\n";
-		std::cout << "uM_moon: " << uM_moon << "\n";
-		std::cout << "D_circle: " << D_circle << "\n";
-		std::cout << "Ohm_moon: " << Ohm_moon << "\n";
+		// std::cout << "M_moon: " << M_moon << "\n";
+		// std::cout << "M_cirle: " << M_cirle << "\n";
+		// std::cout << "uM_moon: " << uM_moon << "\n";
+		// std::cout << "D_circle: " << D_circle << "\n";
+		// std::cout << "Ohm_moon: " << Ohm_moon << "\n";
 
-		exit(0);
+		// exit(0);
 
 		//sum
 		double deltaPsi_1980 = 0.0;
