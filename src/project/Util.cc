@@ -404,11 +404,11 @@ namespace Util {
 
 		//find values from 3-82 (corrected according to errata)
 		double r = 360.0;
-		double M_moon = 134.96298139 + (1325*r + 198.8673981)*tsinceJ2000 + 0.0086972*pow(tsinceJ2000,2) + 1.78*pow(10.0,-5)*pow(tsinceJ2000,3);
-		double M_cirle = 357.52772333 + (99*r + 359.0503400)*tsinceJ2000 - 0.0001603*pow(tsinceJ2000,2) - 3.3*pow(10.0,-6)*pow(tsinceJ2000,3);
-		double uM_moon =  93.27191028 + (1342*r + 82.0175381)*tsinceJ2000 - 0.0036825*pow(tsinceJ2000,2) + 3.1*pow(10.0,-6)*pow(tsinceJ2000,3);
-		double D_circle = 297.85036306 + (1236*r + 307.1114800)*tsinceJ2000 - 0.0019142*pow(tsinceJ2000,2) + 5.3*pow(10.0,-6)*pow(tsinceJ2000,3);
-		double Ohm_moon = 125.04452222 - (5*r + 134.1362608)*tsinceJ2000 +  0.0020708*pow(tsinceJ2000,2) + 2.2*pow(10.0,-6)*pow(tsinceJ2000,3);
+		double M_moon = 134.96298139 + (1325.0*r + 198.8673981)*tsinceJ2000 + 0.0086972*pow(tsinceJ2000,2) + 1.78*pow(10.0,-5)*pow(tsinceJ2000,3);
+		double M_cirle = 357.52772333 + (99.0*r + 359.0503400)*tsinceJ2000 - 0.0001603*pow(tsinceJ2000,2) - 3.3*pow(10.0,-6)*pow(tsinceJ2000,3);
+		double uM_moon =  93.27191028 + (1342.0*r + 82.0175381)*tsinceJ2000 - 0.0036825*pow(tsinceJ2000,2) + 3.1*pow(10.0,-6)*pow(tsinceJ2000,3);
+		double D_circle = 297.85036306 + (1236.0*r + 307.1114800)*tsinceJ2000 - 0.0019142*pow(tsinceJ2000,2) + 5.3*pow(10.0,-6)*pow(tsinceJ2000,3);
+		double Ohm_moon = 125.04452222 - (5.0*r + 134.1362608)*tsinceJ2000 +  0.0020708*pow(tsinceJ2000,2) + 2.2*pow(10.0,-6)*pow(tsinceJ2000,3);
 
 		//convert to radians
 		M_moon = M_moon*M_PI/180.0;
@@ -417,11 +417,13 @@ namespace Util {
 		D_circle = D_circle*M_PI/180.0;
 		Ohm_moon = Ohm_moon*M_PI/180.0;
 
-		// std::cout << "M_moon: " << M_moon << "\n";
-		// std::cout << "M_cirle: " << M_cirle << "\n";
-		// std::cout << "uM_moon: " << uM_moon << "\n";
-		// std::cout << "D_circle: " << D_circle << "\n";
-		// std::cout << "Ohm_moon: " << Ohm_moon << "\n";
+		std::cout << "M_moon: " << M_moon << "\n";
+		std::cout << "M_cirle: " << M_cirle << "\n";
+		std::cout << "uM_moon: " << uM_moon << "\n";
+		std::cout << "D_circle: " << D_circle << "\n";
+		std::cout << "Ohm_moon: " << Ohm_moon << "\n";
+
+		exit(0);
 
 		//sum
 		double deltaPsi_1980 = 0.0;
