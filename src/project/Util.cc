@@ -538,7 +538,7 @@ namespace Util {
 
 		//Matrix
 		Eigen::Matrix3d Rotm = P*N*S*W;
-		Rotm = OrthoNormMat(Rotm);
+		// Rotm = OrthoNormMat(Rotm);
 
 		//output
 		return Rotm;
