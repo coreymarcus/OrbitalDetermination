@@ -19,7 +19,7 @@ int main() {
 
 	//load some data files
 	Eigen::MatrixXd nut80 = Util::LoadDatFile("../data/nut80.csv", 106, 10);
-	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modified.csv",17563, 4);
+	Eigen::MatrixXd iau1980 = Util::LoadDatFile("../data/iau1980modified.csv",17563, 5);
 
 	//check Julian date algorithm
 	double t_JD = Util::JulianDateNatural2JD(2017.0, 12.0, 1.0, 0.0, 0.0, 48.0000384);
@@ -27,7 +27,7 @@ int main() {
 	std::cout << "Julian Date: " << t_JD << "\n";
 
 	// get rotation matrix
-	std::vector<Eigen::Matrix3d> matvec(4, Eigen::Matrix3d::Identity(3,3));
+	std::vector<Eigen::Matrix3d> matvec(5, Eigen::Matrix3d::Identity(3,3));
 	Eigen::Matrix3d R = Util::ECEF2ECI(t_JD, &nut80, &iau1980, &matvec);
 
 	//rotate
@@ -150,6 +150,9 @@ int main() {
 
 	propobj.dt_var_ = -0.1; //only doing backwards props
 
+	//vector for use with choosing station
+	Eigen::Vector3d obs_station_iter;
+
 	// cycle through all the measurements, create a predicted measurement at each
 	for (int i = 0; i < 113; ++i){
 		
@@ -189,9 +192,12 @@ int main() {
 		propobj.t_ = lighttime_truth(i,6);
 
 		//approximate measurement
-		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter)
+		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter);
 
 	}
+
+	//write out the predicted measurements
+	Util::Eigen2csv("../data/pred_meas.csv", pred_meas);
 
 	return 0;
 }
