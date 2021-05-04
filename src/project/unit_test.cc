@@ -133,7 +133,11 @@ int main() {
 	//////////////// Test Measurement Predictions /////////////////////
 
 	//simple propagation
-	propobj.use20x20_ = false;
+	propobj.useJ2_ = true;
+	propobj.use20x20_ = true;
+	propobj.usedrag_ = true;
+	propobj.useSRP_ = true;
+	propobj.useLuniSolar_ = true; //gravity of sun and moon
 
 	// load true state and measurements
 	Eigen::MatrixXd lighttime_truth = Util::LoadDatFile("../data/lighttime_truth.csv",113, 7);
@@ -167,7 +171,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		propobj.Propagate(-1.0*tof,false);
+		// propobj.Propagate(-1.0*tof,false);
 
 		//determine which tracking station was used
 		int stationID = (int) true_meas(i, 0);
