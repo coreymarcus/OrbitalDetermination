@@ -496,9 +496,9 @@ namespace Util {
 
 		//Greenwich mean sidereal time (from tapley shuctz born)
 		double theta_GMST = 4.894961212823058751375704430 + dT*(6.300388098984893552276513720 + dT*(5.075209994113591478053805523*pow(10.0,-15) - 9.253097568194335640067190688*pow(10.0,-24)*dT));
-		double theta_GMST2 = 4.894961212823058751375704430 + (6.3003880989848935522776513720 + (5.07520999411359147805523e-15 - 9.253097568194335640067190688e-24*dT)*dT)*dT;
+		// double theta_GMST2 = 4.894961212823058751375704430 + (6.3003880989848935522776513720 + (5.07520999411359147805523e-15 - 9.253097568194335640067190688e-24*dT)*dT)*dT;
 
-		std::cout << "one: " << theta_GMST << "\n two: " << theta_GMST2;
+		// std::cout << "one: " << theta_GMST << "\n two: " << theta_GMST2;
 		
 		//now we get some other crazy value
 		double Eqequinox1982 = deltaPsi_1980*cos(epsbar1980) + (0.00264*sin(Ohm_moon) + 0.000063*sin(2*Ohm_moon))*M_PI/(3600.0*180.0);
