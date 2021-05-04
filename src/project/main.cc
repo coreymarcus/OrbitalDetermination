@@ -203,9 +203,9 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_only12.csv";
 		// var_i = 1.0*pow(10.0,-19.0);
 		R3 = 10000000*Eigen::Matrix2d::Identity(2,2);
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	// stations 1 and 3 only
@@ -216,9 +216,9 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_only13.csv";
 		// var_i = 1.0*pow(10.0,-19.0);
 		R2 = 10000000*Eigen::Matrix2d::Identity(2,2);
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	// stations 2 and 3 only
@@ -229,9 +229,9 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_only23.csv";
 		// var_i = 1.0*pow(10.0,-19.0);
 		R1 = 10000000*Eigen::Matrix2d::Identity(2,2);
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 

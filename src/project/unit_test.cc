@@ -128,5 +128,70 @@ int main() {
 	std::cout << "Final Position:\n" << propobj.pos_ << "\n" << "Error [m]:\n" << 1000.0*(propobj.pos_ - posf_true) << "\n";
 	std::cout << "Final Velocity:\n" << propobj.vel_ << "\n" << "Error [m/sec]:\n" << 1000.0*(propobj.vel_ - velf_true) << "\n";
 
+	//////////////////////////////////////////////////////////////
+
+	//////////////// Test Measurement Predictions /////////////////////
+
+	//simple propagation
+	propobj.use20x20_ = false;
+
+	// load true state and measurements
+	Eigen::MatrixXd lighttime_truth = Util::LoadDatFile("../data/lighttime_truth.csv",113, 7);
+	Eigen::MatrixXd true_meas = Util::LoadDatFile("../data/LEO_Data_Apparent.csv",113, 4);
+	//initialize predicted measurements
+	Eigen::MatrixXd pred_meas = Eigen::MatrixXd::Zero(2,113);
+
+	//set observation station ECEF location
+	Eigen::Vector3d obs_station1{-6143.584, 1364.250, 1033.743}; //atoll / Kwajalein
+	Eigen::Vector3d obs_station2{1907.295, 6030.810, -817.119}; //diego garcia
+	Eigen::Vector3d obs_station3{2390.310, -5564.341, 1994.578}; //arecibo
+
+	double c = 299792.0; //speed of light km/sec
+
+	propobj.dt_var_ = -0.1; //only doing backwards props
+
+	// cycle through all the measurements, create a predicted measurement at each
+	for (int i = 0; i < 113; ++i){
+		
+		//set time of object
+		propobj.t_ = lighttime_truth(i,6);
+
+		//set true state of object
+		propobj.pos_ = lighttime_truth.block(i,0,1,3).transpose();
+		propobj.vel_ = lighttime_truth.block(i,3,1,3).transpose();
+
+		//approximate tof
+		double tof = true_meas(i,2)/c;
+
+		//propagate backwards in time to measurement
+		propobj.Propagate(-1.0*tof,false);
+
+		//determine which tracking station was used
+		int stationID = (int) true_meas(i, 0);
+
+		switch(stationID) {
+			case 1:
+				obs_station_iter = obs_station1;
+				break;
+
+			case 2:
+				obs_station_iter = obs_station2;
+				break;
+
+			case 3:
+				obs_station_iter = obs_station3;
+				break;
+
+			default: std::cout << "Error: bad case in measurement \n";
+		}
+
+		//reset time
+		propobj.t_ = lighttime_truth(i,6);
+
+		//approximate measurement
+		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter)
+
+	}
+
 	return 0;
 }
