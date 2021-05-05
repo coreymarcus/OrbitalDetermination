@@ -579,7 +579,7 @@ namespace VehicleState {
 
 	} //operator()
 
-	Eigen::Vector2d Propagator::GetRangeAndRate(Eigen::Vector3d pos_station_ecef){
+	Eigen::Vector2d Propagator::GetRangeAndRate(Eigen::Vector3d pos_station_ecef, tof){
 
 		//locals
 		double JD_UTC = this->t_JD_ + this->t_/(24.0*60.0*60.0); //current UTC Julian Date in days
@@ -626,7 +626,7 @@ namespace VehicleState {
 		// exit(0);
 
 		//relative position and velocity
-		Eigen::Vector3d rel_pos = pos_craft - pos_station;
+		Eigen::Vector3d rel_pos = pos_craft - pos_station + tof*vel_station_eci;
 		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
 
 		// std::cout << "station ECI vel: \n" << vel_station_eci << "\n";

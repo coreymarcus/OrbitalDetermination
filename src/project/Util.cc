@@ -912,7 +912,7 @@ namespace Util {
 		}
 
 		//residual calculation
-		Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+		Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof);
 
 		//store data
 		prefit_res.segment(0,2) = ziter - prefit_pred;
@@ -952,7 +952,7 @@ namespace Util {
 			}
 
 			//assign estimate to propobj for residual calculation
-			prefit_pred = propobj.GetRangeAndRate(obs_station_iter);
+			prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof);
 
 			//measurement
 			ziter = z.block(ii,2,1,2).transpose();

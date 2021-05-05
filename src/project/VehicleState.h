@@ -99,7 +99,7 @@ namespace VehicleState{
 		void operator()( const state_type &x , state_type &dxdt , const double t );
 
 		//obtains the expected range and range rate given the ECEF location of an observation
-		Eigen::Vector2d GetRangeAndRate(Eigen::Vector3d pos_station_ecef);
+		Eigen::Vector2d GetRangeAndRate(Eigen::Vector3d pos_station_ecef, double tof);
 
 		//obtain the jacobian of range and range rate measurement given ECEF location of observation
 		Eigen::MatrixXd GetRangeAndRateJac(Eigen::Vector3d pos_station_ecef);

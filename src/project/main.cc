@@ -376,14 +376,14 @@ int main(int argc, char** argv) {
 		propobj_vec[i].vel_ = xi.segment(3,3);
 
 		//predicted measurement
-		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter) + bias_iter;
+		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 		//now that we have the predicted measurement, propagate forward to the current time
 		propobj_vec[i].Propagate(tof, false);
 	}
 
 	//assign estimate to propobj for residual calculation
-	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
@@ -393,7 +393,7 @@ int main(int argc, char** argv) {
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
 	propobj.vel_ = ukf.xhat_.segment(3,3);
-	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//store data
 	xhat_mat.block(0,0,6,1) = ukf.xhat_;
@@ -576,7 +576,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		prefit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+		prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
@@ -593,7 +593,7 @@ int main(int argc, char** argv) {
 			propobj_vec[j].t_ += tof;
 
 			//predicted measurement
-			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter) + bias_iter;
+			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 			//reset dopplar correction
 			propobj_vec[j].t_ -= tof;
@@ -609,7 +609,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+		postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 		//undo timeshift for dopplar
 		propobj.t_ -= tof;
@@ -896,7 +896,7 @@ int main(int argc, char** argv) {
 				propobj_vec[j].vel_ = xi.segment(3,3);
 
 				//predicted measurement
-				Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter) + bias_iter;
+				Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 			}
 
 			//measurement
@@ -910,7 +910,7 @@ int main(int argc, char** argv) {
 			propobj.pos_ = ukf.xhat_.segment(0,3);
 			propobj.vel_ = ukf.xhat_.segment(3,3);
 			propobj.t_ = propobj_vec[0].t_;
-			postfit_pred = propobj.GetRangeAndRate(obs_station_iter) + bias_iter;
+			postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 			//////////////////////////////////////////////////////////////////
 
