@@ -629,7 +629,7 @@ namespace VehicleState {
 		Eigen::Vector3d rel_pos = pos_craft - pos_station + tof*vel_station_eci;
 		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
 
-		// std::cout << "station ECI vel: \n" << vel_station_eci << "\n";
+		// std::cout << "Aberation position correction: " << (tof*vel_station_eci).norm() << "\n";
 		// exit(0);
 
 		//range

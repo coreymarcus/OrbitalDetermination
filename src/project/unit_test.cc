@@ -169,11 +169,24 @@ int main() {
 		propobj.pos_ = lighttime_truth.block(i,0,1,3).transpose();
 		propobj.vel_ = lighttime_truth.block(i,3,1,3).transpose();
 
+		Eigen::Vector3d pos1;
+		Eigen::Vector3d vel1;
+		Eigen::Vector3d pos2 = propobj.pos_;
+		Eigen::Vector3d vel2 = propobj.vel_;
+
 		//approximate tof
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
 		propobj.Propagate(-1.0*tof,false);
+
+		pos1 = propobj.pos_;
+		vel1 = propobj.vel_;
+
+		std::cout << "Pos1: \n" << pos1 << "\n";
+		std::cout << "Pos2: \n" << pos2 << "\n";
+		std::cout << "Pos1 + tof*Vel1: \n" << pos1 + tof*vel1 << "\n";
+		exit(0);
 
 		//determine which tracking station was used
 		int stationID = (int) true_meas(i, 0);
