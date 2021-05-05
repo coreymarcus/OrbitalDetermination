@@ -37,6 +37,7 @@ add_executable(project_cost src/project/main_cost.cc
 add_executable(unit_test src/project/unit_test.cc
 	src/project/Util.cc
 	src/project/VehicleState.cc)
+#	src/project/orbital.cc)
 
 #cpp standard
 set(CMAKE_CXX_STANDARD 17)

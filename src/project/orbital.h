@@ -1,9 +1,13 @@
+#ifndef OD_SRC_PROJECT_ORBITAL_H_
+#define OD_SRC_PROJECT_ORBITAL_H_
+
 #include<iostream>
 #include<cmath>
 #include<boost/numeric/odeint.hpp>
 #include<fstream>
 #include<string>
-#include"../../../../eigen/Eigen/Eigen"
+// #include"../../../../eigen/Eigen/Eigen"
+#include <Eigen/Dense> //matricies and vectors
 #include<boost/array.hpp>
 
 namespace orbital{
@@ -229,3 +233,5 @@ namespace orbital{
   };
 
 }; 
+
+#endif

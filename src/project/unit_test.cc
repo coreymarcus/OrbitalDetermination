@@ -1,6 +1,7 @@
 #include <Eigen/Dense> // vectors
 #include "VehicleState.h" // headerfile containing propagator class
 #include "Util.h" // utility functions
+// #include "orbital.h" //Enrico's code for comparison
 
 
 
@@ -36,7 +37,7 @@ int main() {
 	//error
 	std::cout << "Error [cm]: \n" << 100.0*1000.0*(targ_pos_ECI - pos_ECI) << "\n";
 
-	exit(0);
+	// exit(0);s
 	////////////////////////////////////////////////////
 
 
@@ -172,7 +173,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		// propobj.Propagate(-1.0*tof,false);
+		propobj.Propagate(-1.0*tof,false);
 
 		//determine which tracking station was used
 		int stationID = (int) true_meas(i, 0);

@@ -1,6 +1,7 @@
 #include<iostream>
 #include<cmath>
-#include"../../../../eigen/Eigen/Eigen"
+// #include"../../../../eigen/Eigen/Eigen"
+#include "Eigen/Dense"
 #include<boost/array.hpp>
 #include<boost/numeric/odeint.hpp>
 #include <boost/math/special_functions/factorials.hpp>
