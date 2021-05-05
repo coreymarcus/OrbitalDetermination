@@ -18,13 +18,13 @@ station2idx = find(LEO_DATA_Apparent(:,1) == 2);
 station3idx = find(LEO_DATA_Apparent(:,1) == 3);
 
 %plot
-figure
-subplot(2,1,1)
-hold on
-scatter(t(station1idx), LEO_DATA_Apparent(station1idx,3));
-scatter(t(station2idx), LEO_DATA_Apparent(station2idx,3));
-scatter(t(station3idx), LEO_DATA_Apparent(station3idx,3));
-scatter(t,pred_meas(1,:))
+% figure
+% subplot(2,1,1)
+% hold on
+% scatter(t(station1idx), LEO_DATA_Apparent(station1idx,3));
+% scatter(t(station2idx), LEO_DATA_Apparent(station2idx,3));
+% scatter(t(station3idx), LEO_DATA_Apparent(station3idx,3));
+% scatter(t,pred_meas(1,:))
 
 
 figure
