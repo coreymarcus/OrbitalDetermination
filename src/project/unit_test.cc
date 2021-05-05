@@ -114,7 +114,7 @@ int main() {
 	propobj.dt_var_ = 0.1;
 
 	// propagate
-	propobj.Propagate(21600.0, false);
+	// propobj.Propagate(21600.0, false);
 
 	//true final position and velocity
 
@@ -127,8 +127,8 @@ int main() {
 	Eigen::Vector3d velf_true(5.17808108556007, -5.38747088174872, -0.211928868806419);
 
 	//output
-	std::cout << "Final Position:\n" << propobj.pos_ << "\n" << "Error [m]:\n" << 1000.0*(propobj.pos_ - posf_true) << "\n";
-	std::cout << "Final Velocity:\n" << propobj.vel_ << "\n" << "Error [m/sec]:\n" << 1000.0*(propobj.vel_ - velf_true) << "\n";
+	// std::cout << "Final Position:\n" << propobj.pos_ << "\n" << "Error [m]:\n" << 1000.0*(propobj.pos_ - posf_true) << "\n";
+	// std::cout << "Final Velocity:\n" << propobj.vel_ << "\n" << "Error [m/sec]:\n" << 1000.0*(propobj.vel_ - velf_true) << "\n";
 
 	//////////////////////////////////////////////////////////////
 
