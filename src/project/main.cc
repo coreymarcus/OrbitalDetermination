@@ -250,9 +250,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
 	// double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
 	// double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
-	double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
-	double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
-	double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
+	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
+	double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
 
 
 	//construct rest of Q
@@ -427,7 +430,7 @@ int main(int argc, char** argv) {
 		dt = z(ii,1) - tof - propobj_vec[0].t_;
 
 		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
-		double maxproptime = 90.0; 
+		double maxproptime = 89.3; 
 		double N_prop = floor(dt/maxproptime);
 		double rem = dt - N_prop*maxproptime;
 
