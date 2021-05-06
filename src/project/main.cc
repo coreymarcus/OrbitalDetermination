@@ -625,9 +625,12 @@ int main(int argc, char** argv) {
 		postfit_pred[0] = 0.0;
 		postfit_pred[1] = 0.0;
 
-		for (int j = 0; j < N; ++j)	{
+		for (int j = 0; j < Nsig; ++j)	{
 			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
 		}
+
+		std::cout << "weights: \n" << ukf.w_ << "\n";
+		std::cout << "postfit_pred: \n" << postfit_pred << "\n";
 
 		//undo timeshift for dopplar
 		propobj.t_ -= tof;
