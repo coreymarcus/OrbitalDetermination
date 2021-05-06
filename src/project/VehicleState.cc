@@ -329,9 +329,7 @@ namespace VehicleState {
 
 		//initalize acceleration
 		state_type accel = {0.0, 0.0, 0.0};
-
-		std::cout << "Use Drag: " << this->usedrag_ << "\n";
-
+		
 		if(this->use20x20_){
 
 			Eigen::Vector3d accelinit = this->gravmodel_->GetGravAccel(r_craft, JD_UTC);
