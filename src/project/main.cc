@@ -108,9 +108,9 @@ int main(int argc, char** argv) {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//underweight range measurements
-	// R1(1,1) = 2.0*R1(1,1);
-	// R2(1,1) = 2.0*R2(1,1);
-	// R3(1,1) = 2.0*R3(1,1);
+	R1(1,1) = 2.0*R1(1,1);
+	R2(1,1) = 2.0*R2(1,1);
+	R3(1,1) = 2.0*R3(1,1);
 
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
@@ -190,9 +190,9 @@ int main(int argc, char** argv) {
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 		writeresiduals = true;
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	// stations 1 and 2 only
@@ -244,9 +244,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-16.0); //try 1E-12 * 1E-12
 	// double var_in = 1.0*pow(10.0,-17.0);
 	// double var_cross = 1.0*pow(10.0,-17.0);
-	double var_rad = 1.0*pow(10.0,-13.0)*pow(10.0,-13.0); //try 1E-12 * 1E-12
-	double var_in = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
-	double var_cross = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	// double var_rad = 1.0*pow(10.0,-13.0)*pow(10.0,-13.0); //try 1E-12 * 1E-12
+	// double var_in = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	// double var_cross = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
+	double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
 
 
 	//construct rest of Q
