@@ -253,9 +253,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
 	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
 	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
-	double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
-	double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-	double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
+	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	double var_rad = 1.0*pow(8.0,-8.0)*pow(8.0,-8.0);
+	double var_in = 1.0*pow(8.0,-8.5)*pow(8.0,-8.5);
+	double var_cross = 1.0*pow(8.0,-8.5)*pow(8.0,-8.5);
 
 
 	//construct rest of Q
@@ -418,6 +421,9 @@ int main(int argc, char** argv) {
 	std::cout << ziter - prefit_pred << "\n";
 	// exit(0);
 
+	//maximum time for propagation
+	double maxproptime = 89.3; 
+
 	// propagate starting with the second measurement
 	for (int ii = 1; ii < N; ++ii){
 
@@ -429,8 +435,7 @@ int main(int argc, char** argv) {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - propobj_vec[0].t_;
 
-		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
-		double maxproptime = 89.3; 
+		//we will propagate no more than maxproptime seconds at a time to avoid issues with process noise
 		double N_prop = floor(dt/maxproptime);
 		double rem = dt - N_prop*maxproptime;
 
@@ -722,7 +727,6 @@ int main(int argc, char** argv) {
 	ukf.GetSigmaPoints();
 
 	//we will propagate no more than 90 seconds at a time to avoid issues with process noise
-	double maxproptime = 90.0; 
 	double N_prop = floor(t_remain/maxproptime);
 	double rem = t_remain - N_prop*maxproptime;
 
