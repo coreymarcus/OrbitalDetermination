@@ -247,12 +247,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-13.0)*pow(10.0,-13.0); //try 1E-12 * 1E-12
 	// double var_in = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
 	// double var_cross = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
-	// double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
-	// double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
-	// double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
-	double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-12.0);
-	double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-12.5);
-	double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-12.5);
+	double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
+	double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-12.0);
+	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-12.5);
+	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-12.5);
 
 
 	//construct rest of Q
