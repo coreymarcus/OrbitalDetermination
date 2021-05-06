@@ -607,6 +607,8 @@ int main(int argc, char** argv) {
 			propobj_vec[j].t_ -= tof;
 		}
 
+		std::cout << "Measurement Block: \n" << Y << "\n";
+
 		//measurement
 		ziter = z.block(ii,2,1,2).transpose();
 
