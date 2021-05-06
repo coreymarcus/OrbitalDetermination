@@ -186,7 +186,8 @@ int main() {
 		std::cout << "Pos1: \n" << pos1 << "\n";
 		std::cout << "Pos2: \n" << pos2 << "\n";
 		std::cout << "Pos1 + tof*Vel1: \n" << pos1 + tof*vel1 << "\n";
-		exit(0);
+		std::cout << "tof: " << tof << "\n";
+		std::cout << "Pos1 + tof*Vel1 - Pos2: \n" << pos1 + tof*vel1 - pos2 << "\n";	
 
 		//determine which tracking station was used
 		int stationID = (int) true_meas(i, 0);
@@ -212,6 +213,8 @@ int main() {
 
 		//approximate measurement
 		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, tof);
+
+		// exit(0);
 
 	}
 

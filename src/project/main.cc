@@ -30,7 +30,10 @@ int main(int argc, char** argv) {
 	propobj.J3_ = 0.0000025327;
 	propobj.Rearth_ = 6378.1363; //km
 	propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
-	propobj.C_D_ = 1.88;
+	// propobj.C_D_ = 2.0;
+	// propobj.C_D_ = 1.88;
+	// propobj.C_D_ = 1.80;
+	propobj.C_D_ = 1.70;
 	propobj.A_ = 22; // m^2
 	propobj.m_ = 2000.0; //kg
 	propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
@@ -108,9 +111,9 @@ int main(int argc, char** argv) {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//underweight range measurements
-	// R1(1,1) = 2.0*R1(1,1);
-	// R2(1,1) = 2.0*R2(1,1);
-	// R3(1,1) = 2.0*R3(1,1);
+	R1(1,1) = 2.0*R1(1,1);
+	R2(1,1) = 2.0*R2(1,1);
+	R3(1,1) = 2.0*R3(1,1);
 
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
@@ -190,9 +193,9 @@ int main(int argc, char** argv) {
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 		writeresiduals = true;
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	// stations 1 and 2 only
@@ -244,9 +247,24 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-16.0); //try 1E-12 * 1E-12
 	// double var_in = 1.0*pow(10.0,-17.0);
 	// double var_cross = 1.0*pow(10.0,-17.0);
-	double var_rad = 1.0*pow(10.0,-13.0)*pow(10.0,-13.0); //try 1E-12 * 1E-12
-	double var_in = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
-	double var_cross = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	// double var_rad = 1.0*pow(10.0,-13.0)*pow(10.0,-13.0); //try 1E-12 * 1E-12
+	// double var_in = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	// double var_cross = 1.0*pow(10.0,-13.5)*pow(10.0,-13.5);
+	// double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
+	// double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	// double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
+	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
+	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
+	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0);
+	double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
+	double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
+	// double var_rad = 1.0*pow(10.0,-7.0)*pow(10.0,-7.0);
+	// double var_in = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
+	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 
 	//construct rest of Q
@@ -255,11 +273,18 @@ int main(int argc, char** argv) {
 	Q_sub(2,2) = var_cross;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
+	// timing
+	double dt; //seconds for propagation
+	int N = 435; // number of measurements for set 1
+	// int N = 1289; //number of measurements for set 2
+	// int N = 2570; //number of measurements for set 3
+
+	//initialize state for object
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
-	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
-	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
+	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0); //initial epoch
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0); //dV1
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0); //one day only
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -297,11 +322,6 @@ int main(int argc, char** argv) {
 	//number of sigma points
 	int Nsig = 2*6 + 1;
 
-	// timing
-	double dt; //seconds for propagation
-	// int N = 435; // number of measurements for set 1
-	// int N = 1289; //number of measurements for set 2
-	int N = 2570; //number of measurements for set 3
 
 	//load the measurements
 	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
@@ -407,6 +427,9 @@ int main(int argc, char** argv) {
 	std::cout << ziter - prefit_pred << "\n";
 	// exit(0);
 
+	//maximum time for propagation
+	double maxproptime = 89.3; 
+
 	// propagate starting with the second measurement
 	for (int ii = 1; ii < N; ++ii){
 
@@ -418,8 +441,7 @@ int main(int argc, char** argv) {
 		//get the time we need to propagate to get to this measurement
 		dt = z(ii,1) - tof - propobj_vec[0].t_;
 
-		//we will propagate no more than 90 seconds at a time to avoid issues with process noise
-		double maxproptime = 90.0; 
+		//we will propagate no more than maxproptime seconds at a time to avoid issues with process noise
 		double N_prop = floor(dt/maxproptime);
 		double rem = dt - N_prop*maxproptime;
 
@@ -576,7 +598,11 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+		// prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+		//reset prefit predicted measurement
+		prefit_pred[0] = 0.0;
+		prefit_pred[1] = 0.0;
 
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
@@ -597,7 +623,12 @@ int main(int argc, char** argv) {
 
 			//reset dopplar correction
 			propobj_vec[j].t_ -= tof;
+
+			//prefit predicted measuremnet
+			prefit_pred += ukf.w_[j]*Y.block(0,j,2,1);
 		}
+
+		// std::cout << "Measurement Block: \n" << Y << "\n";
 
 		//measurement
 		ziter = z.block(ii,2,1,2).transpose();
@@ -606,10 +637,38 @@ int main(int argc, char** argv) {
 		Pyy = ukf.CalcEstimate(ziter, Y);
 		ukf.GetSigmaPoints();
 
+		//get postfit predicted measurement
+		postfit_pred[0] = 0.0;
+		postfit_pred[1] = 0.0;
+		for (int j = 0; j < Nsig; ++j)	{
+			
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
+
+			//set time properly for dopplar shift
+			propobj_vec[j].t_ += tof;
+
+			//predicted measurement
+			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+			//reset dopplar correction
+			propobj_vec[j].t_ -= tof;
+
+			//prefit predicted measuremnet
+			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
+		}
+
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+		// postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+		// std::cout << "weights: \n" << ukf.w_ << "\n";
+		// std::cout << "postfit_pred: \n" << postfit_pred << "\n";
 
 		//undo timeshift for dopplar
 		propobj.t_ -= tof;
@@ -674,7 +733,6 @@ int main(int argc, char** argv) {
 	ukf.GetSigmaPoints();
 
 	//we will propagate no more than 90 seconds at a time to avoid issues with process noise
-	double maxproptime = 90.0; 
 	double N_prop = floor(t_remain/maxproptime);
 	double rem = t_remain - N_prop*maxproptime;
 
