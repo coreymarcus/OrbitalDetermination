@@ -258,11 +258,18 @@ int main(int argc, char** argv) {
 	Q_sub(2,2) = var_cross;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
 
+	// timing
+	double dt; //seconds for propagation
+	int N = 435; // number of measurements for set 1
+	// int N = 1289; //number of measurements for set 2
+	// int N = 2570; //number of measurements for set 3
+
+	//initialize state for object
 	propobj.pos_ = pos0;
 	propobj.vel_ = vel0;
-	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
-	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0);
-	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0);
+	propobj.t_JD_ = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0); //initial epoch
+	// double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 30.0, 8.0, 55.0, 3.0); //dV1
+	double t_dV1 = Util::JulianDateNatural2JD(2018.0, 3.0, 24.0, 8.0, 55.0, 3.0); //one day only
 
 	// std::cout << "Natural Julian Date: " << propobj.t_JD_ << "\n";
 
@@ -300,11 +307,6 @@ int main(int argc, char** argv) {
 	//number of sigma points
 	int Nsig = 2*6 + 1;
 
-	// timing
-	double dt; //seconds for propagation
-	// int N = 435; // number of measurements for set 1
-	// int N = 1289; //number of measurements for set 2
-	int N = 2570; //number of measurements for set 3
 
 	//load the measurements
 	// Eigen::MatrixXd z = Util::LoadDatFile("../data/meas_proj_set1.csv",N,4);
