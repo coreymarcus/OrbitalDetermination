@@ -33,7 +33,8 @@ int main(int argc, char** argv) {
 	// propobj.C_D_ = 2.0;
 	// propobj.C_D_ = 1.88;
 	// propobj.C_D_ = 1.80;
-	propobj.C_D_ = 1.70;
+	// propobj.C_D_ = 1.70;
+	propobj.C_D_ = 1.60;
 	propobj.A_ = 22; // m^2
 	propobj.m_ = 2000.0; //kg
 	propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
