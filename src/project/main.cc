@@ -30,7 +30,8 @@ int main(int argc, char** argv) {
 	propobj.J3_ = 0.0000025327;
 	propobj.Rearth_ = 6378.1363; //km
 	propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
-	propobj.C_D_ = 1.88;
+	// propobj.C_D_ = 1.88;
+	propobj.C_D_ = 1.80;
 	propobj.A_ = 22; // m^2
 	propobj.m_ = 2000.0; //kg
 	propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
@@ -256,12 +257,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
 	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
 	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-	// double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0);
-	// double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
-	// double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
-	double var_rad = 1.0*pow(10.0,-7.0)*pow(10.0,-7.0);
-	double var_in = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
-	double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
+	double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0);
+	double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
+	double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
+	// double var_rad = 1.0*pow(10.0,-7.0)*pow(10.0,-7.0);
+	// double var_in = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
+	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 
 	//construct rest of Q
