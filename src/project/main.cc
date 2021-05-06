@@ -614,7 +614,15 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+		// postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+		//get residual as an average instead of from the estimate
+		postfit_pred[0] = 0.0;
+		postfit_pred[1] = 0.0;
+
+		for (int j = 0; j < N; ++j)	{
+			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
+		}
 
 		//undo timeshift for dopplar
 		propobj.t_ -= tof;
