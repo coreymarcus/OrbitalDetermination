@@ -64,6 +64,8 @@ int main(int argc, char** argv) {
 	gravmodel.iau1980ptr_ = &iau1980;
 	propobj.gravmodel_ = &gravmodel;
 
+	std::cout << "here!\n";
+
 	//set objects position and velocity (from assignment document)
 	// Eigen::Vector3d pos0;
 	// pos0[0] = 6984.45711518852;
