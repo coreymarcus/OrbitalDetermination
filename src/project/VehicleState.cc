@@ -382,7 +382,7 @@ namespace VehicleState {
 			accel[1] = accel[1] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m;
 			accel[2] = accel[2] - 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m;
 
-			std::cout << "drag accel:\n" << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[0]/m; << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m; << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m; << "\n";
+			std::cout << "drag accel:\n" << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[0]/m << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[1]/m; << 1000.0*0.5*C_D*A*rho_A*nV_A*V_A[2]/m; << "\n";
 			exit(0) ;
 		} //fi
 
