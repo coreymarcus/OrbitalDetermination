@@ -584,7 +584,11 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
-		prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+		// prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+		//reset prefit predicted measurement
+		prefit_pred[0] = 0.0;
+		prefit_pred[1] = 0.0;
 
 		//cycle through sigma points, writing them to each element of the list
 		//and getting a predicted measurement
@@ -605,9 +609,12 @@ int main(int argc, char** argv) {
 
 			//reset dopplar correction
 			propobj_vec[j].t_ -= tof;
+
+			//prefit predicted measuremnet
+			prefit_pred += ukf.w_[j]*Y.block(0,j,2,1);
 		}
 
-		std::cout << "Measurement Block: \n" << Y << "\n";
+		// std::cout << "Measurement Block: \n" << Y << "\n";
 
 		//measurement
 		ziter = z.block(ii,2,1,2).transpose();
@@ -616,21 +623,38 @@ int main(int argc, char** argv) {
 		Pyy = ukf.CalcEstimate(ziter, Y);
 		ukf.GetSigmaPoints();
 
+		//get postfit predicted measurement
+		postfit_pred[0] = 0.0;
+		postfit_pred[1] = 0.0;
+		for (int j = 0; j < Nsig; ++j)	{
+			
+			//extract sig state
+			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+
+			//assign
+			propobj_vec[j].pos_ = xi.segment(0,3);
+			propobj_vec[j].vel_ = xi.segment(3,3);
+
+			//set time properly for dopplar shift
+			propobj_vec[j].t_ += tof;
+
+			//predicted measurement
+			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+
+			//reset dopplar correction
+			propobj_vec[j].t_ -= tof;
+
+			//prefit predicted measuremnet
+			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
+		}
+
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
 		// postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
-		//get residual as an average instead of from the estimate
-		postfit_pred[0] = 0.0;
-		postfit_pred[1] = 0.0;
-
-		for (int j = 0; j < Nsig; ++j)	{
-			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
-		}
-
-		std::cout << "weights: \n" << ukf.w_ << "\n";
-		std::cout << "postfit_pred: \n" << postfit_pred << "\n";
+		// std::cout << "weights: \n" << ukf.w_ << "\n";
+		// std::cout << "postfit_pred: \n" << postfit_pred << "\n";
 
 		//undo timeshift for dopplar
 		propobj.t_ -= tof;
