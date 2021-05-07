@@ -316,7 +316,7 @@ int main(int argc, char** argv) {
 	//values from backwards prop
 	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
 	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0(6,6) = 0.3;
+	Phat0(6,6) = 0.1;
 
 	Eigen::VectorXd xhat0(7);
 	xhat0.segment(0,3) = pos0;
