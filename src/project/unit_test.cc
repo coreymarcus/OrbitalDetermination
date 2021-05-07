@@ -43,7 +43,22 @@ int main() {
 	//load test position
 	Eigen::MatrixXd r_ECF_test = Util::LoadDatFile("../data/r_ECF_test.csv",1,3);
 	Eigen::Vector3d pos_ECEF2(r_ECF_test(0,0), r_ECF_test(0,1), r_ECF_test(0,2));
-	
+
+	//reset julian date to project epoch
+	t_JD = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
+
+	//initialize ECI matrix
+	Eigen::MatrixXd pos_ECI2 = Eigen::MatrixXd::Zero(3,865);
+
+	//perform rotations
+	for (int i = 0; i < 865; ++i)	{
+		R = Util::ECEF2ECI(t_JD + t_R_test(i,0)/(24.0*60.0*60.0), &nut80, &iau1980, &matvec);
+		pos_ECI2.block(0,i,3,1) = R*pos_ECEF2;
+	}
+
+	//save data
+	Util::Eigen2csv("../data/pred_ECIpos.csv", pos_ECI2);
+
 
 	// exit(0);s
 	////////////////////////////////////////////////////
