@@ -37,6 +37,14 @@ int main() {
 	//error
 	std::cout << "Error [cm]: \n" << 100.0*1000.0*(targ_pos_ECI - pos_ECI) << "\n";
 
+	//load the test times
+	Eigen::MatrixXd t_R_test = Util::LoadDatFile("../data/t_ECF_test.csv",865,1);
+
+	//load test position
+	Eigen::MatrixXd r_ECF_test = Util::LoadDatFile("../data/r_ECF_test.csv",1,3);
+	Eigen::Vector3d pos_ECEF2(r_ECF_test(0,0), r_ECF_test(0,1), r_ECF_test(0,2));
+	
+
 	// exit(0);s
 	////////////////////////////////////////////////////
 
@@ -178,7 +186,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		// propobj.Propagate(-1.0*tof,false);
+		propobj.Propagate(-1.0*tof,false);
 
 		pos1 = propobj.pos_;
 		vel1 = propobj.vel_;
