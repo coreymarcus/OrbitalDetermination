@@ -431,10 +431,10 @@ int main(int argc, char** argv) {
 	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//store data
-	xhat_mat.block(0,0,6,1) = ukf.xhat_;
+	xhat_mat.block(0,0,7,1) = ukf.xhat_;
 	Eigen::Map<Eigen::VectorXd> Phat_vec(ukf.Phat_.data(), ukf.Phat_.size());
 	Eigen::Map<Eigen::VectorXd> Pyy_vec(Pyy.data(), Pyy.size());
-	Phat_mat.block(0,0,36,1) = Phat_vec;
+	Phat_mat.block(0,0,49,1) = Phat_vec;
 	Pyy_mat.block(0,0,4,1) = Pyy_vec;
 	prefit_res.block(0,0,2,1) = ziter - prefit_pred - bias_iter;
 	postfit_res.block(0,0,2,1) = ziter - postfit_pred - bias_iter;
@@ -479,6 +479,7 @@ int main(int argc, char** argv) {
 					//assign
 					propobj_vec[j].pos_ = xi.segment(0,3);
 					propobj_vec[j].vel_ = xi.segment(3,3);
+					propobj_vec[j].C_D_ = xi[6];
 
 					//propagate
 					propobj_vec[j].Propagate(maxproptime,false);
@@ -534,6 +535,7 @@ int main(int argc, char** argv) {
 			//assign
 			propobj_vec[j].pos_ = xi.segment(0,3);
 			propobj_vec[j].vel_ = xi.segment(3,3);
+			propobj_vec[j].C_D_ = xi[6];
 
 			//propagate
 			propobj_vec[j].Propagate(rem,false);
@@ -613,6 +615,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
+		propobj.C_D_ = ukf.xhat_[6];
 		// prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 		//reset prefit predicted measurement
@@ -629,6 +632,7 @@ int main(int argc, char** argv) {
 			//assign
 			propobj_vec[j].pos_ = xi.segment(0,3);
 			propobj_vec[j].vel_ = xi.segment(3,3);
+			propobj_vec[j].C_D_ = xi[6];
 
 			//set time properly for dopplar shift
 			propobj_vec[j].t_ += tof;
@@ -663,6 +667,7 @@ int main(int argc, char** argv) {
 			//assign
 			propobj_vec[j].pos_ = xi.segment(0,3);
 			propobj_vec[j].vel_ = xi.segment(3,3);
+			propobj_vec[j].C_D_ = xi[6];
 
 			//set time properly for dopplar shift
 			propobj_vec[j].t_ += tof;
@@ -680,6 +685,7 @@ int main(int argc, char** argv) {
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
+		propobj.C_D_ = ukf.xhat_[6];
 		// postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 		// std::cout << "weights: \n" << ukf.w_ << "\n";
@@ -689,10 +695,10 @@ int main(int argc, char** argv) {
 		propobj.t_ -= tof;
 
 		//store data
-		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
+		xhat_mat.block(0,ii,7,1) = ukf.xhat_;
 		Eigen::Map<Eigen::VectorXd> Phat_vec_iter(ukf.Phat_.data(), ukf.Phat_.size());
 		Eigen::Map<Eigen::VectorXd> Pyy_vec_iter(Pyy.data(), Pyy.size());
-		Phat_mat.block(0,ii,36,1) = Phat_vec_iter;
+		Phat_mat.block(0,ii,49,1) = Phat_vec_iter;
 		Pyy_mat.block(0,ii,4,1) = Pyy_vec_iter;
 		prefit_res.block(0,ii,2,1) = ziter - prefit_pred;
 		postfit_res.block(0,ii,2,1) = ziter - postfit_pred;
@@ -708,6 +714,7 @@ int main(int argc, char** argv) {
 			//assign
 			propobj_vec[j].pos_ = xi.segment(0,3);
 			propobj_vec[j].vel_ = xi.segment(3,3);
+			propobj_vec[j].C_D_ = xi[6];
 
 			//propagate
 			propobj_vec[j].Propagate(tof,false);
@@ -724,6 +731,7 @@ int main(int argc, char** argv) {
 
 		std::cout << "Project Case: " << project_case << " Station ID: "<< stationID << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
+		std::cout << "Cd Estimate: " << ukf.xhat_[6] << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
 
@@ -770,6 +778,7 @@ int main(int argc, char** argv) {
 				//assign
 				propobj_vec[j].pos_ = xi.segment(0,3);
 				propobj_vec[j].vel_ = xi.segment(3,3);
+				propobj_vec[j].C_D_ = xi[6];
 
 				//propagate
 				propobj_vec[j].Propagate(maxproptime,false);
@@ -825,6 +834,7 @@ int main(int argc, char** argv) {
 		//assign
 		propobj_vec[j].pos_ = xi.segment(0,3);
 		propobj_vec[j].vel_ = xi.segment(3,3);
+		propobj_vec[j].C_D_ = xi[6];
 
 		//propagate
 		propobj_vec[j].Propagate(rem,false);
@@ -878,150 +888,150 @@ int main(int argc, char** argv) {
 	}
 
 	//for case F, propagate back to t0 to get an initial estimate	
-	if(project_case.compare("F") == 0 && false){
+	// if(project_case.compare("F") == 0 && false){
 
-		std::cout << "Estimating in reverse to get initial conditions... \n";
+	// 	std::cout << "Estimating in reverse to get initial conditions... \n";
 
-		for (int ii = N-1; ii >= 0; --ii){
+	// 	for (int ii = N-1; ii >= 0; --ii){
 
-			//////////////////// Propagate /////////////////////
+	// 		//////////////////// Propagate /////////////////////
 
-			//get this measurement time of flight
-			tof = z(ii,2)/c;
+	// 		//get this measurement time of flight
+	// 		tof = z(ii,2)/c;
 
-			//difference between current time and time of measurement arrival
-			dt = propobj_vec[0].t_ - z(ii,1);
+	// 		//difference between current time and time of measurement arrival
+	// 		dt = propobj_vec[0].t_ - z(ii,1);
 
-			//magnitude of time to propagate
-			double tprop = dt + tof;
+	// 		//magnitude of time to propagate
+	// 		double tprop = dt + tof;
 
-			//add process noise
-			Q.block(0,0,3,3) = 0.25*pow(tprop,4.0)*Q_sub;
-			Q.block(0,3,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
-			Q.block(3,0,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
-			Q.block(3,3,3,3) = 0.25*pow(tprop,2.0)*Q_sub;
-			ukf.Phat_ = ukf.Phat_ + Q;
+	// 		//add process noise
+	// 		Q.block(0,0,3,3) = 0.25*pow(tprop,4.0)*Q_sub;
+	// 		Q.block(0,3,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
+	// 		Q.block(3,0,3,3) = 0.5*pow(tprop,3.0)*Q_sub;
+	// 		Q.block(3,3,3,3) = 0.25*pow(tprop,2.0)*Q_sub;
+	// 		ukf.Phat_ = ukf.Phat_ + Q;
 
-			//create UKF sigma points
-			ukf.GetSigmaPoints();
+	// 		//create UKF sigma points
+	// 		ukf.GetSigmaPoints();
 
-			//propagate each sigma point
-			for (int j = 0; j < Nsig; ++j){
+	// 		//propagate each sigma point
+	// 		for (int j = 0; j < Nsig; ++j){
 
-				//extract sig state
-				Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+	// 			//extract sig state
+	// 			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
 
-				//assign
-				propobj_vec[j].pos_ = xi.segment(0,3);
-				propobj_vec[j].vel_ = xi.segment(3,3);
+	// 			//assign
+	// 			propobj_vec[j].pos_ = xi.segment(0,3);
+	// 			propobj_vec[j].vel_ = xi.segment(3,3);
 
-				//propagate backwards in time
-				propobj_vec[j].Propagate(-1.0*tprop,false);
+	// 			//propagate backwards in time
+	// 			propobj_vec[j].Propagate(-1.0*tprop,false);
 
-				//update sigma point
-				ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
-				ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
-			}
+	// 			//update sigma point
+	// 			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+	// 			ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+	// 		}
 
-			//Update the estimate
-			ukf.SigmaPts2Estimate();
+	// 		//Update the estimate
+	// 		ukf.SigmaPts2Estimate();
 
-			//Get new sigma points
-			ukf.GetSigmaPoints();
+	// 		//Get new sigma points
+	// 		ukf.GetSigmaPoints();
 
-			//////////////////// Update /////////////////////
+	// 		//////////////////// Update /////////////////////
 
 
-			//determine which tracking station was used
-			stationID = (int) z(ii, 0);
+	// 		//determine which tracking station was used
+	// 		stationID = (int) z(ii, 0);
 
-			switch(stationID) {
-				case 1:
-					obs_station_iter = obs_station1;
-					ukf.R_ = R1;
-					bias_iter = bias1;
-					break;
+	// 		switch(stationID) {
+	// 			case 1:
+	// 				obs_station_iter = obs_station1;
+	// 				ukf.R_ = R1;
+	// 				bias_iter = bias1;
+	// 				break;
 
-				case 2:
-					obs_station_iter = obs_station2;
-					ukf.R_ = R2;
-					bias_iter = bias2;
-					break;
+	// 			case 2:
+	// 				obs_station_iter = obs_station2;
+	// 				ukf.R_ = R2;
+	// 				bias_iter = bias2;
+	// 				break;
 
-				case 3:
-					obs_station_iter = obs_station3;
-					ukf.R_ = R3;
-					bias_iter = bias3;
-					break;
+	// 			case 3:
+	// 				obs_station_iter = obs_station3;
+	// 				ukf.R_ = R3;
+	// 				bias_iter = bias3;
+	// 				break;
 
-				default: std::cout << "Error: bad case in measurement \n";
-			}
+	// 			default: std::cout << "Error: bad case in measurement \n";
+	// 		}
 
-			//cycle through sigma points, writing them to each element of the list
-			//and getting a predicted measurement
-			for (int j = 0; j < Nsig; ++j)	{
+	// 		//cycle through sigma points, writing them to each element of the list
+	// 		//and getting a predicted measurement
+	// 		for (int j = 0; j < Nsig; ++j)	{
 				
-				//extract sig state
-				Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+	// 			//extract sig state
+	// 			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
 
-				//assign
-				propobj_vec[j].pos_ = xi.segment(0,3);
-				propobj_vec[j].vel_ = xi.segment(3,3);
+	// 			//assign
+	// 			propobj_vec[j].pos_ = xi.segment(0,3);
+	// 			propobj_vec[j].vel_ = xi.segment(3,3);
 
-				//predicted measurement
-				Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
-			}
+	// 			//predicted measurement
+	// 			Y.block(0,j,2,1) = propobj_vec[j].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+	// 		}
 
-			//measurement
-			ziter = z.block(ii,2,1,2).transpose();
+	// 		//measurement
+	// 		ziter = z.block(ii,2,1,2).transpose();
 
-			//perform update
-			Pyy = ukf.CalcEstimate(ziter, Y);
-			ukf.GetSigmaPoints();
+	// 		//perform update
+	// 		Pyy = ukf.CalcEstimate(ziter, Y);
+	// 		ukf.GetSigmaPoints();
 
-			//assign estimate to propobj for residual calculation
-			propobj.pos_ = ukf.xhat_.segment(0,3);
-			propobj.vel_ = ukf.xhat_.segment(3,3);
-			propobj.t_ = propobj_vec[0].t_;
-			postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
+	// 		//assign estimate to propobj for residual calculation
+	// 		propobj.pos_ = ukf.xhat_.segment(0,3);
+	// 		propobj.vel_ = ukf.xhat_.segment(3,3);
+	// 		propobj.t_ = propobj_vec[0].t_;
+	// 		postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
-			//////////////////////////////////////////////////////////////////
+	// 		//////////////////////////////////////////////////////////////////
 
-			std::cout << "Backwards Prop time: " << propobj_vec[0].t_ << "\n";
-			std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
-			// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
-			// std::cout << "Q: \n" << Q << "\n";
+	// 		std::cout << "Backwards Prop time: " << propobj_vec[0].t_ << "\n";
+	// 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
+	// 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
+	// 		// std::cout << "Q: \n" << Q << "\n";
 
-		}
+	// 	}
 
-		//prop to t=0
+	// 	//prop to t=0
 
-		//propagate each sigma point
-		for (int j = 0; j < Nsig; ++j){
+	// 	//propagate each sigma point
+	// 	for (int j = 0; j < Nsig; ++j){
 
-			//extract sig state
-			Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
+	// 		//extract sig state
+	// 		Eigen::VectorXd xi = ukf.Xi_.block(0,j,6,1);
 
-			//assign
-			propobj_vec[j].pos_ = xi.segment(0,3);
-			propobj_vec[j].vel_ = xi.segment(3,3);
-			propobj_vec[j].dt_var_ = 0.1;
+	// 		//assign
+	// 		propobj_vec[j].pos_ = xi.segment(0,3);
+	// 		propobj_vec[j].vel_ = xi.segment(3,3);
+	// 		propobj_vec[j].dt_var_ = 0.1;
 
-			//propagate backwards in time
-			propobj_vec[j].Propagate(tof,false);
+	// 		//propagate backwards in time
+	// 		propobj_vec[j].Propagate(tof,false);
 
-			//update sigma point
-			ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
-			ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
-		}
+	// 		//update sigma point
+	// 		ukf.Xi_.block(0,j,3,1) = propobj_vec[j].pos_;
+	// 		ukf.Xi_.block(3,j,3,1) = propobj_vec[j].vel_;
+	// 	}
 
-		//Update the estimate
-		ukf.SigmaPts2Estimate();
+	// 	//Update the estimate
+	// 	ukf.SigmaPts2Estimate();
 
-		std::cout << "Initial Time: \n" << propobj_vec[0].t_ << "\n";
-		std::cout << "Initial Estimate after Backwards Prop: \n" << ukf.xhat_ << "\n";
-		std::cout << "Initial Estimate Covariance after Backwards Prop: \n" << ukf.Phat_ << "\n";
-	}			
+	// 	std::cout << "Initial Time: \n" << propobj_vec[0].t_ << "\n";
+	// 	std::cout << "Initial Estimate after Backwards Prop: \n" << ukf.xhat_ << "\n";
+	// 	std::cout << "Initial Estimate Covariance after Backwards Prop: \n" << ukf.Phat_ << "\n";
+	// }			
 
 	return 0;
 	
