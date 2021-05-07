@@ -31,14 +31,14 @@ int main(int argc, char** argv) {
 	propobj.Rearth_ = 6378.1363; //km
 	propobj.earthrotationspeed_ = 7.292115146706979 * pow(10.0,-5.0); // rad/sec
 	// propobj.C_D_ = 2.0;
-	// propobj.C_D_ = 1.88;
+	propobj.C_D_ = 1.88;
 	// propobj.C_D_ = 1.80;
 	// propobj.C_D_ = 1.70;
 	// propobj.C_D_ = 1.60;
 	// propobj.C_D_ = 1.25;
 	// propobj.C_D_ = 0.0;
 	// propobj.C_D_ = 18.8;
-	propobj.C_D_ = 188.0;
+	// propobj.C_D_ = 188.0;
 	propobj.A_ = 22; // m^2
 	propobj.m_ = 2000.0; //kg
 	propobj.rho_0_ = 3.614*pow(10.0,-13.0); //kg/m^3
@@ -198,9 +198,9 @@ int main(int argc, char** argv) {
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 		writeresiduals = true;
-		R1(1,1) = 10000000;
-		R2(1,1) = 10000000;
-		R3(1,1) = 10000000;
+		// R1(1,1) = 10000000;
+		// R2(1,1) = 10000000;
+		// R3(1,1) = 10000000;
 	}
 
 	// stations 1 and 2 only
