@@ -272,7 +272,7 @@ int main(int argc, char** argv) {
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 	//process noise for Cd estimation
-	double var_Cd = 0.0001;
+	double var_Cd = 1.0*pow(10.0,-7.0);
 
 
 	//construct rest of Q
@@ -280,9 +280,6 @@ int main(int argc, char** argv) {
 	Q_sub(1,1) = var_in;
 	Q_sub(2,2) = var_cross;
 	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(7,7);
-
-	//constant element for Cd
-	Q(6,6) = var_Cd;
 
 	// timing
 	double dt; //seconds for propagation
@@ -517,6 +514,7 @@ int main(int argc, char** argv) {
 				Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
 				Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
 				Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_iter;
+				Q(6,6) = pow(maxproptime,2.0)*var_Cd;
 				ukf.Phat_ = ukf.Phat_ + Q;
 
 				//Get new sigma points
@@ -573,6 +571,7 @@ int main(int argc, char** argv) {
 		Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_iter;
 		Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_iter;
 		Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_iter;
+		Q(6,6) = pow(rem,2.0)*var_Cd;
 		ukf.Phat_ = ukf.Phat_ + Q;
 
 		//Get new sigma points
@@ -816,6 +815,7 @@ int main(int argc, char** argv) {
 			Q.block(0,3,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
 			Q.block(3,0,3,3) = 0.5*pow(maxproptime,3.0)*Q_iter;
 			Q.block(3,3,3,3) = 0.25*pow(maxproptime,2.0)*Q_iter;
+			Q(6,6) = pow(maxproptime,2.0)*var_Cd;
 			ukf.Phat_ = ukf.Phat_ + Q;
 
 			//Get new sigma points
@@ -872,6 +872,7 @@ int main(int argc, char** argv) {
 	Q.block(0,3,3,3) = 0.5*pow(rem,3.0)*Q_iter;
 	Q.block(3,0,3,3) = 0.5*pow(rem,3.0)*Q_iter;
 	Q.block(3,3,3,3) = 0.25*pow(rem,2.0)*Q_iter;
+	Q(6,6) = pow(rem,2.0)*var_Cd;
 	ukf.Phat_ = ukf.Phat_ + Q;
 
 	std::cout << "xhat: \n" << ukf.xhat_.segment(0,3) << "\n";
