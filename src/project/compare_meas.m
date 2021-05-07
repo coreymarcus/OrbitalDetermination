@@ -63,26 +63,30 @@ subplot(3,1,1)
 hold on
 plot(err1(:,1))
 plot(err2(:,1))
+ylabel('Error (cm)');
+title("ECEF2ECI Comparison with Other Student")
 
 subplot(3,1,2)
 hold on
 plot(err1(:,2))
 plot(err2(:,2))
+ylabel('Error (cm)');
 
 subplot(3,1,3)
 hold on
 plot(err1(:,3))
 plot(err2(:,3))
+ylabel('Error (cm)');
 
-figure
-subplot(3,1,1)
-hold on
-plot(err3(:,1))
-
-subplot(3,1,2)
-hold on
-plot(err3(:,2))
-
-subplot(3,1,3)
-hold on
-plot(err3(:,3))
+% figure
+% subplot(3,1,1)
+% hold on
+% plot(err3(:,1))
+% 
+% subplot(3,1,2)
+% hold on
+% plot(err3(:,2))
+% 
+% subplot(3,1,3)
+% hold on
+% plot(err3(:,3))

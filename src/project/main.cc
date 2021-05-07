@@ -413,6 +413,9 @@ int main(int argc, char** argv) {
 	//use these sigma points to find an estimate
 	Eigen::VectorXd ziter = z.block(0,2,1,2).transpose();
 
+	std::cout << "Measurement 1: \n" << ziter << "\n";
+	std::cout << "Prediction 1: \n" << prefit_pred << "\n";
+
 	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
 
 	//assign estimate to propobj for residual calculation
