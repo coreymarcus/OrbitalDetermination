@@ -41,7 +41,7 @@ int main() {
 	Eigen::MatrixXd t_R_test = Util::LoadDatFile("../data/t_ECF_test.csv",865,1);
 
 	//load test position
-	Eigen::MatrixXd r_ECF_test = Util::LoadDatFile("../data/r_ECF_test.csv",1,3);
+	// Eigen::MatrixXd r_ECF_test = Util::LoadDatFile("../data/r_ECF_test.csv",1,3);
 	Eigen::Vector3d pos_ECEF2(6378.136300000000, 6378.136300000000, 6378.136300000000);
 
 	std::cout << "ECEF Test Position: \n" << pos_ECEF2 << "\n";
