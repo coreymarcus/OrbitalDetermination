@@ -427,7 +427,7 @@ int main(int argc, char** argv) {
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
 	propobj.vel_ = ukf.xhat_.segment(3,3);
-	propobj.C_D_ = ukh.xhat_[6];
+	propobj.C_D_ = ukf.xhat_[6];
 	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//store data
