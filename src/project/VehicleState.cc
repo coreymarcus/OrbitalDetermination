@@ -619,8 +619,17 @@ namespace VehicleState {
 		vel_station_pef[1] = earthrot*pos_station_pef[0];
 		vel_station_pef[2] = 0.0;
 
+		//station PEF acceleration
+		Eigen::Vector3d accel_station_pef;
+		accel_station_pef[0] = -1.0*earthrot*earthrot*pos_station_pef[0];
+		accel_station_pef[1] = -1.0*earthrot*earthrot*pos_station_pef[1];
+		accel_station_pef[2] = 0.0;
+
 		//station ECI velocity
 		Eigen::Vector3d vel_station_eci = Util::OrthoNormMat(matvec[0]*matvec[1]*matvec[2])*vel_station_pef;
+
+		//stations ECI accel
+		Eigen::Vector3d accel_station_eci = Util::OrthoNormMat(matvec[0]*matvec[1]*matvec[2])*accel_station_pef;
 
 		// std::cout << "vel2: \n" << R_ecef2eci*vel_station_ecef << "\n";
 
@@ -628,7 +637,7 @@ namespace VehicleState {
 
 		//relative position and velocity
 		Eigen::Vector3d rel_pos = pos_craft - pos_station + tof*vel_station_eci;
-		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci;
+		Eigen::Vector3d rel_vel  = vel_craft - vel_station_eci + tof*accel_station_eci;
 
 		// std::cout << "Aberation position correction: " << (tof*vel_station_eci).norm() << "\n";
 		// exit(0);
