@@ -272,7 +272,7 @@ int main(int argc, char** argv) {
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 	//process noise for Cd estimation
-	double var_Cd = 0.001;
+	double var_Cd = 0.0001;
 
 
 	//construct rest of Q
@@ -731,7 +731,7 @@ int main(int argc, char** argv) {
 
 		std::cout << "Project Case: " << project_case << " Station ID: "<< stationID << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
-		std::cout << "Cd Estimate: " << ukf.xhat_[6] << "\n";
+		std::cout << "Cd Estimate: " << ukf.xhat_[6] << " StdDev: " << sqrt(ukf.Phat_(6,6)) << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
 
