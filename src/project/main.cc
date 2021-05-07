@@ -268,12 +268,18 @@ int main(int argc, char** argv) {
 	// double var_in = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
+	//process noise for Cd estimation
+	double var_Cd = 0.001;
+
 
 	//construct rest of Q
 	Q_sub(0,0) = var_rad;
 	Q_sub(1,1) = var_in;
 	Q_sub(2,2) = var_cross;
-	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(6,6);
+	Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(7,7);
+
+	//constant element for Cd
+	Q(6,6) = var_Cd;
 
 	// timing
 	double dt; //seconds for propagation
@@ -302,27 +308,29 @@ int main(int argc, char** argv) {
 	Estimate::UKF ukf;
 
 	//initial estimate
-	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(6,6);
-	Phat0.block(0,0,3,3) = 10.0*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(7,7);
+	// Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
+	// Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
 
-	// //values from backwards prop
-	// Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
-	// Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
+	//values from backwards prop
+	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
+	Phat0(6,6) = var_Cd;
 
-	Eigen::VectorXd xhat0(6);
+	Eigen::VectorXd xhat0(7);
 	xhat0.segment(0,3) = pos0;
 	xhat0.segment(3,3) = vel0;
+	xhat0[6] = propobj.C_D_;
 	
 	ukf.Phat_ = Phat0;
 	ukf.xhat_ = xhat0;
 	ukf.k_ = 0.5;
 	// ukf.k_ = 0.9;
-	ukf.n_ = 6;
+	ukf.n_ = xhat0.size();
 	ukf.m_ = 2;
 
 	//number of sigma points
-	int Nsig = 2*6 + 1;
+	int Nsig = 2*xhat0.size() + 1;
 
 
 	//load the measurements
@@ -340,8 +348,8 @@ int main(int argc, char** argv) {
 	std::vector<VehicleState::Propagator> propobj_vec(Nsig, propobj);
 
 	//initialize data storage
-	Eigen::MatrixXd xhat_mat = Eigen::MatrixXd::Zero(6,N);
-	Eigen::MatrixXd Phat_mat = Eigen::MatrixXd::Zero(36,N);
+	Eigen::MatrixXd xhat_mat = Eigen::MatrixXd::Zero(7,N);
+	Eigen::MatrixXd Phat_mat = Eigen::MatrixXd::Zero(49,N);
 	Eigen::MatrixXd Pyy_mat = Eigen::MatrixXd::Zero(4,N);
 	Eigen::MatrixXd prefit_res = Eigen::MatrixXd::Zero(2,N);
 	Eigen::MatrixXd postfit_res = Eigen::MatrixXd::Zero(2,N);
@@ -396,6 +404,7 @@ int main(int argc, char** argv) {
 		//assign
 		propobj_vec[i].pos_ = xi.segment(0,3);
 		propobj_vec[i].vel_ = xi.segment(3,3);
+		propobj_vec[i].C_D_ = xi[6];
 
 		//predicted measurement
 		Y.block(0,i,2,1) = propobj_vec[i].GetRangeAndRate(obs_station_iter, tof) + bias_iter;
@@ -419,6 +428,7 @@ int main(int argc, char** argv) {
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
 	propobj.vel_ = ukf.xhat_.segment(3,3);
+	propobj.C_D_ = ukh.xhat_[6];
 	Eigen::Vector2d postfit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//store data
