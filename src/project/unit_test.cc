@@ -44,6 +44,8 @@ int main() {
 	Eigen::MatrixXd r_ECF_test = Util::LoadDatFile("../data/r_ECF_test.csv",1,3);
 	Eigen::Vector3d pos_ECEF2(r_ECF_test(0,0), r_ECF_test(0,1), r_ECF_test(0,2));
 
+	std::cout << "ECEF Test Position: \n" << pos_ECEF2 << "\n";
+
 	//reset julian date to project epoch
 	t_JD = Util::JulianDateNatural2JD(2018.0, 3.0, 23.0, 8.0, 55.0, 3.0);
 
