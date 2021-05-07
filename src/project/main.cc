@@ -198,9 +198,9 @@ int main(int argc, char** argv) {
 		// var_i = 5.0*pow(10.0,-15.0); //used for NAG1
 		// var_i = 1.0*pow(10.0,-19.0); //used for finding bias
 		writeresiduals = true;
-		// R1(1,1) = 10000000;
-		// R2(1,1) = 10000000;
-		// R3(1,1) = 10000000;
+		R1(1,1) = 10000000;
+		R2(1,1) = 10000000;
+		R3(1,1) = 10000000;
 	}
 
 	// stations 1 and 2 only
