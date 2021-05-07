@@ -237,7 +237,7 @@ int main() {
 		propobj.t_ = lighttime_truth(i,6);
 
 		//approximate measurement
-		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, tof);
+		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, 0.0*tof);
 
 		// exit(0);
 
