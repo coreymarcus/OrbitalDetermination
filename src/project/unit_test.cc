@@ -203,7 +203,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		propobj.Propagate(-1.0*tof,false);
+		// propobj.Propagate(-1.0*tof,false);
 
 		pos1 = propobj.pos_;
 		vel1 = propobj.vel_;
