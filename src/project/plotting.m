@@ -120,13 +120,13 @@ ylabel('Range [m]')
 legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(station1idx,2)/3600,1000*postfit(2,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,100*1000*postfit(2,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,1000*postfit(2,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,1000*postfit(2,station3idx),4,'filled')
+scatter(z(station2idx,2)/3600,100*1000*postfit(2,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,100*1000*postfit(2,station3idx),4,'filled')
 % plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
 % plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
-ylabel('Range Rate [m/sec]')
+ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
 grid on
 legend('Station 1','Station 2','Station 3')
@@ -145,14 +145,14 @@ ylabel('Range [m]')
 legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(station1idx,2)/3600,1000*prefit(2,station1idx),4,'filled')
+scatter(z(station1idx,2)/3600,100*1000*prefit(2,station1idx),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,1000*prefit(2,station2idx),4,'filled')
-scatter(z(station3idx,2)/3600,1000*prefit(2,station3idx),4,'filled')
+scatter(z(station2idx,2)/3600,100*1000*prefit(2,station2idx),4,'filled')
+scatter(z(station3idx,2)/3600,100*1000*prefit(2,station3idx),4,'filled')
 % plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
 % plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
-ylabel('Range Rate [m/sec]')
+ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
 legend('Station 1','Station 2','Station 3')
 
@@ -170,14 +170,14 @@ ylabel('Range [m]')
 legend('Station 1','Station 2','Station 3')
 
 subplot(2,1,2)
-scatter(z(station1idx,2)/3600,1000*(postfit(2,station1idx) - prefit(2,station1idx)),4,'filled')
+scatter(z(station1idx,2)/3600,100*1000*(postfit(2,station1idx) - prefit(2,station1idx)),4,'filled')
 hold on
-scatter(z(station2idx,2)/3600,1000*(postfit(2,station2idx) - prefit(2,station2idx)),4,'filled')
-scatter(z(station3idx,2)/3600,1000*(postfit(2,station3idx) - prefit(2,station3idx)),4,'filled')
+scatter(z(station2idx,2)/3600,100*1000*(postfit(2,station2idx) - prefit(2,station2idx)),4,'filled')
+scatter(z(station3idx,2)/3600,100*1000*(postfit(2,station3idx) - prefit(2,station3idx)),4,'filled')
 % plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
 % plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
-ylabel('Range Rate [m/sec]')
+ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
 legend('Station 1','Station 2','Station 3')
 
