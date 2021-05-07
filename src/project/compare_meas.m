@@ -19,9 +19,9 @@ pred_ECI = csvread("../../data/pred_ECIpos.csv")';
 err = LEO_DATA_Apparent(:,3:4)' - pred_meas;
 
 %ECI error
-err1 = 1000*(r_ECI1 - pred_ECI);
-err2 = 1000*(r_ECI2 - pred_ECI);
-err3 = 1000*(r_ECI1 - r_ECI2);
+err1 = 100*1000*(r_ECI1 - pred_ECI);
+err2 = 100*1000*(r_ECI2 - pred_ECI);
+err3 = 100*1000*(r_ECI1 - r_ECI2);
 
 %time
 t = LEO_DATA_Apparent(:,2);
