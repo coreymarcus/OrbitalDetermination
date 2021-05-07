@@ -272,7 +272,8 @@ int main(int argc, char** argv) {
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 	//process noise for Cd estimation
-	double var_Cd = 1.0*pow(10.0,-7.0);
+	double var_Cd = 1.0*pow(10.0,-10.0);
+	std::cout << "var_Cd: " << var_Cd << "\n";
 
 
 	//construct rest of Q
