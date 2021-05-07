@@ -408,6 +408,7 @@ int main(int argc, char** argv) {
 	}
 
 	//assign estimate to propobj for residual calculation
+	propobj.Propagate(tof,false);
 	Eigen::Vector2d prefit_pred = propobj.GetRangeAndRate(obs_station_iter, tof) + bias_iter;
 
 	//use these sigma points to find an estimate
