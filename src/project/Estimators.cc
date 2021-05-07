@@ -180,7 +180,7 @@ namespace Estimate{
 			Pxy = Pxy + w(i)*diffX*diffY.transpose();
 		}
 		// std::cout << "Pyy: \n" << Pyy << "\n";
-		// std::cout << "Pxy: \n" << Pxy << "\n";
+		std::cout << "Pxy: \n" << Pxy << "\n";
 
 		//update state
 		this->xhat_ = xhat + Pxy*Pyy.inverse()*(y - yhat);
