@@ -629,7 +629,7 @@ namespace VehicleState {
 		// std::cout << accel_station_pef << "\n";
 
 		//station PEF acceleration with a different method specified by vallado
-		Eigen::Vector3d accel_station_pef = 3.0*earthrot_vec.cross(vel_station_pef);
+		Eigen::Vector3d accel_station_pef = 1.0*earthrot_vec.cross(vel_station_pef);
 
 		// std::cout << accel_station_pef2 << "\n";
 
