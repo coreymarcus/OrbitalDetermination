@@ -168,6 +168,7 @@ int main() {
 
 	// load true state and measurements
 	Eigen::MatrixXd lighttime_truth = Util::LoadDatFile("../data/lighttime_truth.csv",113, 7);
+	std::cout << "here!\n";
 	Eigen::MatrixXd true_meas = Util::LoadDatFile("../data/LEO_Data_Apparent.csv",113, 4);
 	//initialize predicted measurements
 	Eigen::MatrixXd pred_meas = Eigen::MatrixXd::Zero(2,113);
@@ -203,7 +204,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		// propobj.Propagate(-1.0*tof,false);
+		propobj.Propagate(-1.0*tof,false);
 
 		pos1 = propobj.pos_;
 		vel1 = propobj.vel_;
@@ -237,7 +238,7 @@ int main() {
 		propobj.t_ = lighttime_truth(i,6);
 
 		//approximate measurement
-		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, 0.0*tof);
+		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, tof);
 
 		// exit(0);
 

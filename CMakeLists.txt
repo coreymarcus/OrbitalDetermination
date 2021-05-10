@@ -31,9 +31,9 @@ add_executable(project src/project/main.cc
 	src/project/Util.cc
 	src/project/VehicleState.cc
 	src/project/Estimators.cc)
-add_executable(project_cost src/project/main_cost.cc
-	src/project/Util.cc
-	src/project/VehicleState.cc)
+# add_executable(project_cost src/project/main_cost.cc
+# 	src/project/Util.cc
+# 	src/project/VehicleState.cc)
 add_executable(unit_test src/project/unit_test.cc
 	src/project/Util.cc
 	src/project/VehicleState.cc)
@@ -85,6 +85,6 @@ find_package(Eigen3 3.3 REQUIRED)
 
 target_link_libraries(project Eigen3::Eigen)
 
-target_link_libraries(project_cost Eigen3::Eigen)
+# target_link_libraries(project_cost Eigen3::Eigen)
 
 target_link_libraries(unit_test Eigen3::Eigen)
