@@ -168,7 +168,6 @@ int main() {
 
 	// load true state and measurements
 	Eigen::MatrixXd lighttime_truth = Util::LoadDatFile("../data/lighttime_truth.csv",113, 7);
-	std::cout << "here!\n";
 	Eigen::MatrixXd true_meas = Util::LoadDatFile("../data/LEO_Data_Apparent.csv",113, 4);
 	//initialize predicted measurements
 	Eigen::MatrixXd pred_meas = Eigen::MatrixXd::Zero(2,113);

@@ -116,9 +116,9 @@ int main(int argc, char** argv) {
 	R3(1,1) = pow(0.5/1000000.0,2);
 
 	//underweight range measurements
-	// R1(1,1) = 2.0*R1(1,1);
-	// R2(1,1) = 2.0*R2(1,1);
-	// R3(1,1) = 2.0*R3(1,1);
+	R1(1,1) = 2.0*R1(1,1);
+	R2(1,1) = 2.0*R2(1,1);
+	R3(1,1) = 2.0*R3(1,1);
 
 	//observation station biases
 	Eigen::Vector2d bias1(0.0,0.0);
@@ -224,9 +224,9 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_only13.csv";
 		// var_i = 1.0*pow(10.0,-19.0);
 		R2 = 10000000*Eigen::Matrix2d::Identity(2,2);
-		R1(1,1) = 10000000;
-		R2(1,1) = 10000000;
-		R3(1,1) = 10000000;
+		// R1(1,1) = 10000000;
+		// R2(1,1) = 10000000;
+		// R3(1,1) = 10000000;
 	}
 
 	// stations 2 and 3 only
@@ -237,9 +237,9 @@ int main(int argc, char** argv) {
 		Phat_NAG_filename = "../data/Phat_only23.csv";
 		// var_i = 1.0*pow(10.0,-19.0);
 		R1 = 10000000*Eigen::Matrix2d::Identity(2,2);
-		R1(1,1) = 10000000;
-		R2(1,1) = 10000000;
-		R3(1,1) = 10000000;
+		// R1(1,1) = 10000000;
+		// R2(1,1) = 10000000;
+		// R3(1,1) = 10000000;
 	}
 
 
@@ -258,12 +258,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-12.0)*pow(10.0,-12.0); //try 1E-12 * 1E-12
 	// double var_in = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
 	// double var_cross = 1.0*pow(10.0,-12.5)*pow(10.0,-12.5);
-	double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
-	double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
-	double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
-	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
-	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
+	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
+	double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
+	double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
+	double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
 	// double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0);
 	// double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
 	// double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
@@ -306,12 +306,12 @@ int main(int argc, char** argv) {
 
 	//initial estimate
 	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(6,6);
-	// Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
-	// Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(0,0,3,3) = 10.0*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
 
-	//values from backwards prop
-	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
+	// //values from backwards prop
+	// Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
+	// Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
 
 	Eigen::VectorXd xhat0(6);
 	xhat0.segment(0,3) = pos0;

@@ -612,6 +612,7 @@ namespace VehicleState {
 		//modify earth rate
 		double LOD = matvec[4](0,0);
 		earthrot = earthrot*(1.0 - LOD/86400.0);
+		Eigen::Vector3d earthrot_vec{0.0, 0.0, earthrot};
 
 		//station PEF velocity
 		Eigen::Vector3d vel_station_pef;
@@ -619,11 +620,20 @@ namespace VehicleState {
 		vel_station_pef[1] = earthrot*pos_station_pef[0];
 		vel_station_pef[2] = 0.0;
 
-		//station PEF acceleration
-		Eigen::Vector3d accel_station_pef;
-		accel_station_pef[0] = -1.0*earthrot*earthrot*pos_station_pef[0];
-		accel_station_pef[1] = -1.0*earthrot*earthrot*pos_station_pef[1];
-		accel_station_pef[2] = 0.0;
+		// //station PEF acceleration
+		// Eigen::Vector3d accel_station_pef;
+		// accel_station_pef[0] = -1.0*earthrot*earthrot*pos_station_pef[0];
+		// accel_station_pef[1] = -1.0*earthrot*earthrot*pos_station_pef[1];
+		// accel_station_pef[2] = 0.0;
+
+		// std::cout << accel_station_pef << "\n";
+
+		//station PEF acceleration with a different method specified by vallado
+		Eigen::Vector3d accel_station_pef = 3.0*earthrot_vec.cross(vel_station_pef);
+
+		// std::cout << accel_station_pef2 << "\n";
+
+		// exit(0);
 
 		//station ECI velocity
 		Eigen::Vector3d vel_station_eci = Util::OrthoNormMat(matvec[0]*matvec[1]*matvec[2])*vel_station_pef;
