@@ -34,6 +34,8 @@ xhatE = csvread("../../data/xhat_E_NAG.csv");
 PhatE = csvread("../../data/Phat_E_NAG.csv");
 xhatF = csvread("../../data/xhat_F_NAG.csv");
 PhatF = csvread("../../data/Phat_F_NAG.csv");
+xhatG = csvread("../../data/xhat_G_NAG.csv");
+PhatG = csvread("../../data/Phat_G_NAG.csv");
 
 %data for NAG
 marcus_pos_caseA = xhatA(1:3);
@@ -42,12 +44,14 @@ marcus_pos_caseC = xhatC(1:3);
 marcus_pos_caseD = xhatD(1:3);
 marcus_pos_caseE = xhatE(1:3);
 marcus_pos_caseF = xhatF(1:3);
+marcus_pos_caseG = xhatG(1:3);
 marcus_poscov_caseA = PhatA(1:3,1:3);
 marcus_poscov_caseB = PhatB(1:3,1:3);
 marcus_poscov_caseC = PhatC(1:3,1:3);
 marcus_poscov_caseD = PhatD(1:3,1:3);
 marcus_poscov_caseE = PhatE(1:3,1:3);
 marcus_poscov_caseF = PhatF(1:3,1:3);
+marcus_poscov_caseG = PhatG(1:3,1:3);
 save("marcus.mat","marcus*");
 
 %target indexes for plotting
@@ -63,7 +67,8 @@ truth24hours = [-6330.16736001325;
     -0.235613730204275];
 
 %get orbital elements for best estimate
-best_est = truth24hours;
+% best_est = truth24hours;
+best_est = xhatF;
 d2r = pi/180;
 [~, ~, i, Ohm, w, theta] = FunState2OE(best_est(1:3),best_est(4:6));
 
@@ -79,12 +84,14 @@ devC = R_total*(xhatC(1:3) - best_est(1:3));
 devD = R_total*(xhatD(1:3) - best_est(1:3));
 devE = R_total*(xhatE(1:3) - best_est(1:3));
 devF = R_total*(xhatF(1:3) - best_est(1:3));
+devG = R_total*(xhatG(1:3) - best_est(1:3));
 PhatdevA = R_total*PhatA*R_total';
 PhatdevB = R_total*PhatB*R_total';
 PhatdevC = R_total*PhatC*R_total';
 PhatdevD = R_total*PhatD*R_total';
 PhatdevE = R_total*PhatE*R_total';
 PhatdevF = R_total*PhatF*R_total';
+PhatdevG = R_total*PhatG*R_total';
 
 % [~, ~, i, Ohm, w, theta] = FunState2OE([100; .001; .001],[0; 100; 0]);
 % R_ECI2PQW = angle2dcm(Ohm*d2r,i*d2r,w*d2r,'ZXZ');
@@ -202,12 +209,14 @@ scatter(devC(1),devC(2),'x')
 scatter(devD(1),devD(2),'x')
 scatter(devE(1),devE(2),'x')
 scatter(devF(1),devF(2),'x')
+scatter(devG(1),devG(2),'x')
 plot_elipse(xyfig,PhatdevA([1 2],[1 2]),devA([1 2]),sigval,'',false)
 plot_elipse(xyfig,PhatdevB([1 2],[1 2]),devB([1 2]),sigval,'',false)
 plot_elipse(xyfig,PhatdevC([1 2],[1 2]),devC([1 2]),sigval,'',false)
 plot_elipse(xyfig,PhatdevD([1 2],[1 2]),devD([1 2]),sigval,'',false)
 plot_elipse(xyfig,PhatdevE([1 2],[1 2]),devE([1 2]),sigval,'',false)
 plot_elipse(xyfig,PhatdevF([1 2],[1 2]),devF([1 2]),sigval,'',false)
+plot_elipse(xyfig,PhatdevG([1 2],[1 2]),devG([1 2]),sigval,'',false)
 xlabel('Radial [km]')
 ylabel('In Track [km]')
 text(devA(1)+.005,devA(2),'A')
@@ -216,6 +225,7 @@ text(devC(1)+.005,devC(2),'C')
 text(devD(1)+.005,devD(2),'D')
 text(devE(1)-.005,devE(2),'E')
 text(devF(1)+.005,devF(2),'F')
+text(devG(1)+.005,devG(2),'G')
 
 xzfig = figure;
 scatter(devA(1),devA(3),'x')
@@ -225,12 +235,14 @@ scatter(devC(1),devC(3),'x')
 scatter(devD(1),devD(3),'x')
 scatter(devE(1),devE(3),'x')
 scatter(devF(1),devF(3),'x')
+scatter(devG(1),devG(3),'x')
 plot_elipse(xzfig,PhatdevA([1 3],[1 3]),devA([1 3]),sigval,'',false)
 plot_elipse(xzfig,PhatdevB([1 3],[1 3]),devB([1 3]),sigval,'',false)
 plot_elipse(xzfig,PhatdevC([1 3],[1 3]),devC([1 3]),sigval,'',false)
 plot_elipse(xzfig,PhatdevD([1 3],[1 3]),devD([1 3]),sigval,'',false)
 plot_elipse(xzfig,PhatdevE([1 3],[1 3]),devE([1 3]),sigval,'',false)
 plot_elipse(xzfig,PhatdevF([1 3],[1 3]),devF([1 3]),sigval,'',false)
+plot_elipse(xzfig,PhatdevG([1 3],[1 3]),devG([1 3]),sigval,'',false)
 xlabel('Radial [km]')
 ylabel('Cross Track [km]')
 text(devA(1)+.005,devA(3),'A')
@@ -239,6 +251,7 @@ text(devC(1)+.005,devC(3),'C')
 text(devD(1)+.005,devD(3),'D')
 text(devE(1)-.005,devE(3),'E')
 text(devF(1)+.005,devF(3),'F')
+text(devG(1)+.005,devG(3),'G')
 
 yzfig = figure;
 scatter(devA(2),devA(3),'x')
@@ -248,12 +261,14 @@ scatter(devC(2),devC(3),'x')
 scatter(devD(2),devD(3),'x')
 scatter(devE(2),devE(3),'x')
 scatter(devF(2),devF(3),'x')
+scatter(devG(2),devG(3),'x')
 plot_elipse(yzfig,PhatdevA([2 3],[2 3]),devA([2 3]),sigval,'',false)
 plot_elipse(yzfig,PhatdevB([2 3],[2 3]),devB([2 3]),sigval,'',false)
 plot_elipse(yzfig,PhatdevC([2 3],[2 3]),devC([2 3]),sigval,'',false)
 plot_elipse(yzfig,PhatdevD([2 3],[2 3]),devD([2 3]),sigval,'',false)
 plot_elipse(yzfig,PhatdevE([2 3],[2 3]),devE([2 3]),sigval,'',false)
 plot_elipse(yzfig,PhatdevF([2 3],[2 3]),devF([2 3]),sigval,'',false)
+plot_elipse(yzfig,PhatdevG([2 3],[2 3]),devG([2 3]),sigval,'',false)
 xlabel('In Track [km]')
 ylabel('Cross Track [km]')
 text(devA(2)+.005,devA(3),'A')
@@ -262,4 +277,5 @@ text(devC(2)+.005,devC(3),'C')
 text(devD(2)+.005,devD(3),'D')
 text(devE(2)-.005,devE(3),'E')
 text(devF(2)+.005,devF(3),'F')
+text(devG(2)+.005,devG(3),'G')
 
