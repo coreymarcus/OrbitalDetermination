@@ -269,7 +269,8 @@ int main(int argc, char** argv) {
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 	//process noise for Cd estimation
-	double var_Cd = 1.0*pow(10.0,-20.0);
+	double var_Cd = 0.0;
+	// double var_Cd = 1.0*pow(10.0,-20.0);
 	std::cout << "var_Cd: " << var_Cd << "\n";
 
 
@@ -307,13 +308,14 @@ int main(int argc, char** argv) {
 
 	//initial estimate
 	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(7,7);
-	// Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
-	// Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(0,0,3,3) = 10.0*Eigen::MatrixXd::Identity(3,3);
+	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
+	Phat0(6,6) = 0.1;
 
 	//values from backwards prop
-	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0(6,6) = 0.1;
+	// Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
+	// Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
+	// Phat0(6,6) = 0.1;
 
 	Eigen::VectorXd xhat0(7);
 	xhat0.segment(0,3) = pos0;
