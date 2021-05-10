@@ -12,3 +12,6 @@ data/iau1980 - Copy.txt
 data/iau1980.txt
 *.mat
 *.xlsx
+*.prj
+*.slx
+*/codegen/*
