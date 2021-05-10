@@ -14,4 +14,4 @@ data/iau1980.txt
 *.xlsx
 *.prj
 *.slx
-*/codegen/*
+src/HW5/codegen/*
