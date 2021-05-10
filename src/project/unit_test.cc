@@ -203,7 +203,7 @@ int main() {
 		double tof = true_meas(i,2)/c;
 
 		//propagate backwards in time to measurement
-		propobj.Propagate(-1.0*tof,false);
+		// propobj.Propagate(-1.0*tof,false);
 
 		pos1 = propobj.pos_;
 		vel1 = propobj.vel_;
@@ -237,7 +237,19 @@ int main() {
 		propobj.t_ = lighttime_truth(i,6);
 
 		//approximate measurement
-		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, tof);
+		pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, 1.0*tof);
+
+		// for (int j = 0; j < 5; ++j){
+
+		// 	//approximate measurement
+		// 	pred_meas.block(0,i,2,1) = propobj.GetRangeAndRate(obs_station_iter, 1.0*tof);
+
+		// 	std::cout << "Change in ToF: " << tof - pred_meas(0,i)/c << "\n";
+
+		// 	//reset time of flight
+		// 	tof = pred_meas(0,i)/c;
+		// }
+		
 
 		// exit(0);
 

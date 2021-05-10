@@ -611,7 +611,7 @@ namespace VehicleState {
 
 		//modify earth rate
 		double LOD = matvec[4](0,0);
-		earthrot = earthrot*(1.0 - LOD/86400.0);
+		// earthrot = earthrot*(1.0 - LOD/86400.0);
 		Eigen::Vector3d earthrot_vec{0.0, 0.0, earthrot};
 
 		//station PEF velocity
