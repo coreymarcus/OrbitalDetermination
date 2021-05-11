@@ -68,8 +68,8 @@ truth24hours = [-6330.16736001325;
     -0.235613730204275];
 
 %get orbital elements for best estimate
-best_est = truth24hours;
-% best_est = xhatF;
+% best_est = truth24hours;
+best_est = xhatF;
 d2r = pi/180;
 [~, ~, i, Ohm, w, theta] = FunState2OE(best_est(1:3),best_est(4:6));
 
@@ -85,16 +85,16 @@ devC = R_total*(xhatC(1:3) - best_est(1:3));
 devD = R_total*(xhatD(1:3) - best_est(1:3));
 devE = R_total*(xhatE(1:3) - best_est(1:3));
 devF = R_total*(xhatF(1:3) - best_est(1:3));
-% devG = R_total*(xhatG(1:3) - best_est(1:3));
-devG = 0*R_total*(xhatG(1:3) - best_est(1:3));
+devG = R_total*(xhatG(1:3) - best_est(1:3));
+% devG = 0*R_total*(xhatG(1:3) - best_est(1:3));
 PhatdevA = R_total*PhatA*R_total';
 PhatdevB = R_total*PhatB*R_total';
 PhatdevC = R_total*PhatC*R_total';
 PhatdevD = R_total*PhatD*R_total';
 PhatdevE = R_total*PhatE*R_total';
 PhatdevF = R_total*PhatF*R_total';
-% PhatdevG = R_total*PhatG*R_total';
-PhatdevG = 0*R_total*PhatG*R_total';
+PhatdevG = R_total*PhatG*R_total';
+% PhatdevG = 0*R_total*PhatG*R_total';
 
 % [~, ~, i, Ohm, w, theta] = FunState2OE([100; .001; .001],[0; 100; 0]);
 % R_ECI2PQW = angle2dcm(Ohm*d2r,i*d2r,w*d2r,'ZXZ');
