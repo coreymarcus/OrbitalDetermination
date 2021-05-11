@@ -20,8 +20,8 @@ Phat = csvread("../../data/Phat_proj.csv");
 prefit = csvread("../../data/prefit_res_proj.csv");
 postfit = csvread("../../data/postfit_res_proj.csv");
 Pyy = csvread("../../data/Pyy_proj.csv");
-% z = csvread("../../data/meas_proj_set1.csv");
-z = csvread("../../data/meas_proj_set3.csv");
+z = csvread("../../data/meas_proj_set1.csv");
+% z = csvread("../../data/meas_proj_set3.csv");
 xhatA = csvread("../../data/xhat_A_NAG.csv");
 PhatA = csvread("../../data/Phat_A_NAG.csv");
 xhatB = csvread("../../data/xhat_B_NAG.csv");
@@ -67,8 +67,8 @@ truth24hours = [-6330.16736001325;
     -0.235613730204275];
 
 %get orbital elements for best estimate
-% best_est = truth24hours;
-best_est = xhatF;
+best_est = truth24hours;
+% best_est = xhatF;
 d2r = pi/180;
 [~, ~, i, Ohm, w, theta] = FunState2OE(best_est(1:3),best_est(4:6));
 
@@ -84,14 +84,16 @@ devC = R_total*(xhatC(1:3) - best_est(1:3));
 devD = R_total*(xhatD(1:3) - best_est(1:3));
 devE = R_total*(xhatE(1:3) - best_est(1:3));
 devF = R_total*(xhatF(1:3) - best_est(1:3));
-devG = R_total*(xhatG(1:3) - best_est(1:3));
+% devG = R_total*(xhatG(1:3) - best_est(1:3));
+devG = 0*R_total*(xhatG(1:3) - best_est(1:3));
 PhatdevA = R_total*PhatA*R_total';
 PhatdevB = R_total*PhatB*R_total';
 PhatdevC = R_total*PhatC*R_total';
 PhatdevD = R_total*PhatD*R_total';
 PhatdevE = R_total*PhatE*R_total';
 PhatdevF = R_total*PhatF*R_total';
-PhatdevG = R_total*PhatG*R_total';
+% PhatdevG = R_total*PhatG*R_total';
+PhatdevG = 0*R_total*PhatG*R_total';
 
 % [~, ~, i, Ohm, w, theta] = FunState2OE([100; .001; .001],[0; 100; 0]);
 % R_ECI2PQW = angle2dcm(Ohm*d2r,i*d2r,w*d2r,'ZXZ');
@@ -119,8 +121,8 @@ scatter(z(station1idx,2)/3600,1000*postfit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*postfit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*postfit(1,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Post-Fit Residuals')
 grid on
 ylabel('Range [m]')
@@ -131,8 +133,8 @@ scatter(z(station1idx,2)/3600,100*1000*postfit(2,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,100*1000*postfit(2,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,100*1000*postfit(2,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
 grid on
@@ -144,8 +146,8 @@ scatter(z(station1idx,2)/3600,1000*prefit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*prefit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*prefit(1,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Pre-Fit Residuals')
 grid on
 ylabel('Range [m]')
@@ -156,8 +158,8 @@ scatter(z(station1idx,2)/3600,100*1000*prefit(2,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,100*1000*prefit(2,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,100*1000*prefit(2,station3idx),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
+plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
 ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
@@ -169,8 +171,6 @@ scatter(z(station1idx,2)/3600,1000*(postfit(1,station1idx) - prefit(1,station1id
 hold on
 scatter(z(station2idx,2)/3600,1000*(postfit(1,station2idx) - prefit(1,station2idx)),4,'filled')
 scatter(z(station3idx,2)/3600,1000*(postfit(1,station3idx) - prefit(1,station3idx)),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(1,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(1,idxs)),'r')
 title('Update in Residuals')
 grid on
 ylabel('Range [m]')
@@ -181,8 +181,6 @@ scatter(z(station1idx,2)/3600,100*1000*(postfit(2,station1idx) - prefit(2,statio
 hold on
 scatter(z(station2idx,2)/3600,100*1000*(postfit(2,station2idx) - prefit(2,station2idx)),4,'filled')
 scatter(z(station3idx,2)/3600,100*1000*(postfit(2,station3idx) - prefit(2,station3idx)),4,'filled')
-% plot(z(idxs,2)/3600,1000*3*sqrt(Pyy(4,idxs)),'r')
-% plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy(4,idxs)),'r')
 grid on
 ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
@@ -220,12 +218,12 @@ plot_elipse(xyfig,PhatdevG([1 2],[1 2]),devG([1 2]),sigval,'',false)
 xlabel('Radial [km]')
 ylabel('In Track [km]')
 text(devA(1)+.005,devA(2),'A')
-text(devB(1)+.005,devB(2),'B')
+text(devB(1)+.005,devB(2)-.005,'B')
 text(devC(1)+.005,devC(2),'C')
 text(devD(1)+.005,devD(2),'D')
 text(devE(1)-.005,devE(2),'E')
 text(devF(1)+.005,devF(2),'F')
-text(devG(1)+.005,devG(2),'G')
+text(devG(1)+.005,devG(2)+.005,'G')
 
 xzfig = figure;
 scatter(devA(1),devA(3),'x')
@@ -246,12 +244,12 @@ plot_elipse(xzfig,PhatdevG([1 3],[1 3]),devG([1 3]),sigval,'',false)
 xlabel('Radial [km]')
 ylabel('Cross Track [km]')
 text(devA(1)+.005,devA(3),'A')
-text(devB(1)+.005,devB(3),'B')
+text(devB(1)+.005,devB(3)-.005,'B')
 text(devC(1)+.005,devC(3),'C')
 text(devD(1)+.005,devD(3),'D')
 text(devE(1)-.005,devE(3),'E')
 text(devF(1)+.005,devF(3),'F')
-text(devG(1)+.005,devG(3),'G')
+text(devG(1)+.005,devG(3)+.005,'G')
 
 yzfig = figure;
 scatter(devA(2),devA(3),'x')
@@ -272,10 +270,10 @@ plot_elipse(yzfig,PhatdevG([2 3],[2 3]),devG([2 3]),sigval,'',false)
 xlabel('In Track [km]')
 ylabel('Cross Track [km]')
 text(devA(2)+.005,devA(3),'A')
-text(devB(2)+.005,devB(3),'B')
+text(devB(2)+.005,devB(3)-.005,'B')
 text(devC(2)+.005,devC(3),'C')
 text(devD(2)+.005,devD(3),'D')
 text(devE(2)-.005,devE(3),'E')
 text(devF(2)+.005,devF(3),'F')
-text(devG(2)+.005,devG(3),'G')
+text(devG(2)+.005,devG(3)+.005,'G')
 
