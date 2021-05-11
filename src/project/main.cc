@@ -369,7 +369,8 @@ int main(int argc, char** argv) {
 	//initialize data storage
 	Eigen::MatrixXd xhat_mat = Eigen::MatrixXd::Zero(6,N);
 	Eigen::MatrixXd Phat_mat = Eigen::MatrixXd::Zero(36,N);
-	Eigen::MatrixXd Pyy_mat = Eigen::MatrixXd::Zero(4,N);
+	Eigen::MatrixXd Pyy_pre_mat = Eigen::MatrixXd::Zero(4,N);
+	Eigen::MatrixXd Pyy_post_mat = Eigen::MatrixXd::Zero(4,N);
 	Eigen::MatrixXd prefit_res = Eigen::MatrixXd::Zero(2,N);
 	Eigen::MatrixXd postfit_res = Eigen::MatrixXd::Zero(2,N);
 
@@ -441,7 +442,8 @@ int main(int argc, char** argv) {
 	std::cout << "Measurement 1: \n" << ziter << "\n";
 	std::cout << "Prediction 1: \n" << prefit_pred << "\n";
 
-	Eigen::MatrixXd Pyy = ukf.CalcEstimate(ziter, Y);
+	Eigen::MatrixXd Pyy_pre = ukf.CalcEstimate(ziter, Y);
+	Eigen::MatrixXd Pyy_post = Pyy_pre; //wrong for first measurement but lazy
 
 	//assign estimate to propobj for residual calculation
 	propobj.pos_ = ukf.xhat_.segment(0,3);
@@ -451,9 +453,11 @@ int main(int argc, char** argv) {
 	//store data
 	xhat_mat.block(startidx,0,6,1) = ukf.xhat_;
 	Eigen::Map<Eigen::VectorXd> Phat_vec(ukf.Phat_.data(), ukf.Phat_.size());
-	Eigen::Map<Eigen::VectorXd> Pyy_vec(Pyy.data(), Pyy.size());
+	Eigen::Map<Eigen::VectorXd> Pyy_pre_vec(Pyy_pre.data(), Pyy_pre.size());
+	Eigen::Map<Eigen::VectorXd> Pyy_post_vec(Pyy_post.data(), Pyy_post.size());
 	Phat_mat.block(startidx,0,36,1) = Phat_vec;
-	Pyy_mat.block(startidx,0,4,1) = Pyy_vec;
+	Pyy_pre_mat.block(startidx,0,4,1) = Pyy_pre_vec;
+	Pyy_post_mat.block(startidx,0,4,1) = Pyy_post_vec;
 	prefit_res.block(startidx,0,2,1) = ziter - prefit_pred - bias_iter;
 	postfit_res.block(startidx,0,2,1) = ziter - postfit_pred - bias_iter;
 
@@ -672,7 +676,7 @@ int main(int argc, char** argv) {
 		ziter = z.block(ii,2,1,2).transpose();
 
 		//perform update
-		Pyy = ukf.CalcEstimate(ziter, Y);
+		Pyy_pre = ukf.CalcEstimate(ziter, Y);
 		ukf.GetSigmaPoints();
 
 		//get postfit predicted measurement
@@ -700,6 +704,13 @@ int main(int argc, char** argv) {
 			postfit_pred += ukf.w_[j]*Y.block(0,j,2,1);
 		}
 
+		//find Pyy_post
+		Pyy_post = ukf.R_;
+		for (int j = 0; j < Nsig; ++j)	{
+			Eigen::Vector2d diffY = Y.block(0,j,2,1) - postfit_pred;
+			Pyy_post += ukf.w_(j)*diffY*diffY.transpose();
+		}
+
 		//assign estimate to propobj for residual calculation
 		propobj.pos_ = ukf.xhat_.segment(0,3);
 		propobj.vel_ = ukf.xhat_.segment(3,3);
@@ -714,9 +725,11 @@ int main(int argc, char** argv) {
 		//store data
 		xhat_mat.block(0,ii,6,1) = ukf.xhat_;
 		Eigen::Map<Eigen::VectorXd> Phat_vec_iter(ukf.Phat_.data(), ukf.Phat_.size());
-		Eigen::Map<Eigen::VectorXd> Pyy_vec_iter(Pyy.data(), Pyy.size());
+		Eigen::Map<Eigen::VectorXd> Pyy_pre_vec_iter(Pyy_pre.data(), Pyy_pre.size());
+		Eigen::Map<Eigen::VectorXd> Pyy_post_vec_iter(Pyy_post.data(), Pyy_post.size());
 		Phat_mat.block(0,ii,36,1) = Phat_vec_iter;
-		Pyy_mat.block(0,ii,4,1) = Pyy_vec_iter;
+		Pyy_pre_mat.block(0,ii,4,1) = Pyy_pre_vec_iter;
+		Pyy_post_mat.block(0,ii,4,1) = Pyy_post_vec_iter;
 		prefit_res.block(0,ii,2,1) = ziter - prefit_pred;
 		postfit_res.block(0,ii,2,1) = ziter - postfit_pred;
 
@@ -757,7 +770,8 @@ int main(int argc, char** argv) {
 	Util::Eigen2csv("../data/xhat_proj.csv", xhat_mat);
 	Util::Eigen2csv("../data/Phat_proj.csv", Phat_mat);
 	if (writeresiduals) {
-		Util::Eigen2csv("../data/Pyy_proj.csv", Pyy_mat);
+		Util::Eigen2csv("../data/Pyy_pre_proj.csv", Pyy_pre_mat);
+		Util::Eigen2csv("../data/Pyy_post_proj.csv", Pyy_post_mat);
 		Util::Eigen2csv("../data/prefit_res_proj.csv", prefit_res);
 		Util::Eigen2csv("../data/postfit_res_proj.csv", postfit_res);
 	}
