@@ -20,9 +20,9 @@ Phat = csvread("../../data/Phat_proj.csv");
 prefit = csvread("../../data/prefit_res_proj.csv");
 postfit = csvread("../../data/postfit_res_proj.csv");
 Pyy_pre = csvread("../../data/Pyy_pre_proj.csv");
-Pyy_post = csvread("../../data/Pyy_post_proj.csv");
-% z = csvread("../../data/meas_proj_set1.csv");
-z = csvread("../../data/meas_proj_set3.csv");
+Pyy_post = NaN*csvread("../../data/Pyy_post_proj.csv");
+z = csvread("../../data/meas_proj_set1.csv");
+% z = csvread("../../data/meas_proj_set3.csv");
 xhatA = csvread("../../data/xhat_A_NAG.csv");
 PhatA = csvread("../../data/Phat_A_NAG.csv");
 xhatB = csvread("../../data/xhat_B_NAG.csv");
@@ -122,12 +122,13 @@ scatter(z(station1idx,2)/3600,1000*postfit(1,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,1000*postfit(1,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,1000*postfit(1,station3idx),4,'filled')
+plot(z(:,2)/3600,20*ones(size(z(:,2))))
 plot(z(idxs,2)/3600,1000*3*sqrt(Pyy_post(1,idxs)),'r')
 plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy_post(1,idxs)),'r')
 title('Post-Fit Residuals')
 grid on
 ylabel('Range [m]')
-legend('Station 1','Station 2','Station 3')
+legend('Station 1','Station 2','Station 3','20 m Bias')
 
 subplot(2,1,2)
 scatter(z(station1idx,2)/3600,100*1000*postfit(2,station1idx),4,'filled')
