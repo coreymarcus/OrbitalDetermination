@@ -117,13 +117,14 @@ Another unsuccessful attempt was made to estimate $C_d$ with the UKF. The coeffi
 
 \begin{equation}
 \label{eq:P_xy}
-P_{xy} = \Delta t^2 \begin{bmatrix}
-\frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 \\
-0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 \\
-0 & 0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 \\
-\frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 & 0 \\
-0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 \\
-0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 \\	
+P_{xy} = \begin{bmatrix}
+    6.6535081737267152 & 0.0095716394089781307 \\
+   -6.1555964033719874 &  0.018602911245598531 \\
+    4.2235397458787887 &  0.012033468766868966 \\
+                     0 & 0.0066535427968655476 \\
+                     0 & -0.0061556321012348463 \\
+1.3552527156068805e-20 & 0.0042235721474275702 \\
+                     0 &                     0
 \end{bmatrix}
 \end{equation}
 
