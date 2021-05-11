@@ -4,26 +4,8 @@
 \usepackage{listings, xcolor}
 \usepackage{pdfpages}
 \usepackage{siunitx}
-\newcommand{\vb}{\boldsymbol}
-\newcommand{\vbh}[1]{\hat{\boldsymbol{#1}}}
-\newcommand{\vbb}[1]{\bar{\boldsymbol{#1}}}
-\newcommand{\vbt}[1]{\tilde{\boldsymbol{#1}}}
-\newcommand{\vbs}[1]{{\boldsymbol{#1}}^*}
-\newcommand{\vbd}[1]{\dot{{\boldsymbol{#1}}}}
-\newcommand{\vbdd}[1]{\ddot{{\boldsymbol{#1}}}}
-\newcommand{\by}{\times}
-\newcommand{\tr}{{\rm tr}}
-\newcommand{\cpe}[1]{\left[{#1} \times \right]}
-\newcommand{\sfrac}[2]{\textstyle \frac{#1}{#2}}
-\newcommand{\ba}{\begin{array}}
-\newcommand{\ea}{\end{array}}
-\renewcommand{\earth}{\oplus}
-\newcommand{\sinc}{{\rm \hspace{0.5mm} sinc}}
-\newcommand{\tf}{\tilde{f}}
-\newcommand{\tbox}[1]{\noindent \fbox{\parbox{\textwidth}{#1}}}
-\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
-\definecolor{mylilas}{RGB}{170,55,241}
-\definecolor{mygreen}{RGB}{0,168,45}
+\usepackage[margin=1in]{caption}
+\captionsetup[figure]{font=small,labelfont=small}
 
 
 \title{ASE 389P.4 Methods of Orbit Determination \\ Final Project Submission}
@@ -43,11 +25,11 @@
 \onehalfspace
 \maketitle
 
-\abstract{ {\bf Redo this }This phase of the project shows the initial attempt at orbital determination. The estimation scheme involves a nonlinear least-squares based estimator initialization followed by a standard Unscented Kalman Filter.}
+\abstract{This project showcases the skills learned during the Orbital Determination course. The estimation scheme involves a nonlinear least-squares based estimator initialization followed by a standard Unscented Kalman Filter.}
 
 \section{Introduction}
 
-This report documents the first stage of the final project. We are provided approximately 24 hours of satellite range and range-rate measurements from three ground based stations. Our objective is to use these measurements to deliver a satellite state estimate seven days after the initial epoch. \\
+This report documents the final project. We are provided approximately 6 days of satellite range and range-rate measurements from three ground based stations. Our objective is to use these measurements to deliver a satellite state estimate seven days after the initial epoch. \\
 
 The following sections document the methodology used, including system dynamics modeled, approximations made, and estimation schemes used. Then deliverables are displayed and discussed. Finally, estimator performance is evaluated.
 
@@ -75,7 +57,9 @@ Third body gravitational effects from the Sun and Moon were included. The accele
 
 \subsection{Measurement Model}
 
-A standard range and range-rate measurement model were used to generate predicted measurements. One difficulty is that the speed of light must be accounted for in determining when to utilize a measurement. Noting that the signal to noise ratio of the range measurements is extremely high, the measurement was used directly along with the speed of light in determining its time of flight. The measurement update was therefore applied at the time of receipt minus the time of flight. This time of flight was also used to account for aberration effects in the measurement model.
+A standard range and range-rate measurement model were used to generate predicted measurements. One difficulty is that the speed of light must be accounted for in determining when to utilize a measurement. Noting that the signal to noise ratio of the range measurements is extremely high, the measurement was used directly along with the speed of light in determining its time of flight. The measurement update was therefore applied at the time of receipt minus the time of flight. This time of flight was also used to account for aberration effects in the measurement model. \\
+
+Measurement biases were estimated by running the estimator while considering measurements from only two of the three stations. A measurement bias was found for one of the stations and is discussed in a following section.
 
 \subsection{Estimation}
 
@@ -90,7 +74,7 @@ Filter initialization is a challenge for many nonlinear extensions of the Kalman
 	J(x_0) = \sum_{i=0}^{i=50} \left( z_i - h(f_{0}^{i}(x_0)) \right)^2 
 \end{equation}
 
-The resulting $x0$ is shown in Equation \eqref{eq:LM_IC}. The units are $km$ and $km/s$. The initial estimate covariance, $P_0$, was chosen arbitrarily to achieve a filter which converged for all test cases. This matrix is shown in Equation \eqref{eq:P0}. To correspond with the state, the units are $km^2$ and $km^2/s^2$. $diag \{a, b, c, ... \}$ is shorthand for a diagonal matrix with its arguments on the diagonal.
+The resulting $x_0$ is shown in Equation \eqref{eq:LM_IC}. The units are $km$ and $km/s$. The initial estimate covariance, $P_0$, was chosen arbitrarily to achieve a filter which converged for all test cases. This matrix is shown in Equation \eqref{eq:P0}. To correspond with the state, the units are $km^2$ and $km^2/s^2$. $diag \{a, b, c, ... \}$ is shorthand for a diagonal matrix with its arguments on the diagonal.
 
 \begin{equation}
 	\label{eq:LM_IC}
@@ -129,25 +113,27 @@ P_{xy} = \begin{bmatrix}
 \end{equation}
 
 
-Process noise is an important component of estimation used to account for unmodeled dynamics and inputs to the system. The process noise covariance, $Q$, was modeled according to the suggestion in the Final Project Assignment and is shown in Equation \eqref{eq:Q}. The size of the component $\sigma^2$ was chosen manually to produce adequate filter performance. This value was found to be $\sigma^2 = 5$E$-15$.
+Process noise is an important component of estimation used to account for unmodeled dynamics and inputs to the system. The process noise covariance, $Q$, was modeled according to the suggestion in the Final Project Assignment and is shown in Equation \eqref{eq:Q}. Process noise was applied in the RIC frame to because uncertainties in drag tend to manifest primarily in the in-track direction. The size of the components $\sigma_R^2$, $\sigma_I^2$, $\sigma_C^2$ were chosen manually to produce adequate filter performance. These values was found to be: $\sigma_R = 1$E$-10$ km, $\sigma_I = 1$E$-9$ km, and $\sigma_C = 1$E$-10$ km.
 
 \begin{equation}
 \label{eq:Q}
 Q = \Delta t^2 \begin{bmatrix}
-\frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 \\
-0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 \\
-0 & 0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 \\
-\frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 & 0 \\
-0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 \\
-0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 \\	
+\frac{\Delta t^2}{4} \sigma_R^2 & 0 & 0 & \frac{\Delta t}{2} \sigma_R^2 & 0 & 0 \\
+0 & \frac{\Delta t^2}{4} \sigma_I^2 & 0 & 0 & \frac{\Delta t}{2} \sigma_I^2 & 0 \\
+0 & 0 & \frac{\Delta t^2}{4} \sigma_C^2 & 0 & 0 & \frac{\Delta t}{2} \sigma_C^2 \\
+\frac{\Delta t}{2} \sigma_R^2 & 0 & 0 & \sigma_R^2 & 0 & 0 \\
+0 & \frac{\Delta t}{2} \sigma_I^2 & 0 & 0 & \sigma_I^2 & 0 \\
+0 & 0 & \frac{\Delta t}{2} \sigma_C^2 & 0 & 0 & \sigma_C^2 \\	
 \end{bmatrix}
 \end{equation}
+
+No parameters were considered by my estimation scheme and no smoothing was performed.
 
 \section{Deliverables}
 
 \subsection{Prefit Residuals}
 
-Figure \ref{fig:prefit} shows the prefit measurement residuals when all measurement types and sensors are considered. To better demonstrate detail Figure \ref{fig:prefit_zoom} shows a zoomed-in plot of the measurement residuals.
+Figure \ref{fig:prefit} shows the prefit measurement residuals when all measurement types and sensors are considered. To better demonstrate detail Figure \ref{fig:prefit_zoom1} shows a zoomed-in plot of the measurement residuals.
 
 \begin{figure}[!htb]
 	\centering
@@ -158,10 +144,17 @@ Figure \ref{fig:prefit} shows the prefit measurement residuals when all measurem
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{figs/prefitres_zoom.png}
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/prefit_res_zoom1_final.pdf}
 	\caption{A zoomed for clarity view of the prefit measurement residuals for range (top) and range-rate (bottom).}
-	\label{fig:prefit_zoom}
+	\label{fig:prefit_zoom1}
 \end{figure}
+
+%\begin{figure}[!htb]
+%	\centering
+%	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/prefit_res_zoom2_final.pdf}
+%	\caption{A zoomed for clarity view of the prefit measurement residuals for range (top) and range-rate (bottom).}
+%	\label{fig:prefit_zoom2}
+%\end{figure}
 
 \subsection{Postfit Residuals}
 
@@ -176,55 +169,73 @@ Figure \ref{fig:postfit} shows the postfit measurement residuals when all measur
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{figs/postfitres_zoom.png}
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/postfit_res_zoom1_final.pdf}
 	\caption{A zoomed for clarity view of the postfit measurement residuals for range (top) and range-rate (bottom).}
 	\label{fig:postfit_zoom}
 \end{figure}
 
 \subsection{State Estimates at $\Delta V_1$}
 
-To investigate the consistency of the estimates, case F (all data and all sensors) was designated as the best estimated trajectory. A transformation was found to map vectors into the Radial-Intrack-Crosstrack (RQW) coordinate frame described by the best estimate. For each case, the associated deviation from best-estimate and estimate covariance was transformed into the RQW frame. Figures \ref{fig:rad_cross}, \ref{fig:rad_in}, and \ref{fig:cross_in} showcase these deviations and covariances.
+To investigate the consistency of the estimates, case F (all data and all sensors) was designated as the best estimated trajectory. A transformation was found to map vectors into the Radial-Intrack-Crosstrack (RIC) coordinate frame described by the best estimate. For each case, the associated deviation from best-estimate and estimate covariance was transformed into the RIC frame. Figures \ref{fig:rad_cross}, \ref{fig:rad_in}, and \ref{fig:cross_in} showcase these deviations and covariances. \\
+
+Note that the estimates for cases B, F, and G align very well and are difficult to distinguish.
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{figs/rad_cross.png}
-	\caption{The $\Delta V_1$ state estimates for each case expressed in the RQW frame defined by the best estimate. Shown here is a 2D slice of the estimates in the radial and crosstrack directions.}
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/RC_final.pdf}
+	\caption{The $\Delta V_1$ state estimates for each case expressed in the RIC frame defined by the best estimate. Shown here is a 2D slice of the estimates in the radial and crosstrack directions. The covariance ellipse is $3\sigma$.}
 	\label{fig:rad_cross}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{figs/rad_in.png}
-	\caption{The $\Delta V_1$ state estimates for each case expressed in the RQW frame defined by the best estimate. Shown here is a 2D slice of the estimates in the radial and intrack directions.}
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/RI_final.pdf}
+	\caption{The $\Delta V_1$ state estimates for each case expressed in the RIC frame defined by the best estimate. Shown here is a 2D slice of the estimates in the radial and intrack directions. The covariance ellipse is $3\sigma$.}
 	\label{fig:rad_in}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{figs/cross_in.png}
-	\caption{The $\Delta V_1$ state estimates for each case expressed in the RQW frame defined by the best estimate. Shown here is a 2D slice of the estimates in the intrack and crosstrack directions.}
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/CI_final.pdf}
+	\caption{The $\Delta V_1$ state estimates for each case expressed in the RIC frame defined by the best estimate. Shown here is a 2D slice of the estimates in the intrack and crosstrack directions. The covariance ellipse is $3\sigma$.}
 	\label{fig:cross_in}
 \end{figure}
 
- 
 \section{Discussion}
 
-From the Deliverables, we can form a variety of conclusions. We begin with a discussion of the prefit residuals. First we note that residuals at the beginning of the epoch are low, this indicates that our LM optimization scheme has most likely provided us an accurate initial state estimate. We also note that residuals are high immediately after a measurement gap; this is expected. Any estimation error immediately before a measurement gap is bound to grow during the nonlinear orbital propagation without any updates. Even if we had perfect estimation, error is bound to grow due to the unmodeled dynamics of our system. It is possible that our simplifications in dynamics modeling are contributing significantly to the growth of these residuals. We may be able to increase estimator performance by increasing the fidelity of our drag and SRP models. \\
+We can form a variety of conclusions from the deliverables. We begin with a discussion of the residuals. First we note that residuals at the beginning of the epoch are high, this indicates that our LM optimization scheme has most likely not provided us an accurate initial state estimate. Despite this, the UKF is able to recover from these initial errors and converge to an estimate. We also note that residuals are high immediately after a measurement gap; this is expected. Any estimation error immediately before a measurement gap is bound to grow during the nonlinear orbital propagation without any updates. Even if we had perfect estimation, error is bound to grow due to the unmodeled dynamics of our system. It is possible that our simplifications in dynamics modeling are contributing significantly to the growth of these residuals. We may be able to increase estimator performance by increasing the fidelity of our drag and SRP models. The frequency with which the range rate residuals exceed their $3\sigma$ bounds is also unexpected. This indicates some inaccuracy in the measurement or dynamics modeling. \\
 
-These large residuals also indicate that our estimate propagation to $\Delta V_1$ is likely to contain significant error. Another area for concern is the fact that many residuals are outside of their $3\sigma$ bounds. This shows that the filter is not accurately representing its own performance and is over-confident. A likely source of this behavior is mismodeled process noise. The process noise is likely too low and does not accurately encompass the differences between the model and truth. Another potential source of error is measurement biases. As discussed before, the system dynamics do not seem accurate enough to estimate these biases, further iterations of the project will attempt to do so. \\
+There is some periodicity in the residuals with a period of approximately 24 hours. I expect that this is due to inaccuracies in the ECI to ECEF transformation. When investigating the zoomed in segments of the residuals we see that the range residuals are approximately white while the range rate ones appear to have some structure. If my modeling and code was perfect, both would appear white. This indicates there is some error in the way range-rate measurements are predicted. The range rate measurement is very sensitive, so it is likely that the same ECI to ECEF transformation errors identified previously are also contributing to this structure. \\
 
-Next, we discuss the postfit residuals. Again, the residuals do not appear to change much in magnitude with time. This provides more evidence that the LM initial estimate is a relatively accurate one. There is clear structure in the postfit residuals for range measurements as they follow a roughly linear trend during each set of observations. This is not the expected performance for measurement residuals. Ideally, these postfit residuals should resemble white stochastic noise. The unmodeled structure can be accounted for to get better estimate performance at a later point in the project. Finally, a large number of the residuals exist outside of the $3\sigma$ boundaries. This all points to unmodeled system dynamics. \\
+Figure \ref{fig:res_change} shows the difference between prefit and postfit residuals. These changes do not go to zero, which is considered a good thing as it implies the filter is not becoming smug. However, there is more clear 24 hour periodicity evident in this plot. This indicates a flawed ECI to ECEF transformation. Notably, this periodicity is highest for stations 1 and 2. Station 3 is farthest from the equator so it may somehow be least effected by the transformation errors. \\ 
 
-Finally, we discuss the plots of our estimates in the RQW coordinate system. This segment of the project involves a day's worth of measurements followed by six days of propagation. Even minute initial differences in state will result in large differences after six days of orbit propagation without measurement update. With this in mind, it is no surprise that the estimates differ wildly from each other. It is reasonable to assume that these estimates also differ strongly from the true satellite state, especially in light of previous discussions on unmodeled dynamics. One would expect the measurement covariances of the different estimates to align somewhat, in other words a well designed estimator would estimate its own uncertainty well. This is not the case for the estimates shown here. Almost none of the estimate covariances overlap. This provides additional evidence that the process noise of the system is not well accounted for. \\
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/update_res.pdf}
+	\caption{The difference between prefit and postfit residuals.}
+	\label{fig:res_change}
+\end{figure}
 
-With these inefficiencies in mind, it is difficult to draw conclusions on the relative performance of each case. However, one would expect cases with more measurements to perform better than those with fewer. Additionally, we expect measurements of range to provide more information than range-rate as position measurements can be analyzed in aggregate to provide estimates of velocity while the reverse can not be said to be true. \\
+Dr. Jah has informed us that there is a change in attitude after three days of propagation. A very high fidelity estimator and model would show this change in attitude in changing residuals after three days. I am not able to detect any change in residuals, demonstrating another limitation of my low fidelity modeling. \\
+
+In order to find measurement biases, the system was run while considering measurements from only two of the stations. With this method I was able to detect a range measurement bias of 19.8 meters in station 3. Figure \ref{fig:bias} shows the residuals with a clear bias in station 3. \\
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[clip,trim=4cm 8.5cm 4cm 8.5cm, width=.5\textwidth]{figs/bias.pdf}
+	\caption{Investigation into the measurement bias. Displayed is a 20 m bias in range which was revealed as the true bias by Dr. Jah.}
+	\label{fig:bias}
+\end{figure}
+
+Finally, we discuss the plots of our estimates in the RQW coordinate system. This segment of the project involves six day's worth of measurements followed by one days of propagation. We note that the covariance ellipses of all estimates are relatively similar. This is because the process noise injected during a day of propagation is a much larger component of the final uncertainty than the estimate uncertainty after the final measurement is incorporated. \\
+
+Next we note that the estimates and covariances of cases B, F, and G are almost indistinguishable. From this, we can draw two conclusions. First, most of the information content in the estimate comes from range-rate measurements. This is supported by the fact that case A has a similar estimate to these three but a larger covariance. Second, we conclude that information from the first three days of data (before the attitude change), does not contribute significantly to the final estimate (after the attitude change). This provides additional evidence that my estimator is not sensitive enough to detect the attitude change Dr. Jah mentioned. \\
+
+We note that the covariance in Case E is highest. Out of the one station estimates it is followed by cases D and C. This order mirrors the order in which the stations are utilized at the end of measurement. Station 1 is last, Station 2 is second to last, and Station 3 is third to last. Therefore it makes sense that the covariance of these estimates would be ordered in the way they are because estimates with a longer time since measurement have a larger covariance. 
 
 \section{Conclusion}
 
-In conclusion, we have demonstrated a modest estimation scheme with plenty of room for improvement. While estimates of satellite state at the delivery time are provided, analysis of measurement residuals and the consistency of these estimates suggests their quality may be poor. \\
-
-A number of areas for improvement have been identified. These include increasing drag and SRP model fidelity, better process noise tuning, and estimating secondary parameters such as coefficient of drag and measurement biases. The project reports following this one will attempt to address these problems to produce higher quality final estimates.
-
+In conclusion, we have demonstrated a modest estimation scheme with plenty of room for improvement. While estimates of satellite state at the delivery time are provided, analysis of measurement residuals and the consistency of these estimates suggests there is room for improvement in measurement and dynamics modeling. \\
 
 \newpage
 \appendix
