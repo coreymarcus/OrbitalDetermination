@@ -286,9 +286,9 @@ int main(int argc, char** argv) {
 	double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-9.0);
 	double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-9.5);
 	double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-9.5);
-	double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0); //too big
-	double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5); //too big
-	double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5); //too big
+	// double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0); //too big
+	// double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5); //too big
+	// double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5); //too big
 	// double var_rad = 1.0*pow(10.0,-7.0)*pow(10.0,-7.0);
 	// double var_in = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
