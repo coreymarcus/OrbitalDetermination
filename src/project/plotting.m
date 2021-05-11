@@ -134,8 +134,8 @@ scatter(z(station1idx,2)/3600,100*1000*postfit(2,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,100*1000*postfit(2,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,100*1000*postfit(2,station3idx),4,'filled')
-plot(z(idxs,2)/3600,1000*3*sqrt(Pyy_post(4,idxs)),'r')
-plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy_post(4,idxs)),'r')
+plot(z(idxs,2)/3600,100*1000*3*sqrt(Pyy_post(4,idxs)),'r')
+plot(z(idxs,2)/3600,100*1000*-3*sqrt(Pyy_post(4,idxs)),'r')
 ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
 grid on
@@ -159,8 +159,8 @@ scatter(z(station1idx,2)/3600,100*1000*prefit(2,station1idx),4,'filled')
 hold on
 scatter(z(station2idx,2)/3600,100*1000*prefit(2,station2idx),4,'filled')
 scatter(z(station3idx,2)/3600,100*1000*prefit(2,station3idx),4,'filled')
-plot(z(idxs,2)/3600,1000*3*sqrt(Pyy_pre(4,idxs)),'r')
-plot(z(idxs,2)/3600,1000*-3*sqrt(Pyy_pre(4,idxs)),'r')
+plot(z(idxs,2)/3600,100*1000*3*sqrt(Pyy_pre(4,idxs)),'r')
+plot(z(idxs,2)/3600,100*1000*-3*sqrt(Pyy_pre(4,idxs)),'r')
 grid on
 ylabel('Range Rate [mm/sec]')
 xlabel('Time (hours)')
