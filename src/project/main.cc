@@ -258,15 +258,9 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-11.0)*pow(10.0,-11.0);
 	// double var_in = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
 	// double var_cross = 1.0*pow(10.0,-11.5)*pow(10.0,-11.5);
-<<<<<<< HEAD
-	double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
-	double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-	double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-=======
 	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
 	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
 	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
->>>>>>> 5e8a916e250ea08abc5e0aa0bcba72b161f5b856
 	// double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-8.0);
 	// double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
 	// double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-8.5);
@@ -275,12 +269,8 @@ int main(int argc, char** argv) {
 	// double var_cross = 1.0*pow(10.0,-7.5)*pow(10.0,-7.5);
 
 	//process noise for Cd estimation
-<<<<<<< HEAD
 	double var_Cd = 0.0;
 	// double var_Cd = 1.0*pow(10.0,-20.0);
-=======
-	double var_Cd = 1.0*pow(10.0,-20.0);
->>>>>>> 5e8a916e250ea08abc5e0aa0bcba72b161f5b856
 	std::cout << "var_Cd: " << var_Cd << "\n";
 
 
@@ -318,7 +308,6 @@ int main(int argc, char** argv) {
 
 	//initial estimate
 	Eigen::MatrixXd Phat0 = Eigen::MatrixXd::Zero(7,7);
-<<<<<<< HEAD
 	Phat0.block(0,0,3,3) = 10.0*Eigen::MatrixXd::Identity(3,3);
 	Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
 	Phat0(6,6) = 0.1;
@@ -327,15 +316,6 @@ int main(int argc, char** argv) {
 	// Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
 	// Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
 	// Phat0(6,6) = 0.1;
-=======
-	// Phat0.block(0,0,3,3) = 100.0*Eigen::MatrixXd::Identity(3,3);
-	// Phat0.block(3,3,3,3) = 0.01*Eigen::MatrixXd::Identity(3,3);
-
-	//values from backwards prop
-	Phat0.block(0,0,3,3) = 5.0*pow(10.0,-7.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0.block(3,3,3,3) = 1.0*pow(10.0,-11.0)*Eigen::MatrixXd::Identity(3,3);
-	Phat0(6,6) = 0.1;
->>>>>>> 5e8a916e250ea08abc5e0aa0bcba72b161f5b856
 
 	Eigen::VectorXd xhat0(7);
 	xhat0.segment(0,3) = pos0;

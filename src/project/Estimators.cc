@@ -160,6 +160,9 @@ namespace Estimate{
 		// std::cout << "y: \n" << y << "\n";
 		// std::cout << "w: \n" << w << "\n";
 
+		std::cout << "Xi: \n" << Xi << "\n";
+		std::cout << "Y: \n" << Y << "\n";
+
 		//get the measurement mean
 		for (int i = 0; i < L; ++i)	{
 			yhat += w(i)*Y.block(0,i,m,1);
@@ -180,7 +183,8 @@ namespace Estimate{
 			Pxy = Pxy + w(i)*diffX*diffY.transpose();
 		}
 		// std::cout << "Pyy: \n" << Pyy << "\n";
-		// std::cout << "Pxy: \n" << Pxy << "\n";
+		std::cout << "Pxy: \n" << Pxy << "\n";
+		exit(0);
 
 		//update state
 		this->xhat_ = xhat + Pxy*Pyy.inverse()*(y - yhat);
