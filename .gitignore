@@ -1,5 +1,4 @@
 build/*
-*.pdf
 *.aux
 *.log
 *.synctex.gz
@@ -15,3 +14,14 @@ data/iau1980.txt
 *.prj
 *.slx
 src/HW5/codegen/*
+doc/HW2/figs/angmom.pdf
+doc/HW2/figs/dOE.pdf
+doc/HW2/figs/energy.pdf
+doc/HW2/figs/energydrag.pdf
+doc/HW2/figs/OE.pdf
+doc/HW2/figs/OrbitPeriod.pdf
+doc/HW2/figs/semimajor.pdf
+doc/HW2/submission.pdf
+doc/HW5/submission.pdf
+doc/project/submission.pdf
+doc/project/submission_final.pdf
