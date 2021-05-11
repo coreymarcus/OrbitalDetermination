@@ -747,6 +747,7 @@ int main(int argc, char** argv) {
 
 		std::cout << "Project Case: " << project_case << " Station ID: "<< stationID << "\n";
 		std::cout << "postfit: \n" << ziter - postfit_pred << "\n";
+		std::cout << "Measurement " << ii << " of " << N << "\n";
 		// std::cout << "Phat: \n" << ukf.Phat_ << "\n";
 		// std::cout << "Q: \n" << Q << "\n";
 
