@@ -283,9 +283,12 @@ int main(int argc, char** argv) {
 	// double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-10.0);
 	// double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
 	// double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-10.5);
-	double var_rad = 1.0*pow(10.0,-9.0)*pow(10.0,-9.0); 
-	double var_in = 1.0*pow(10.0,-9.5)*pow(10.0,-9.5); 
-	double var_cross = 1.0*pow(10.0,-9.5)*pow(10.0,-9.5);
+	// double var_rad = 1.0*pow(10.0,-9.0)*pow(10.0,-9.0); //final NAG
+	// double var_in = 1.0*pow(10.0,-9.5)*pow(10.0,-9.5); //final NAG
+	// double var_cross = 1.0*pow(10.0,-9.5)*pow(10.0,-9.5);//final NAG
+	double var_rad = 1.0*pow(10.0,-10.0)*pow(10.0,-9.0); 
+	double var_in = 1.0*pow(10.0,-10.5)*pow(10.0,-9.5); 
+	double var_cross = 1.0*pow(10.0,-10.5)*pow(10.0,-9.5);
 	// double var_rad = 1.0*pow(10.0,-8.0)*pow(10.0,-9.0); //too big
 	// double var_in = 1.0*pow(10.0,-8.5)*pow(10.0,-9.5); //too big
 	// double var_cross = 1.0*pow(10.0,-8.5)*pow(10.0,-9.5); //too big
@@ -465,7 +468,7 @@ int main(int argc, char** argv) {
 	// exit(0);
 
 	//maximum time for propagation
-	double maxproptime = 30; 
+	double maxproptime = 90; 
 
 	// propagate starting with the second measurement
 	for (int ii = startidx + 1; ii < N; ++ii){
