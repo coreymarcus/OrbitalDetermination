@@ -75,15 +75,13 @@ Third body gravitational effects from the Sun and Moon were included. The accele
 
 \subsection{Measurement Model}
 
-A standard range and range-rate measurement model were used to generate predicted measurements. One difficulty is that the speed of light must be accounted for in determining when to utilize a measurement. Noting that the signal to noise ratio of the range measurements is extremely high, the measurement was used directly along with the speed of light in determining its time of flight. The measurement update was therefore applied at the time of receipt minus the time of flight.
+A standard range and range-rate measurement model were used to generate predicted measurements. One difficulty is that the speed of light must be accounted for in determining when to utilize a measurement. Noting that the signal to noise ratio of the range measurements is extremely high, the measurement was used directly along with the speed of light in determining its time of flight. The measurement update was therefore applied at the time of receipt minus the time of flight. This time of flight was also used to account for aberration effects in the measurement model.
 
 \subsection{Estimation}
 
 The estimation scheme centers around an Unscented Kalman Filter (UKF). The UKF is a nonlinear extension of the standard Kalman Filter. Its hallmark is approximation of covariances in the propagation and update phase through numerical propagation of a collection of sigma points chosen to conveniently represent the distribution of the prior. After propagation through time or into the measurement space, approximations of the mean and variance of the transformed distribution can be found by investigating the spacial distribution of the sigma points. It was chosen over the more traditional Extended Kalman Filter (EKF) because it does not require explicit computation of the state-transition matrix. The true STM in this case is complex mathematically and computationally. Approximations of the STM would not serve us well over the long intervals without measurements. \\
 
 A ``$2n+1$" number of points were used along with a single tuning parameter $k=0.5$. This value was chosen so that all sigma points would be given the same weight. \\
-
-The choice was made to estimate only position and velocity due to the limited quality of the dynamics model. If items such as coefficient of drag and sensor biases are to be estimated, a much higher quality model with lower process noise is needed due to rather weak observability of these quantities. \\
 
 Filter initialization is a challenge for many nonlinear extensions of the Kalman Filter. Improper initialization can quickly lead to filter divergence. A nonlinear least-squares optimization scheme was used to find the initial state estimate. This involved using Levenberg-Marquardt (LM) to select the initial state, $x_0$, such that the norm of the prefit residuals, Equation \eqref{eq:ICcost}, was minimized. To reduce the computational complexity, only the first 50 measurements were considered. In Equation \eqref{eq:ICcost} $f_a^b(\cdot)$ represents the nonlinear propagation of the satellite's state from the time of measurement $a$ to $b$, $h(\cdot)$ represents the measurement dynamics, and $z_i$ represents the $i$\textsuperscript{th} measurement. 
 
@@ -111,7 +109,24 @@ The resulting $x0$ is shown in Equation \eqref{eq:LM_IC}. The units are $km$ and
 	P_0 = diag \{ 100, 100, 100, 0.01, 0.01, 0.01 \}
 \end{equation}
 
-An attempt was made to use the LM optimizer to find estimates of the drag coefficient and sensor biases as well, but these did not prove fruitful. The sensitivity to sensor biases seems too low for the LM algorithm to detect. When attempting to optimize $C_d$, the system rapidly increases $C_d$ towards infinity for unknown reasons. Further investigation is needed in this area to improve estimator performance. \\
+The choice was made to estimate only position and velocity due to the limited quality of the dynamics model. If items such as coefficient of drag and solar radiation pressure are to be estimated, a much higher quality model with lower process noise is needed due to rather weak observability of these quantities. \\
+
+An unsuccessful attempt was made to use the LM optimizer to find an estimate of the drag coefficient but did not prove fruitful. When attempting to optimize $C_d$, the system rapidly increases $C_d$ towards infinity for unknown reasons. Further investigation is needed in this area to improve estimator performance. \\
+
+Another unsuccessful attempt was made to estimate $C_d$ with the UKF. The coefficient appears to be very weakly observable as its estimate variance does not decrease significantly and the estimate wanders back and forth between positive and negative numbers. An inspection of the covariance matrix between the state $x$ and measurement $y$, $P_{xy}$ shows zero correlation between the $C_d$ and measurement with my model (bottom row of $P_{xy}$). This implies that $C_d$ is unobservable for a single measurement. It is likely to be only weakly observable through multiple measurements. This is the main reason I have so much trouble estimating $C_d$. $P_{xy}$ for the initial measurement is shown below in Equation \eqref{eq:P_xy}.
+
+\begin{equation}
+\label{eq:P_xy}
+P_{xy} = \Delta t^2 \begin{bmatrix}
+\frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 \\
+0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 \\
+0 & 0 & \frac{\Delta t^2}{4} \sigma^2 & 0 & 0 & \frac{\Delta t}{2} \sigma^2 \\
+\frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 & 0 \\
+0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 & 0 \\
+0 & 0 & \frac{\Delta t}{2} \sigma^2 & 0 & 0 & \sigma^2 \\	
+\end{bmatrix}
+\end{equation}
+
 
 Process noise is an important component of estimation used to account for unmodeled dynamics and inputs to the system. The process noise covariance, $Q$, was modeled according to the suggestion in the Final Project Assignment and is shown in Equation \eqref{eq:Q}. The size of the component $\sigma^2$ was chosen manually to produce adequate filter performance. This value was found to be $\sigma^2 = 5$E$-15$.
 
